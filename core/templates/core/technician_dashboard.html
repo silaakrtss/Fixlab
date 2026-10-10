@@ -1,0 +1,55 @@
+{% extends "core/base_app.html" %}
+{% load static %}
+{% block title %}Cihazlarım{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/technician.css' %}">{% endblock %}
+{% block content %}
+<div class="tech">
+  <div class="tech-head">
+    <div><h1>Cihazlarım</h1><p>{{ request.user.display_name }}, size atanan {{ active_count }} aktif kayıt</p></div>
+    <span class="tech-bell" role="img" aria-label="Bildirimler (yakında)" title="Bildirimler yakında">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      {% if unread_notifications %}<span class="tech-bell-badge">{{ unread_notifications }}</span>{% endif %}
+    </span>
+  </div>
+
+  <div class="tech-stats">
+    <div class="tech-stat"><div class="lbl">Tamirde</div><div class="num">{{ repairing_count }}</div><div class="sub">Aktif iş</div></div>
+    <div class="tech-stat"><div class="lbl">Parça bekleyen</div><div class="num">{{ waiting_part_count }}</div><div class="sub">Sipariş bekleniyor</div></div>
+    <div class="tech-stat"><div class="lbl">İnceleniyor</div><div class="num">{{ diagnosing_count }}</div><div class="sub">Teşhis aşamasında</div></div>
+  </div>
+
+  {% if device_cards %}
+  <div class="tech-filters" role="group" aria-label="Filtre">
+    <button type="button" class="tech-chip" data-filter="all" aria-pressed="true">Tümü</button>
+    <button type="button" class="tech-chip" data-filter="active" aria-pressed="false">Aktif</button>
+    <button type="button" class="tech-chip" data-filter="done" aria-pressed="false">Tamamlanan</button>
+  </div>
+  <div class="tech-grid">
+    {% for d in device_cards %}
+    <article class="tech-card" data-group="{% if d.status == 'ready' or d.status == 'delivered' %}done{% elif d.status == 'cancelled' or d.status == 'unrepairable' %}other{% else %}active{% endif %}">
+      <div class="tech-card-top"><h3 title="{{ d.brand }} {{ d.model }}">{{ d.brand }} {{ d.model }}</h3><span class="pill pill-{{ d.status }}">{{ d.get_status_display }}</span></div>
+      <div class="tech-code">{{ d.tracking_id }}</div>
+      <p class="tech-issue">{{ d.issue_description }}</p>
+      <div class="tech-date">Kayıt: {{ d.received_at|date:"j" }} {{ d.received_at|date:"b"|capfirst }}</div>
+      <span class="tech-open" aria-disabled="true">Detayı aç</span>
+    </article>
+    {% endfor %}
+  </div>
+  <p class="empty" id="tech-none" hidden>Bu filtrede cihaz yok.</p>
+  <script>
+  (function(){
+    var chips=document.querySelectorAll('.tech-chip'),cards=document.querySelectorAll('.tech-card'),none=document.getElementById('tech-none');
+    function apply(f){
+      var shown=0;
+      cards.forEach(function(c){var g=c.dataset.group;c.hidden=(f!=='all'&&g!==f);if(!c.hidden)shown++;});
+      none.hidden=shown>0;
+      chips.forEach(function(b){b.setAttribute('aria-pressed',b.dataset.filter===f?'true':'false');});
+    }
+    chips.forEach(function(b){b.addEventListener('click',function(){apply(b.dataset.filter);});});
+  })();
+  </script>
+  {% else %}
+  <p class="empty">Size atanmış açık cihaz yok.</p>
+  {% endif %}
+</div>
+{% endblock %}

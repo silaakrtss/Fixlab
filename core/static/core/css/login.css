@@ -1,0 +1,254 @@
+/* FIXLAB · Personel Girişi — kesin çözüm */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden !important; /* Tarayıcı genelinde kaydırmayı tamamen kilitler */
+}
+
+.lp {
+    margin: 0;
+    background: #fff;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font);
+    overflow: hidden !important;
+}
+
+.lp-head {
+    position: relative;
+    height: 60px;
+    border-bottom: 1px solid #d9e0e6;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.lp-logo-link {
+    position: absolute;
+    left: 35px;
+    top: 10px;
+    display: block;
+    line-height: 0;
+}
+
+.lp-logo {
+    display: block;
+    width: 120px;
+    height: 42px;
+}
+
+.lp-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: calc(100vh - 60px);
+    overflow: hidden;
+}
+
+/* Sol: fotoğraf + koyu panel */
+.lp-left {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.lp-hero {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 720/503;
+    overflow: hidden;
+    border-top-right-radius: 10px;
+}
+
+.lp-hero img {
+    position: absolute;
+    left: -0.486%;
+    top: -0.8%;
+    width: 100.56%;
+    height: auto;
+    max-width: none;
+}
+
+.lp-panel {
+    flex: 1;
+    background: #4a434e;
+    padding: 20px 4.444% 20px 9.444%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.lp-box {
+    border: 1px solid #0b7a75;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+    color: #fff;
+}
+
+.lp-box h2 {
+    margin: 0;
+    font: 500 28px/36px var(--font);
+    color: #fff;
+}
+
+.lp-box p {
+    margin: 10px 0 0;
+    padding-left: 0;
+    font: 600 16px/20px var(--font);
+    color: #d9e0e6;
+}
+
+/* Sağ: form */
+.lp-right {
+    height: 100%;
+    padding: 40px 0 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+   
+     overflow: hidden;
+}
+
+.lp-title {
+    margin: 0;
+    font: 600 40px/40px var(--font);
+    color: #000;
+    text-align: center;
+}
+
+.lp-form {
+    position: relative;
+    margin: 30px 4.583% 0 9.861%;
+}
+
+.lp-msgs {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.lp-msg {
+    display: inline-block;
+    max-width: 100%;
+    font: 500 15px/20px var(--font);
+    padding: .25rem .8rem;
+    border-radius: 8px;
+}
+
+.lp-msg-err, .lp-msg-error { color: #b42318; background: #fdecea; }
+.lp-msg-info, .lp-msg-success { color: #14513c; background: #e4f3ec; }
+.lp-msg-warning { color: #b45309; background: #fef3e2; }
+
+.lp-field {
+    position: relative;
+    height: 52px;
+    border: 1px solid #d9e0e6;
+    border-radius: 10px;
+    background: #fff;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.lp-field:focus-within {
+    border-color: #0b7a75;
+    box-shadow: 0 0 0 3px rgba(11,122,117,.15);
+}
+
+.lp-icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 75px;
+    border-right: 1px solid #b3b3b3;
+}
+.lp-field-pass .lp-icon svg{position:absolute;left:28px;top:14px;transform:translateX(10px)}
+.lp-icon svg { position: absolute; }
+.lp-field-user .lp-icon svg { left: 29px; top: 15px; }
+.lp-field-pass .lp-icon svg { left: 16px; top: 14px; }
+
+.lp-field input {
+    position: absolute;
+    left: 75px;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: calc(100% - 75px);
+    height: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    padding: 0;
+    font: 400 18px/1 var(--font);
+    letter-spacing: 1.4px;
+    color: #000;
+    text-align: center;
+}
+
+.lp-field-user input { padding-right: 83px; }
+.lp-field-pass input { padding-right: 66px; }
+.lp-field input::placeholder { color: #666; opacity: 1; }
+.lp-field input:-webkit-autofill { -webkit-box-shadow: 0 0 0 60px #fff inset; }
+
+.lp-submit {
+    display: block;
+    width: 100%;
+    height: 58px;
+    margin-top: 25px;
+    border: 0;
+    border-radius: 10px;
+    background: #0b7a75;
+    color: #fff;
+    font: 600 22px/1 var(--font);
+    cursor: pointer;
+    transition: background .15s;
+}
+
+.lp-submit:hover { background: #09665f; }
+.lp-submit:focus-visible { outline: 3px solid #0b7a75; outline-offset: 3px; }
+.lp-form .lp-field:last-of-type { margin-bottom: 0; }
+
+.lp-forgot{margin:14px 0 0;text-align:center;transform:translateX(22px);font:700 16px/20px var(--font)}
+
+.lp-forgot a {
+    color: #0b7a75;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.lp-legal {
+    display: flex;
+    justify-content: flex-end;
+    gap: 26px;
+    margin: 12px 4.583% 0 9.861%;
+    padding-right: 23px;
+    font: 400 15px/18px var(--font);
+}
+
+.lp-legal a { color: #5b6b78; text-decoration: none; }
+.lp-legal a:hover { color: #0b7a75; text-decoration: underline; }
+
+/* Dar ekranlar: tek sütun */
+@media (max-width: 900px) {
+    html, body { overflow: auto; height: auto; }
+    .lp { height: auto; overflow: auto; }
+    .lp-grid { grid-template-columns: 1fr; height: auto; overflow: visible; }
+    .lp-right { order: -1; padding: 48px 24px 32px; height: auto; }
+    .lp-form, .lp-legal { margin-left: 0; margin-right: 0; }
+    .lp-title { font-size: 34px; line-height: 40px; }
+    .lp-left { margin-top: 8px; height: auto; }
+    .lp-hero { border-radius: 0; }
+    .lp-panel { padding: 24px 20px 32px; }
+    .lp-box { height: auto; padding: 18px 12px 20px; }
+    .lp-box h2 { font-size: 26px; line-height: 32px; }
+    .lp-box p { margin-top: 12px; padding-left: 0; }
+    .lp-field-user input, .lp-field-pass input { padding-right: 0; }
+}

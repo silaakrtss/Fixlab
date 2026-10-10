@@ -1,0 +1,21 @@
+{% load static %}<!doctype html>
+<html lang="tr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}Gizlilik{% endblock %} · FIXLAB</title>
+{% include "core/_favicon.html" %}
+{% include "core/_fonts.html" %}
+<link rel="stylesheet" href="{% static 'core/css/app.css' %}">
+</head><body>
+<div class="legal-page">
+  <header class="legal-head">
+    <div class="logo">FIX<span>LAB</span></div>
+    <a class="btn btn-ghost btn-sm" href="{% url 'core:home' %}">← Geri dön</a>
+  </header>
+  <nav class="legal-tabs" aria-label="Yasal sayfalar">
+    <a href="{% url 'core:privacy' %}" {% if request.resolver_match.url_name == 'privacy' %}aria-current="page"{% endif %}>Gizlilik ve KVKK</a>
+    <a href="{% url 'core:terms' %}" {% if request.resolver_match.url_name == 'terms' %}aria-current="page"{% endif %}>Kullanım ve Güvenlik Şartları</a>
+  </nav>
+  <article class="legal-card">{% block content %}{% endblock %}</article>
+  <nav class="legal-links" aria-label="Yasal bağlantılar"><a href="{% url 'core:privacy' %}">Gizlilik</a><a href="{% url 'core:terms' %}">Şartlar</a></nav>
+</div>
+</body></html>

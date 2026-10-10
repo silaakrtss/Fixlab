@@ -1,0 +1,44 @@
+{% extends "core/base_legal.html" %}
+{% block title %}Kullanım ve Güvenlik Şartları{% endblock %}
+{% block content %}
+<h1>Kullanım ve Güvenlik Şartları</h1>
+<p class="meta">FIXLAB Teknik Servis Yönetim Sistemi · Son güncelleme: Ekim 2026</p>
+
+<h2>1. Kapsam</h2>
+<p>Bu şartlar, <b>{{ COMPANY_NAME }}</b> tarafından yetkilendirilen admin ve teknisyen kullanıcıların FIXLAB sistemini kullanımına ilişkindir. Sisteme giriş yapan her kullanıcı bu şartlara uymayı kabul etmiş sayılır.</p>
+
+<h2>2. Hesap ve şifre güvenliği</h2>
+<ul>
+  <li>Hesaplar yalnızca yöneticiler tarafından oluşturulur. Kullanıcı adı ve geçici şifre e-posta ile iletilir.</li>
+  <li>Geçici şifre ile ilk girişte <b>kalıcı şifre belirlemek zorunludur</b>; bu yapılmadan sistemin başka bölümlerine erişilemez.</li>
+  <li>Şifreniz kişiseldir. Kimseyle paylaşmayın, başkasına ait hesabı kullanmayın.</li>
+  <li>Şifrenizi tahmin edilmesi zor, en az 8 karakterli ve yaygın olmayan bir şifre olarak seçin. Geçici şifreyi içeren e-postayı şifrenizi belirledikten sonra silin.</li>
+  <li>Hesabınızın izinsiz kullanıldığından şüphelenirseniz derhal yöneticiye bildirin.</li>
+</ul>
+
+<h2>3. Yetkili kullanım</h2>
+<ul>
+  <li>Sistemi yalnızca görev ve yetkiniz kapsamındaki işler için kullanın.</li>
+  <li>Yetkiniz olmayan verilere erişmeye, sistemi veya güvenlik önlemlerini aşmaya çalışmak yasaktır.</li>
+  <li>Sisteme zarar verecek, performansını düşürecek veya verileri bozacak eylemlerde bulunmayın.</li>
+  <li>Oturumunuzu ortak kullanılan cihazlarda açık bırakmayın; işiniz bitince <b>Çıkış Yap</b> ile çıkın.</li>
+</ul>
+
+<h2>4. Verilerin gizliliği</h2>
+<p>Müşteri ve cihaz bilgileri gizlidir. Bu bilgileri yalnızca servis hizmetinin yürütülmesi amacıyla kullanabilir; yetkisiz kişilerle paylaşamaz, sistem dışına aktaramazsınız. Kişisel verilerin işlenmesine ilişkin ayrıntılar <a href="{% url 'core:privacy' %}">Gizlilik ve KVKK Aydınlatma Metni</a>’nde yer alır.</p>
+
+<h2>5. Kayıt tutma ve izleme</h2>
+<p>Güvenliğin sağlanması ve hesap verebilirlik için giriş, çıkış, başarısız giriş denemeleri, şifre değişiklikleri ve yönetim işlemleri; kullanıcı, tarih, saat ve IP adresiyle birlikte kayıt altına alınır. Bu kayıtlar yalnızca yetkili yöneticiler tarafından incelenebilir.</p>
+
+<h2>6. Hesapların askıya alınması</h2>
+<p>Bu şartların ihlali veya güvenlik riski halinde hesabınız önceden bildirim yapılmadan pasifleştirilebilir. Görevi sona eren kullanıcıların hesapları kapatılır.</p>
+
+<h2>7. Sorumluluk</h2>
+<p>Kullanıcılar, hesapları üzerinden yapılan işlemlerden sorumludur. Sistemin kesintisiz veya hatasız çalışacağı garanti edilmez; bakım ve güncellemeler nedeniyle erişim geçici olarak kesilebilir.</p>
+
+<h2>8. Değişiklikler</h2>
+<p>Bu şartlar güncellenebilir. Güncel metin her zaman bu sayfada yayımlanır; sistemi kullanmaya devam etmeniz güncel şartları kabul ettiğiniz anlamına gelir.</p>
+
+<h2>9. İletişim</h2>
+<p>Güvenlik bildirimleri ve sorularınız için: <a href="mailto:{{ KVKK_EMAIL }}">{{ KVKK_EMAIL }}</a></p>
+{% endblock %}

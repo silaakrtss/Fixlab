@@ -1,0 +1,70 @@
+{% load static %}<!doctype html>
+<html lang="tr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}FIXLAB{% endblock %} · FIXLAB</title>
+{% include "core/_favicon.html" %}
+{% include "core/_fonts.html" %}
+<link rel="stylesheet" href="{% static 'core/css/app.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/shell.css' %}">
+{% block head_extra %}{% endblock %}
+</head><body>
+<div class="shell">
+  <aside class="sidebar">
+    <a class="brand" href="{% url 'core:home' %}" aria-label="FIXLAB ana sayfa"><img src="{% static 'core/images/logo.png' %}" width="126" height="49" alt="FIXLAB Technical Service"></a>
+    <nav class="nav" aria-label="Ana menü">
+      {% if request.user.role == 'admin' %}
+        <a href="{% url 'core:admin_dashboard' %}" {% if request.resolver_match.url_name == 'admin_dashboard' %}aria-current="page"{% endif %}>Dashboard</a>
+        <span class="soon" title="Yakında">Cihazlar</span>
+        <a href="{% url 'core:staff_list' %}" {% if request.resolver_match.url_name == 'staff_list' or request.resolver_match.url_name == 'staff_create' %}aria-current="page"{% endif %}>Personel Yönetimi</a>
+        <span class="soon" title="Yakında">Stok Depo</span>
+        <span class="soon" title="Yakında">Bildirimlerim</span>
+        <span class="soon" title="Yakında">İzinler</span>
+        <span class="soon" title="Yakında">İşlem kayıtları</span>
+      {% elif request.user.role == 'technician' %}
+        <a href="{% url 'core:technician_dashboard' %}" aria-current="page">Cihazlarım</a>
+        <span class="soon" title="Yakında">Geçmiş işlerim</span>
+        <span class="soon" title="Yakında">Bildirimlerim{% if unread_notifications %} <span class="nav-badge">{{ unread_notifications }}</span>{% endif %}</span>
+      {% else %}
+        <a href="{% url 'core:customer_home' %}" aria-current="page">Cihazım</a>
+      {% endif %}
+    </nav>
+    <div class="sidebar-foot">
+      <div class="user-menu" id="user-menu">
+        <div class="menu-pop" id="user-pop" role="menu" hidden>
+          <div class="menu-mail" title="{{ request.user.email }}">{{ request.user.email }}</div>
+          <a class="menu-item" href="#" role="menuitem" id="profile-link" title="Profil sayfası yakında">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7"/></svg>
+            Profil
+          </a>
+          <form class="menu-form" method="post" action="{% url 'core:logout' %}">{% csrf_token %}
+            <button class="menu-item menu-logout" type="submit" role="menuitem">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+              Çıkış Yap
+            </button>
+          </form>
+        </div>
+        <button class="user-card" type="button" id="user-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="user-pop" title="{{ request.user.email }}">
+          <span class="who"><b>{{ request.user.display_name }}</b><small>{{ request.user.get_role_display }}</small></span>
+          <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+  <main class="main">
+    {% if messages %}<ul class="messages">{% for m in messages %}<li class="msg msg-{{ m.level_tag }}">{{ m }}</li>{% endfor %}</ul>{% endif %}
+    {% block content %}{% endblock %}
+    <nav class="legal-links" aria-label="Yasal bağlantılar"><a href="{% url 'core:privacy' %}">Gizlilik</a><a href="{% url 'core:terms' %}">Şartlar</a></nav>
+  </main>
+</div>
+<script>
+(function(){
+  var btn=document.getElementById('user-btn'),pop=document.getElementById('user-pop'),menu=document.getElementById('user-menu');
+  function setOpen(open){pop.hidden=!open;btn.setAttribute('aria-expanded',open?'true':'false');}
+  btn.addEventListener('click',function(e){e.stopPropagation();setOpen(pop.hidden);});
+  document.addEventListener('click',function(e){if(!menu.contains(e.target))setOpen(false);});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){setOpen(false);btn.focus();}});
+  // Profil sayfası henüz yok: tıklayınca hiçbir yere gitmez
+  document.getElementById('profile-link').addEventListener('click',function(e){e.preventDefault();});
+})();
+</script>
+</body></html>

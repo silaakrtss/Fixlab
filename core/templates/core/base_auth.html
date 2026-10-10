@@ -1,0 +1,25 @@
+{% load static %}<!doctype html>
+<html lang="tr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}FIXLAB{% endblock %}</title>
+{% include "core/_favicon.html" %}
+{% include "core/_fonts.html" %}
+<link rel="stylesheet" href="{% static 'core/css/app.css' %}">
+</head><body>
+<div class="auth">
+  <aside class="auth-brand">
+    <div class="logo">FIX<span>LAB</span></div>
+    <div class="brand-copy">
+      <h1>Her cihazın izini tek yerden sürün.</h1>
+      <p>Kabulden teslimata kadar tüm servis süreci, stok ve ekip planı FIXLAB'de.</p>
+    </div>
+    <div class="ticket" aria-hidden="true"><small>Takip no</small><strong>SRV-2025-1024</strong><div class="bar"><i></i></div></div>
+  </aside>
+  <main class="auth-form"><div class="auth-card">
+    {% if messages %}<ul class="messages">{% for m in messages %}<li class="msg msg-{{ m.level_tag }}">{{ m }}</li>{% endfor %}</ul>{% endif %}
+    {% block content %}{% endblock %}
+    <nav class="legal-links" aria-label="Yasal bağlantılar"><a href="{% url 'core:privacy' %}">Gizlilik</a><a href="{% url 'core:terms' %}">Şartlar</a></nav>
+  </div></main>
+</div>
+{% block scripts %}{% endblock %}
+</body></html>

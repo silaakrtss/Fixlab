@@ -1,0 +1,28 @@
+{% load static %}<!doctype html>
+<html lang="tr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}Personel Girişi · FIXLAB{% endblock %}</title>
+{% include "core/_favicon.html" %}
+{% include "core/_fonts.html" %}
+<link rel="stylesheet" href="{% static 'core/css/app.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/login.css' %}">
+</head><body class="lp">
+<header class="lp-head">
+  <a href="{% url 'core:login' %}" class="lp-logo-link"><img class="lp-logo" src="{% static 'core/images/logo.png' %}" width="126" height="49" alt="FIXLAB Technical Service"></a>
+</header>
+<div class="lp-grid">
+  <section class="lp-left" aria-label="FIXLAB">
+    <div class="lp-hero"><img src="{% static 'core/images/hero.jpg' %}" width="1233" height="864" alt="FIXLAB teknik servis ekibi"></div>
+    <div class="lp-panel">
+      <div class="lp-box">
+        <h2>Cihazlarınız Güvenli Ellerde</h2>
+        <p>7/24 canlı takip ve şeffaf teknik<br>servis süreçleri.</p>
+      </div>
+    </div>
+  </section>
+  <main class="lp-right">
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% block scripts %}{% endblock %}
+</body></html>
