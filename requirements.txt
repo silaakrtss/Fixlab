@@ -1,0 +1,5 @@
+Django>=5.0,<6.0
+# PostgreSQL sürücüsü (Django 5 ile uyumlu, hazır derlenmiş paket)
+psycopg[binary]>=3.2
+# LDAP istemcisi (saf Python; Windows/Linux/macOS'ta derleme gerektirmez)
+ldap3>=2.9.1
