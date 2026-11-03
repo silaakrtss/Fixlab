@@ -1,0 +1,162 @@
+{% extends "core/base_app.html" %}
+{% load static %}
+{% block title %}{{ device.title }} · {{ page_label }}{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/newdevices.css' %}?v=4">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="ndd">
+  <div class="ndd-top">
+    <a class="ndd-back" href="{{ back_url }}">{{ back_label }}</a>
+    {% include "core/_notify_bell.html" %}
+  </div>
+
+  <div class="ndd-grid">
+    <div class="ndd-col">
+      <section class="ndd-card ndd-hero" aria-labelledby="ndd-title">
+        <div>
+          <h1 id="ndd-title">{{ device.title }}</h1>
+          <p class="ndd-sub">{{ device.tracking_id }} &nbsp;·&nbsp; Kayıt: {{ registered_long }}</p>
+        </div>
+        {% if device.technician_id %}<span class="nd-pill nd-pill-ok">Teknisyen atandı</span>{% else %}<span class="nd-pill nd-pill-wait">Atama bekliyor</span>{% endif %}
+      </section>
+
+      <section class="ndd-card" aria-labelledby="ndd-device">
+        <h2 id="ndd-device">Cihaz bilgileri</h2>
+        <dl class="ndd-fields">
+          <div><dt>Marka / model</dt><dd>{{ device.title }}</dd></div>
+          <div><dt>Cihaz türü</dt><dd>{{ device.get_device_type_display }}</dd></div>
+          <div><dt>Seri numarası</dt><dd>{{ device.serial_number|default:"—" }}</dd></div>
+          <div><dt>Garanti durumu</dt><dd>{{ warranty_label }}</dd></div>
+          <div><dt>Teslim yöntemi</dt><dd>{{ delivery_label }}</dd></div>
+          <div><dt>Aksesuarlar</dt><dd>{{ device.accessories|default:"—" }}</dd></div>
+          {% if device.issue_title %}<div class="ndd-wide"><dt>Arıza başlığı</dt><dd>{{ device.issue_title }}</dd></div>{% endif %}
+          <div class="ndd-wide"><dt>Arıza açıklaması</dt><dd class="ndd-text">{{ device.issue_description }}</dd></div>
+        </dl>
+        <div class="ndd-files">
+          <span>Ekler:</span>
+          {% for a in attachments %}<a class="ndd-chip" href="{% url 'core:attachment' a.pk %}" target="_blank" rel="noopener">{{ a.original_name }}</a>{% empty %}<span class="ndd-none">Ek dosya yok</span>{% endfor %}
+        </div>
+      </section>
+
+      <section class="ndd-card" aria-labelledby="ndd-customer">
+        <h2 id="ndd-customer">Müşteri bilgileri</h2>
+        <dl class="ndd-fields">
+          <div><dt>Ad soyad</dt><dd>{{ device.customer_name }}</dd></div>
+          <div><dt>Müşteri no</dt><dd>{{ customer_no }}</dd></div>
+          <div><dt>Telefon</dt><dd>{{ device.customer_phone|default:"—" }}</dd></div>
+          <div><dt>E-posta</dt><dd class="ndd-break">{{ device.customer_email|default:"—" }}</dd></div>
+          <div class="ndd-wide"><dt>Adres</dt><dd>{{ cargo_address|default:"—" }}</dd></div>
+        </dl>
+      </section>
+
+      <section class="ndd-card" aria-labelledby="ndd-stage">
+        <h2 id="ndd-stage">Durum — hangi aşamada?</h2>
+        <ol class="ndd-steps">
+          {% for st in steps %}
+          <li class="is-{{ st.state }}"{% if st.state == 'current' %} aria-current="step"{% endif %}><span class="ndd-dot">{{ st.number }}</span><span class="ndd-step-label">{{ st.label }}</span></li>
+          {% endfor %}
+        </ol>
+        <p class="ndd-note" role="status">{{ stage_note }}</p>
+      </section>
+
+      <section class="ndd-card" aria-labelledby="ndd-history">
+        <h2 id="ndd-history">İşlem geçmişi</h2>
+        <ul class="ndd-history">
+          {% for ev in history %}
+          <li><span class="ndd-bullet" aria-hidden="true"></span><div><p>{{ ev.text }}</p><time>{{ ev.when }}</time></div></li>
+          {% endfor %}
+        </ul>
+      </section>
+    </div>
+
+    <aside class="ndd-side">
+      <section class="ndd-card" aria-labelledby="ndd-summary">
+        <h2 id="ndd-summary">Kayıt özeti</h2>
+        <dl class="ndd-rows">
+          <div><dt>Takip kodu</dt><dd>{{ device.tracking_id }}</dd></div>
+          <div><dt>Kayıt tarihi</dt><dd>{{ registered_short }}</dd></div>
+          <div><dt>Aşama</dt><dd>{{ stage_label }}</dd></div>
+          <div><dt>Atanan teknisyen</dt><dd>{% if device.technician_id %}{{ device.technician.display_name }}{% else %}<span class="ndd-unassigned">Henüz atanmadı</span>{% endif %}</dd></div>
+          <div><dt>Tahmini ücret</dt><dd>{{ cost_label }}</dd></div>
+        </dl>
+      </section>
+
+      <section class="ndd-card" aria-labelledby="ndd-prev">
+        <h2 id="ndd-prev">Müşterinin önceki kayıtları</h2>
+        {% for p in previous_devices %}
+        <div class="ndd-prev">
+          <div><b>{{ p.title }}</b><small>{{ p.tracking_id }} · {{ p.when_label }}</small></div>
+          <span class="ndd-tone ndd-tone-{{ p.tone }}">{{ p.get_status_display }}</span>
+        </div>
+        {% empty %}
+        <p class="ndd-none">Bu müşterinin başka kaydı yok.</p>
+        {% endfor %}
+      </section>
+    </aside>
+  </div>
+
+  {% if can_receive_in_person %}
+  <form class="ndd-card ndd-receive" method="post" id="receive-form" aria-labelledby="ndd-receive-title">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="receive">
+    <h2 id="ndd-receive-title">Cihaz elden teslim alındı</h2>
+    <p class="ndd-assign-lead">Müşteri cihazı servise kendisi getirdiyse teslim aldığınıza dair bilgiyi girin. Kayıt “Teslim alındı” durumuna geçer ve müşteriye bildirim gider.</p>
+    <label class="ndd-label" for="ndd-by">Teslim eden kişi <span>(isteğe bağlı)</span></label>
+    <input class="ndd-input" type="text" id="ndd-by" name="delivered_by" maxlength="80" value="{{ device.customer_name }}" autocomplete="off">
+    <label class="ndd-label" for="ndd-rnote">Teslim alma notu <span>(isteğe bağlı)</span></label>
+    <textarea class="ndd-textarea" id="ndd-rnote" name="receive_note" rows="3" maxlength="140" placeholder="Örn. Şarj aleti ve kılıf birlikte teslim alındı; ekranda çizik var."></textarea>
+    <div class="ndd-assign-foot">
+      <p></p>
+      <div class="ndd-actions"><button class="ndd-btn ndd-btn-primary" type="submit">Teslim alındı olarak işaretle</button></div>
+    </div>
+  </form>
+  {% endif %}
+
+  {% if not assign_closed %}
+  <form class="ndd-card ndd-assign{% if not can_assign %} is-locked{% endif %}" method="post" id="assign-form" aria-labelledby="ndd-assign-title">
+    {% csrf_token %}
+    <h2 id="ndd-assign-title">{% if already_assigned %}Teknisyeni değiştir{% else %}Teknisyene ata{% endif %}</h2>
+    <p class="ndd-assign-lead">Kaydı işleme alacak teknisyeni seçin. “Teknisyene ata” butonuna tıkladığınızda kayıt, seçilen teknisyenin Cihazlarım panelinde görünür.</p>
+    {% if not can_assign %}<p class="ndd-note ndd-note-warn" role="status">{{ assign_reason }}</p>{% endif %}
+
+    {% if available_count %}
+    <label class="ndd-label" for="ndd-tech">Teknisyen <span>(en az işi olandan en çok olana doğru)</span></label>
+    <select class="ndd-select" id="ndd-tech" name="technician" required{% if not can_assign %} disabled{% endif %}>
+      {% for r in technicians %}
+      <option value="{{ r.tech.pk }}" data-name="{{ r.tech.display_name }}"{% if r.tech.pk == selected_id %} selected{% endif %}{% if not r.available %} disabled{% endif %}>{{ r.tech.display_name }} — {{ r.open_jobs }} aktif iş{% if r.specialization %} · {{ r.specialization }}{% endif %}{% if r.on_leave %} · İzinde{% endif %}</option>
+      {% endfor %}
+    </select>
+
+    <label class="ndd-label" for="ndd-note">Teknisyene not <span>(isteğe bağlı)</span></label>
+    <textarea class="ndd-textarea" id="ndd-note" name="note" rows="3" maxlength="200"{% if not can_assign %} disabled{% endif %} placeholder="Örn. Müşteri veriyi yedekletmek istemiyor, önce depolama birimini kontrol edin.">{{ note }}</textarea>
+    {% else %}
+    <p class="ndd-note ndd-note-warn" role="alert">Şu anda atanabilecek teknisyen yok: tüm teknisyenler izinde ya da pasif. Personel Yönetimi’nden durumlarını kontrol edin.</p>
+    {% endif %}
+
+    <div class="ndd-assign-foot">
+      <p id="ndd-selected">{% if selected_name %}Seçili teknisyen: <b>{{ selected_name }}</b> — atama sonrası teknisyene bildirim gider.{% endif %}</p>
+      <div class="ndd-actions">
+        <a class="ndd-btn ndd-btn-ghost" href="{{ back_url }}">Vazgeç</a>
+        <button class="ndd-btn ndd-btn-primary" type="submit"{% if not available_count or not can_assign %} disabled{% endif %}>{% if already_assigned %}Teknisyeni değiştir{% else %}Teknisyene ata{% endif %}</button>
+      </div>
+    </div>
+  </form>
+  {% endif %}
+</div>
+<script>
+(function(){
+  var sel=document.getElementById('ndd-tech'),out=document.getElementById('ndd-selected'),form=document.getElementById('assign-form');
+  if(!sel||!out)return;
+  function show(){
+    var o=sel.options[sel.selectedIndex];if(!o)return;
+    out.textContent='';
+    out.appendChild(document.createTextNode('Seçili teknisyen: '));
+    var b=document.createElement('b');b.textContent=o.getAttribute('data-name');out.appendChild(b);
+    out.appendChild(document.createTextNode(' — atama sonrası teknisyene bildirim gider.'));
+  }
+  sel.addEventListener('change',show);
+  // Çift tıklamayla aynı atamanın iki kez gönderilmesini önler
+  form.addEventListener('submit',function(){var btn=form.querySelector('button[type=submit]');if(btn){setTimeout(function(){btn.disabled=true;},0);}});
+})();
+</script>
+{% endblock %}

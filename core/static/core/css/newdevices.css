@@ -1,0 +1,165 @@
+/* FIXLAB · Admin Paneli › Cihazlar › Yeni kayıtlar — yalnızca .nd-* sınıfları */
+.nd{color:#15222d;font-family:var(--font)}
+.nd-bellrow{display:flex;justify-content:flex-end;margin-bottom:24px}
+.nd-head{margin-bottom:20px}
+.nd-head h1{margin:0;font:700 28px/1.2 var(--font);letter-spacing:-.01em}
+.nd-head p{margin:6px 0 0;font-size:14px;color:#5b6b78}
+
+/* Bilgi şeridi */
+.nd-banner{display:flex;align-items:center;gap:16px;margin-bottom:20px;padding:14px 20px;border:1px solid #cfe5e1;border-radius:12px;background:#e6f2f0}
+.nd-banner strong{display:block;font:600 15px/22px var(--font);color:#0b7a75}
+.nd-banner p{margin:0;font-size:13px;line-height:20px;color:#4f6470}
+.nd-banner-ok{background:#f3f7f6;border-color:#e2e8ec}
+.nd-count{flex:none;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:#d92d20;color:#fff;font:700 13px/1 var(--font)}
+.nd-count-ok{background:#8a99a5}
+
+/* Arama / filtre satırı */
+.nd-filter{display:flex;gap:12px;margin-bottom:20px}
+.nd-filter input,.nd-filter select{height:43px;padding:0 15px;border:1px solid #e2e8ec;border-radius:10px;background:#fff;font:400 14px var(--font);color:#15222d}
+.nd-filter input{flex:1;min-width:0}
+.nd-filter select{flex:none;min-width:180px;padding-right:10px}
+.nd-filter input::placeholder{color:#7b8a96}
+.nd-filter input:focus,.nd-filter select:focus{outline:0;border-color:#0b7a75;box-shadow:0 0 0 3px rgba(11,122,117,.15)}
+.nd-go{height:43px;padding:0 18px;border:1px solid #0b7a75;border-radius:10px;background:#0b7a75;color:#fff;font:600 14px var(--font);cursor:pointer}
+
+/* Kart + tablo */
+.nd-card{background:#fff;border:1px solid #e2e8ec;border-radius:12px;overflow:hidden}
+.nd-scroll{overflow-x:auto}
+.nd-table{width:100%;border-collapse:collapse;font-size:14px}
+.nd-table th{background:#f9fbfb;color:#5c6c79;font:500 13px/16px var(--font);text-align:left;padding:14px 16px;border:0;border-bottom:1px solid #e2e8ec;white-space:nowrap}
+.nd-table td{padding:0 16px;height:57px;white-space:nowrap;border:0;border-bottom:1px solid #e2e8ec;vertical-align:middle;color:#15222d}
+.nd-table tbody tr:last-child td{border-bottom:0}
+.nd-code{font-weight:700;white-space:nowrap}
+.nd-table td.nd-issue{min-width:260px;white-space:normal;padding-top:8px;padding-bottom:8px}
+.nd-date{white-space:nowrap}
+.nd-op{text-align:right}
+
+/* Durum rozeti */
+.nd-pill{display:inline-block;padding:2px 10px;border-radius:99px;font:500 12px/18px var(--font);white-space:nowrap}
+.nd-pill-wait{background:#fdf0c7;color:#b45309}
+.nd-pill-other{background:#eef1f3;color:#5c6c79}
+.nd-pill-ok{background:#dcf5e7;color:#15803d}
+
+/* «Detay ve ata»: kaydın detay sayfasını açar */
+.nd-assign{display:inline-flex;align-items:center;height:30px;padding:0 12px;border:0;border-radius:8px;background:#0b7a75;color:#fff;font:600 12px/1 var(--font);white-space:nowrap;text-decoration:none;cursor:pointer;transition:background .15s}
+.nd-assign:hover{background:#09665f}
+.nd-assign:focus-visible{outline:3px solid #0b7a75;outline-offset:2px}
+
+.nd-empty{margin:0;padding:36px 16px;text-align:center;font-size:14px;color:#667581}
+.nd-foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:18px;font-size:13px;color:#667581}
+
+@media(max-width:860px){
+  .nd-filter{flex-wrap:wrap}.nd-filter input{flex-basis:100%}.nd-filter select{flex:1}
+  .nd-banner{align-items:flex-start}
+}
+
+/* ======================================================================
+   Yeni kayıt › Detay ve ata sayfası — yalnızca .ndd-* sınıfları
+   ====================================================================== */
+.ndd{color:#15222d;font-family:var(--font)}
+.ndd-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.ndd-back{font:500 14px/20px var(--font);color:#0b7a75;text-decoration:none}
+.ndd-back:hover{text-decoration:underline}
+.ndd-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
+.ndd-col,.ndd-side{display:grid;gap:20px;min-width:0}
+.ndd-card{background:#fff;border:1px solid #e2e8ec;border-radius:12px;padding:20px}
+.ndd-card h2{margin:0 0 16px;font:600 18px/24px var(--font);letter-spacing:-.005em}
+.ndd-hero{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.ndd-hero h1{margin:0;font:700 26px/32px var(--font);letter-spacing:-.01em}
+.ndd-sub{margin:6px 0 0;font-size:13px;color:#667581}
+
+/* Etiket / değer çiftleri */
+.ndd-fields{display:grid;grid-template-columns:1fr 1fr;gap:18px 24px;margin:0}
+.ndd-fields>div{min-width:0}
+.ndd-fields dt,.ndd-rows dt{font-size:12px;line-height:16px;color:#667581}
+.ndd-fields dd{margin:2px 0 0;font:600 14px/20px var(--font);color:#15222d;overflow-wrap:anywhere}
+.ndd-wide{grid-column:1/-1}
+.ndd-fields dd.ndd-text{font-weight:500;white-space:pre-line}
+.ndd-files{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:18px;font-size:12px;color:#667581}
+.ndd-chip{display:inline-block;max-width:100%;padding:5px 12px;border:1px solid #e2e8ec;border-radius:8px;background:#f2f5f7;color:#15222d;font:500 12px/16px var(--font);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ndd-chip:hover{border-color:#0b7a75;color:#0b7a75}
+.ndd-none{font-size:13px;color:#667581;margin:0}
+
+/* Aşama çubuğu */
+.ndd-steps{display:flex;margin:0;padding:0;list-style:none}
+.ndd-steps li{position:relative;flex:1;min-width:0;text-align:center;padding:0 4px}
+.ndd-steps li::before{content:"";position:absolute;top:16px;left:-50%;width:100%;height:1px;background:#d6dde2}
+.ndd-steps li:first-child::before{display:none}
+.ndd-steps li.is-done::before,.ndd-steps li.is-current::before{background:#0b7a75}
+.ndd-dot{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border:1px solid #cdd6dc;border-radius:50%;background:#fff;color:#667581;font:500 13px/1 var(--font)}
+.ndd-steps li.is-current .ndd-dot{border:2px solid #0b7a75;color:#0b7a75;font-weight:700}
+.ndd-steps li.is-done .ndd-dot{border-color:#0b7a75;background:#0b7a75;color:#fff}
+.ndd-step-label{display:block;margin-top:10px;font:500 12px/16px var(--font);color:#667581}
+.ndd-steps li.is-current .ndd-step-label{color:#15222d;font-weight:700}
+.ndd-note{margin:18px 0 0;padding:10px 14px;border:1px solid #f3e3a5;border-radius:8px;background:#fffbea;color:#9a3412;font:400 13px/20px var(--font)}
+.ndd-note-warn{margin:0 0 4px}
+
+/* İşlem geçmişi */
+.ndd-history{display:grid;gap:14px;margin:0;padding:0;list-style:none}
+.ndd-history li{display:flex;gap:12px;align-items:flex-start}
+.ndd-bullet{flex:none;width:8px;height:8px;margin-top:7px;border-radius:50%;background:#0b7a75}
+.ndd-history p{margin:0;font:400 14px/22px var(--font)}
+.ndd-history time{display:block;font-size:12px;line-height:16px;color:#667581}
+
+/* Sağ sütun */
+.ndd-rows{display:grid;gap:12px;margin:0}
+.ndd-rows>div{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.ndd-rows dt{font-size:13px}
+.ndd-rows dd{margin:0;font:600 13px/18px var(--font);text-align:right}
+.ndd-unassigned{color:#b45309}
+.ndd-prev{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ndd-prev+.ndd-prev{margin-top:14px}
+.ndd-prev b{display:block;font:600 14px/20px var(--font)}
+.ndd-prev small{display:block;font-size:12px;line-height:16px;color:#667581}
+.ndd-tone{flex:none;padding:2px 10px;border-radius:99px;font:500 12px/18px var(--font);white-space:nowrap}
+.ndd-tone-ok{background:#dcf5e7;color:#15803d}
+.ndd-tone-warn{background:#fdf0c7;color:#b45309}
+.ndd-tone-bad{background:#fdecea;color:#b42318}
+.ndd-tone-info{background:#e6f0fb;color:#1d4f91}
+
+/* Teknisyene ata */
+.ndd-assign{margin-top:24px}
+.ndd-assign-lead{margin:-8px 0 18px;font-size:13px;line-height:20px;color:#667581}
+.ndd-label{display:block;margin:0 0 6px;font:500 13px/18px var(--font);color:#4f6470}
+.ndd-label span{font-weight:400;color:#7b8a96}
+.ndd-select{display:block;width:100%;height:50px;margin:0 0 18px;padding:0 44px 0 16px;border:1.5px solid #0b7a75;border-radius:10px;background:#e8f4f2 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%230b7a75' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 14px center;-webkit-appearance:none;appearance:none;font:600 14px/1 var(--font);color:#15222d;cursor:pointer;text-overflow:ellipsis}
+.ndd-select:focus{outline:0;box-shadow:0 0 0 3px rgba(11,122,117,.18)}
+.ndd-select option{font-weight:500;color:#15222d;background:#fff}
+.ndd-select option:disabled{color:#98a6b1}
+.ndd-textarea{display:block;width:100%;min-height:76px;padding:12px 14px;border:1px solid #e2e8ec;border-radius:10px;background:#fff;font:400 14px/20px var(--font);color:#15222d;resize:vertical;box-sizing:border-box}
+.ndd-textarea::placeholder{color:#8a99a5}
+.ndd-textarea:focus{outline:0;border-color:#0b7a75;box-shadow:0 0 0 3px rgba(11,122,117,.15)}
+.ndd-assign-foot{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:18px}
+.ndd-assign-foot p{margin:0;font-size:13px;color:#667581}
+.ndd-assign-foot p b{font-weight:600;color:#4f6470}
+.ndd-actions{display:flex;gap:12px}
+.ndd-btn{display:inline-flex;align-items:center;justify-content:center;height:42px;padding:0 20px;border-radius:10px;font:600 14px/1 var(--font);text-decoration:none;cursor:pointer;transition:background .15s,color .15s}
+.ndd-btn-ghost{border:1px solid #d6dde2;background:#fff;color:#15222d}
+.ndd-btn-ghost:hover{background:#f2f5f7}
+.ndd-btn-primary{border:1px solid #0b7a75;background:#0b7a75;color:#fff}
+.ndd-btn-primary:hover{background:#09665f}
+.ndd-btn-primary:disabled{opacity:.55;cursor:not-allowed}
+.ndd-btn:focus-visible{outline:3px solid #0b7a75;outline-offset:2px}
+
+@media(max-width:1100px){
+  .ndd-grid{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .ndd-fields{grid-template-columns:1fr}
+  .ndd-steps{flex-wrap:wrap;row-gap:16px}
+  .ndd-steps li{flex:0 0 33.33%}
+  .ndd-steps li::before{display:none}
+  .ndd-hero{flex-direction:column}
+  .ndd-assign-foot{flex-direction:column;align-items:stretch}
+  .ndd-actions .ndd-btn{flex:1}
+}
+
+/* Elden teslim alma kartı */
+.ndd-receive{margin-bottom:20px}
+.ndd-input{display:block;width:100%;height:46px;margin:0 0 18px;padding:0 14px;border:1px solid #e2e8ec;border-radius:10px;background:#fff;font:400 14px var(--font);color:#15222d;box-sizing:border-box}
+.ndd-input:focus{outline:0;border-color:#0b7a75;box-shadow:0 0 0 3px rgba(11,122,117,.15)}
+
+/* Cihaz henüz servise ulaşmadıysa (kargoya verilmedi / elden teslim edilmedi) atama kartı pasif görünür */
+.ndd-assign.is-locked .ndd-select,.ndd-assign.is-locked .ndd-textarea{opacity:.55;cursor:not-allowed}
+.ndd-assign.is-locked #ndd-selected{display:none}
+.ndd-btn-primary:disabled,.ndd-btn-primary:disabled:hover{background:#9bb8b6;border-color:#9bb8b6;color:#fff;opacity:1;cursor:not-allowed}

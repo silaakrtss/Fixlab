@@ -1,0 +1,86 @@
+{% extends "core/base_app.html" %}
+{% load static fixlab_tags %}
+{% block title %}Bildirimlerim{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/admin_notifications.css' %}?v=1">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="an" id="an-page" data-latest="{{ latest_id }}">
+  <div class="an-head">
+    <div><h1>Bildirimlerim</h1><p>Teknisyenlerden gelen talepler, uyarılar ve güncellemeler</p></div>
+    <div class="an-actions">
+      <form method="post" action="{% url 'core:notifications_mark_read' %}">{% csrf_token %}
+        <button type="submit" class="an-btn an-btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Tümünü okundu işaretle</button>
+      </form>
+      {% include "core/_notify_bell.html" %}
+    </div>
+  </div>
+  <button type="button" class="an-refresh" id="an-refresh" hidden onclick="location.reload()">Yeni bildirimler var · Listeyi yenile</button>
+
+  <div class="an-grid">
+    <section class="an-list" aria-label="Bildirimler">
+      {% for g in groups %}
+        <h2 class="an-day">{{ g.label }}</h2>
+        {% for c in g.cards %}
+        <article class="an-item {% if not c.n.is_read %}unread{% endif %}">
+          <span class="an-ico an-{{ c.tone }}" aria-hidden="true">{% include "core/_an_icon.html" with icon=c.icon %}</span>
+          <div class="an-body">
+            <div class="an-top">
+              <div class="an-who"><b>{{ c.heading }}</b>{% if c.label %}<span class="an-tag an-tag-{{ c.tone }}">{{ c.label }}</span>{% endif %}</div>
+              <time datetime="{{ c.n.created_at|date:'c' }}">{{ c.time }}</time>
+            </div>
+            <p>{{ c.body|hl_ids }}</p>
+            <div class="an-row">
+              {% if c.pending %}
+              <form method="post" action="{{ c.approve_url }}">{% csrf_token %}<button type="submit" class="an-btn an-btn-primary an-btn-sm">Onayla</button></form>
+              <form method="post" action="{{ c.reject_url }}">{% csrf_token %}<button type="submit" class="an-btn an-btn-ghost an-btn-sm">Reddet</button></form>
+              {% elif c.result %}<span class="an-result an-result-{{ c.result|lower }}">{{ c.result }}</span>{% endif %}
+              {% if c.device_url %}<a class="an-btn an-btn-ghost an-btn-sm" href="{{ c.device_url }}">Cihaz detayı</a>{% endif %}
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      {% empty %}
+        <p class="an-empty">Henüz bildiriminiz yok.</p>
+      {% endfor %}
+    </section>
+
+    <aside class="an-side">
+      <section class="an-card an-pending">
+        <div class="lbl">Onay bekleyen talepler</div>
+        <div class="num">{{ pending_total }}</div>
+        <div class="sub">{{ pending_parts }} parça talebi, {{ pending_leaves }} izin talebi</div>
+      </section>
+      <section class="an-card an-prefs">
+        <h2>Bildirim tercihleri</h2>
+        <p>Zilde ve panelde hangi teknisyen bildirimlerini görmek istediğinizi seçin.</p>
+        <ul>
+          {% for field, label, on in toggles %}
+          <li><span id="pref-{{ field }}-l">{{ label }}</span>
+            <label class="an-switch"><input type="checkbox" role="switch" data-pref="{{ field }}" aria-labelledby="pref-{{ field }}-l" {% if on %}checked{% endif %}><i></i></label></li>
+          {% endfor %}
+          <li class="an-browser"><span id="pref-browser-l">Tarayıcı bildirimleri</span>
+            <label class="an-switch"><input type="checkbox" role="switch" id="nt-browser" aria-labelledby="pref-browser-l"><i></i></label></li>
+        </ul>
+        <small id="nt-browser-hint" hidden></small>
+      </section>
+    </aside>
+  </div>
+</div>
+<script>
+(function(){
+  var cfg=document.getElementById('nt-config'); if(!cfg) return;
+  function cookie(n){var m=document.cookie.match('(?:^|; )'+n+'=([^;]*)');return m?decodeURIComponent(m[1]):'';}
+  var token=cookie('csrftoken')||(document.querySelector('input[name=csrfmiddlewaretoken]')||{}).value;
+  document.querySelectorAll('[data-pref]').forEach(function(box){
+    box.addEventListener('change',function(){
+      var body=new URLSearchParams({name:box.dataset.pref,value:box.checked?'1':'0'});
+      box.disabled=true;
+      fetch('{% url "core:notification_pref" %}',{method:'POST',credentials:'same-origin',body:body,
+        headers:{'X-CSRFToken':token,'X-Requested-With':'XMLHttpRequest'}})
+        .then(function(r){if(!r.ok)throw new Error();location.reload();})
+        .catch(function(){box.checked=!box.checked;box.disabled=false;});
+    });
+  });
+})();
+</script>
+{% endblock %}

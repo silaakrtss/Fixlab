@@ -1,0 +1,69 @@
+/* FIXLAB · Admin Paneli › Personel Yönetimi (teknisyen tablosu, izin takvimi, izin formu) — yalnızca .pm-* sınıfları */
+.pm{color:#15222d;font-family:var(--font)}
+.pm-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px}
+.pm-head h1{margin:0;font:700 28px/1.2 var(--font);letter-spacing:-.01em}
+.pm-head p{margin:6px 0 0;font-size:14px;color:#5b6b78}
+.pm-actions{display:flex;align-items:center;gap:16px;flex:none}
+
+/* Düğmeler */
+.pm-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:41px;padding:0 20px;border-radius:10px;border:1px solid #dfe4e9;background:#fff;color:#15222d;font:600 14px/1 var(--font);text-decoration:none;cursor:pointer;transition:background .15s,border-color .15s}
+.pm-btn:hover{background:#f2f5f7}
+.pm-btn-primary{background:#0b7a75;border-color:#0b7a75;color:#fff}
+.pm-btn-primary:hover{background:#09665f}
+.pm-btn:focus-visible,.pm-link:focus-visible{outline:3px solid #0b7a75;outline-offset:2px}
+
+/* Kartlar */
+.pm-card{background:#fff;border:1px solid #e2e8ec;border-radius:12px;overflow:hidden;margin-bottom:20px}
+.pm-card-head{display:flex;align-items:baseline;gap:12px;padding:16px 16px 14px;border-bottom:1px solid #e2e8ec}
+.pm-card-head h2{margin:0;font:600 16px/22px var(--font)}
+.pm-card-head span{font-size:13px;color:#667581}
+.pm-scroll{overflow-x:auto}
+
+/* Tablolar */
+.pm-table{width:100%;border-collapse:collapse;font-size:14px}
+.pm-table th{background:#f9fbfb;color:#5c6c79;font:500 13px/16px var(--font);text-align:left;padding:14px 16px;border:0;border-bottom:1px solid #e2e8ec;white-space:nowrap}
+.pm-calendar .pm-table th{border-top:0}
+.pm-table td{padding:0 16px;height:50px;border:0;border-bottom:1px solid #e2e8ec;vertical-align:middle;color:#15222d;white-space:nowrap}
+.pm-table tbody tr:last-child td{border-bottom:0}
+.pm-name{font-weight:700}
+.pm-dash{color:#8a99a5}
+.pm-ops{text-align:right}
+.pm-ops>a,.pm-ops>form{display:inline-block;vertical-align:middle;margin:0 0 0 26px}
+
+/* Metin bağlantıları */
+.pm-link{display:inline;padding:0;border:0;background:none;color:#0b7a75;font:500 14px/20px var(--font);text-decoration:none;cursor:pointer}
+.pm-link:hover{text-decoration:underline}
+.pm-link-danger{color:#c0341d}
+
+/* Durum rozetleri */
+.pm-pill{display:inline-block;padding:2px 10px;border-radius:99px;font:500 12px/18px var(--font)}
+.pm-pill-active{background:#d9efe8;color:#0b7a75}
+.pm-pill-leave{background:#fdeccb;color:#b45309}
+.pm-pill-plan{background:#dbe8fe;color:#1d4ed8}
+.pm-pill-off{background:#eef1f3;color:#5c6c79}
+
+.pm-empty{margin:0;padding:28px 16px;text-align:center;font-size:14px;color:#667581}
+.pm-note{margin:0 0 8px;font-size:13px;color:#667581}
+
+/* İzin formu */
+.pm-formcard{max-width:640px;padding:24px}
+.pm-row{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.pm-field{margin-bottom:16px;min-width:0}
+.pm-field label{display:block;margin-bottom:6px;font:500 14px/20px var(--font)}
+.pm-opt{font-weight:400;color:#667581}
+.pm-field select,.pm-field input,.pm-field textarea{width:100%;padding:0 14px;height:44px;border:1px solid #dfe4e9;border-radius:10px;background:#fff;font:400 14px var(--font);color:#15222d}
+.pm-field textarea{height:auto;padding:10px 14px;resize:vertical}
+.pm-field select:focus,.pm-field input:focus,.pm-field textarea:focus{outline:0;border-color:#0b7a75;box-shadow:0 0 0 3px rgba(11,122,117,.15)}
+.pm-err{margin:6px 0 0;font-size:13px;color:#b42318}
+.pm-formerr{margin-bottom:16px;padding:10px 14px;border-radius:8px;background:#fdecea;color:#b42318;font-size:14px}
+.pm-hint{margin:0 0 20px;font-size:13px;line-height:1.5;color:#667581}
+.pm-formbtns{display:flex;gap:12px;flex-wrap:wrap}
+
+@media(max-width:700px){
+  .pm-head{flex-wrap:wrap}.pm-head h1{font-size:24px}
+  .pm-row{grid-template-columns:1fr}
+}
+
+/* «Personel olarak görüntüle»: ismin sağında; henüz geliştirilmedi, tıklanamaz */
+.pm-name-row{display:inline-flex;align-items:center;gap:12px}
+.pm-viewas{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:8px;border:1px solid #dfe4e9;background:#f2f5f7;color:#475569;font:500 12px/1 var(--font);cursor:not-allowed;opacity:.75}

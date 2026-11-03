@@ -1,0 +1,193 @@
+/* FIXLAB · Müşteri girişi ve üye ol — yalnızca .cp-* sınıflarını kullanır, diğer ekranları etkilemez. */
+.cp{--teal:#0b7a75;--teal-d:#09665f;margin:0;background:#fff;min-height:100vh;display:flex;flex-direction:column;font-family:var(--font)}
+.cp-head{position:relative;height:60px;flex-shrink:0;background:#fff;border-bottom:1px solid #d9e0e6;display:flex;align-items:center;justify-content:space-between;padding:0 49px 0 35px}
+.cp-logo-link{display:block;line-height:0}
+.cp-logo{display:block;width:120px;height:42px}
+.cp-head-link{display:inline-flex;align-items:center;justify-content:center;height:42px;padding:0 20px;border:1px solid #0b7a75;border-radius:8px;background:#fff;color:#0b7a75;font:600 16px/1 var(--font);text-decoration:none;white-space:nowrap;transition:background .15s,color .15s}
+.cp-head-link:hover{background:#0b7a75;color:#fff}
+.cp-head-link:focus-visible{outline:3px solid #0b7a75;outline-offset:2px}
+.cp-head-text{color:#5b6b78;font:500 14px/1 var(--font)}
+
+.cp-grid{flex:1;display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 60px)}
+.cp-form-side{display:flex;flex-direction:column;justify-content:center;padding:40px 5% 32px 10%}
+.cp-form-wrap{width:100%;max-width:640px;margin:0 auto}
+
+/* Sağ görsel sütunu */
+.cp-visual{display:flex;flex-direction:column}
+.cp-hero{position:relative;width:100%;aspect-ratio:720/503;overflow:hidden;border-top-left-radius:10px;flex-shrink:0}
+.cp-hero img{position:absolute;left:-0.486%;top:-0.8%;width:100.56%;height:auto;max-width:none}
+.cp-panel{flex:1;background:#4a434e;padding:20px 5%;display:flex;flex-direction:column;justify-content:center}
+.cp-panel--teal{background:#10282e;padding:20px 8%}
+.cp-box{border:1px solid var(--teal);border-radius:10px;padding:12px;text-align:center;color:#fff}
+.cp-box h2{margin:0;font:500 28px/36px var(--font);color:#fff}
+.cp-box p{margin:10px 0 0;font:600 16px/20px var(--font);color:#d9e0e6}
+.cp-panel--teal h2{margin:0;font:600 32px/48px var(--font);color:#fff}
+.cp-panel--teal p{margin:18px 0 0;font:400 17px/24px var(--font);color:#d9e0e6}
+.cp-secure{display:flex;align-items:center;gap:10px;margin-top:20px;font:400 14px/1 var(--font);color:#d9e0e6}
+
+/* Başlıklar */
+.cp-title{margin:0;text-align:center;font:600 40px/44px var(--font);color:var(--teal)}
+.cp-sub{margin:8px 0 28px;text-align:center;font:400 16px/22px var(--font);color:#5b6b78}
+.cp-eyebrow{margin:0 0 6px;font:700 12px/16px var(--font);letter-spacing:.05em;text-transform:uppercase;color:var(--teal)}
+.cp-title-left{margin:0;font:600 40px/44px var(--font);color:var(--teal)}
+.cp-lead{margin:10px 0 18px;font:400 15px/22px var(--font);color:#5b6b78}
+.cp-req{margin:0 0 18px;font:400 12px/16px var(--font);color:#5b6b78}
+
+/* Mesajlar */
+.cp-msgs{margin:0 0 16px;display:grid;gap:8px}
+.cp-msg{padding:10px 14px;border-radius:8px;font:500 14px/20px var(--font)}
+.cp-msg-error,.cp-msg-err{color:#b42318;background:#fdecea}
+.cp-msg-success,.cp-msg-info{color:#14513c;background:#e4f3ec}
+.cp-msg-warning{color:#b45309;background:#fef3e2}
+
+/* Giriş alanları */
+.cp-input{position:relative;display:flex;align-items:center;height:56px;margin-bottom:16px;border:1px solid #d9e0e6;border-radius:10px;background:#fff;padding:0 16px;transition:border-color .15s,box-shadow .15s}
+.cp-input:focus-within{border-color:var(--teal);box-shadow:0 0 0 3px rgba(11,122,117,.15)}
+.cp-input svg{flex:none;margin-right:12px}
+.cp-input input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font:400 17px/1 var(--font);letter-spacing:1.2px;color:#000}
+.cp-input input::placeholder{color:#666;opacity:1}
+.cp-forgot{display:block;margin:-4px 0 14px;text-align:right;font:700 14px/20px var(--font);color:var(--teal);text-decoration:none}
+.cp-forgot:hover{text-decoration:underline}
+.cp-btn{display:block;width:100%;height:58px;border:0;border-radius:10px;background:var(--teal);color:#fff;font:600 20px/1 var(--font);cursor:pointer;transition:background .15s}
+.cp-btn:hover{background:var(--teal-d)}
+.cp-btn:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
+.cp-alt{margin:22px 0 0;text-align:center;font:400 15px/20px var(--font);color:#5b6b78}
+.cp-alt a{color:var(--teal);font-weight:700;text-decoration:none}
+.cp-alt a:hover{text-decoration:underline}
+.cp-legal{display:flex;justify-content:flex-end;gap:24px;margin-top:22px;padding-right:16px;font:400 15px/18px var(--font)}
+.cp-legal a{color:#5b6b78;text-decoration:none}
+.cp-legal a:hover{color:var(--teal);text-decoration:underline}
+
+/* Üye ol formu */
+.cp-row{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.cp-field{margin-bottom:16px;min-width:0}
+.cp-field>label{display:block;margin-bottom:6px;font:500 15px/20px var(--font);color:#1b2421}
+.cp-field .cp-control{position:relative}
+.cp-field input[type=text],.cp-field input[type=email],.cp-field input[type=tel],.cp-field input[type=password]{width:100%;height:48px;padding:0 14px;border:1px solid #d9e0e6;border-radius:10px;background:#fff;font:400 15px/1 var(--font);color:#1b2421;outline:0;transition:border-color .15s,box-shadow .15s}
+.cp-field input::placeholder{color:#8a96a0;opacity:1}
+.cp-field input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(11,122,117,.15)}
+.cp-field.has-error input{border-color:#b42318}
+.cp-field .cp-control input[type=password],.cp-field .cp-control input.cp-pw-shown{padding-right:46px}
+.cp-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:0;background:none;color:#5b6b78;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px}
+.cp-eye:hover{color:var(--teal)}
+.cp-err{margin:6px 0 0;font:400 13px/18px var(--font);color:#b42318}
+.cp-hint{margin:-6px 0 16px;font:400 12px/16px var(--font);color:#5b6b78}
+.cp-consent{margin-top:18px;padding-top:14px;border-top:1px solid #d9e0e6}
+.cp-consent-row{display:flex;justify-content:space-between;align-items:center;gap:12px;font:400 14px/20px var(--font);color:#5b6b78}
+.cp-consent-row a,.cp-link{color:var(--teal);font-weight:700;text-decoration:none;background:none;border:0;padding:0;font-family:inherit;font-size:inherit;cursor:pointer}
+.cp-consent-row a:hover,.cp-link:hover{text-decoration:underline}
+.cp-check{display:flex;align-items:center;gap:12px;margin-top:12px;font:400 14px/20px var(--font);color:#1b2421;cursor:pointer}
+.cp-check input{width:18px;height:18px;flex:none;accent-color:var(--teal);cursor:pointer;margin:0}
+.cp-note{margin:10px 0 18px;font:400 12px/16px var(--font);color:#5b6b78}
+.cp-register-btn{height:50px;font-size:17px}
+
+/* Kullanım şartları kutusu (üye ol ekranının üstünde açılır) */
+.cp-modal{width:min(720px,calc(100vw - 32px));max-height:min(82vh,760px);padding:0;border:0;border-radius:16px;background:#fff;box-shadow:0 24px 60px rgba(16,40,46,.35);overflow:hidden;color:#1b2421}
+.cp-modal[open]{display:flex;flex-direction:column}
+.cp-modal::backdrop{background:rgba(16,40,46,.55)}
+.cp-modal-head{position:relative;flex:none;padding:22px 64px 16px 28px;border-bottom:1px solid #e1e6e4}
+.cp-modal-head h2{margin:0;font:600 22px/28px var(--font);color:#1b2421}
+.cp-modal-close{position:absolute;top:14px;right:14px;width:38px;height:38px;border:0;border-radius:10px;background:#eef1f0;color:#3d4945;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.cp-modal-close:hover{background:#e4f3ec;color:var(--teal)}
+.cp-modal-body{flex:1;overflow-y:auto;padding:8px 28px 24px}
+.cp-modal-foot{flex:none;padding:14px 28px;border-top:1px solid #e1e6e4;text-align:right}
+.cp-modal-foot .cp-btn{display:inline-block;width:auto;height:44px;padding:0 24px;font-size:15px}
+.cp-doc h2{margin:22px 0 8px;font:600 16px/22px var(--font);color:#1b2421}
+.cp-doc p{margin:0 0 10px;font:400 14px/1.6 var(--font);color:#3d4945}
+
+/* Müşteri girişi: personel girişi gibi sabit, sayfayı kaplar, kaydırılmaz */
+html:has(body.cp-fixed),body.cp-fixed{height:100%;overflow:hidden}
+body.cp-fixed{height:100vh;min-height:0}
+.cp-fixed .cp-grid{height:calc(100vh - 60px);min-height:0;overflow:hidden}
+.cp-fixed .cp-form-side{overflow:hidden}
+.cp-fixed .cp-visual{height:100%;overflow:hidden}
+
+@media (max-width:900px){
+  .cp-head{padding:0 16px}
+  .cp-grid{grid-template-columns:1fr;min-height:0}
+  .cp-form-side{padding:36px 20px 28px}
+  .cp-visual{order:2}
+  .cp-hero{border-radius:0}
+  .cp-panel,.cp-panel--teal{padding:24px 20px 32px}
+  .cp-title,.cp-title-left{font-size:34px;line-height:40px}
+  .cp-row{grid-template-columns:1fr}
+  .cp-consent-row{flex-direction:column;align-items:flex-start;gap:4px}
+  html:has(body.cp-fixed),body.cp-fixed{height:auto;overflow:auto}
+  body.cp-fixed{height:auto}
+  .cp-fixed .cp-grid{height:auto;overflow:visible}
+  .cp-fixed .cp-visual{height:auto}
+}
+
+/* Şifre sıfırlama sayfaları */
+.cp-key-tile{width:56px;height:56px;border-radius:14px;background:#e6f2f1;color:#0b7a75;display:flex;align-items:center;justify-content:center;margin-bottom:28px}
+.cp-reset-title{margin:0 0 14px;font:600 36px/44px var(--font);color:var(--teal)}
+.cp-reset-lead{margin:0 0 22px;font:400 16px/24px var(--font);color:#5b6b78}
+.cp-info{display:flex;align-items:center;gap:12px;margin:0 0 26px;padding:16px 18px;border-radius:10px;background:#e6f2f1;font:400 13px/18px var(--font);color:#3d4945}
+.cp-info svg{flex:none;color:#0b7a75}
+.cp-center-link{display:flex;align-items:center;justify-content:center;gap:8px;margin:22px auto 0;background:none;border:0;padding:0;font:700 14px/20px var(--font);color:var(--teal);text-decoration:none;cursor:pointer}
+.cp-center-link:hover{text-decoration:underline}
+.cp-email-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:-14px 0 22px;font:500 15px/20px var(--font);color:#1b2421}
+.cp-email-row a{color:var(--teal);font-weight:700;font-size:14px;text-decoration:none}
+.cp-email-row a:hover{text-decoration:underline}
+.cp-code{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.cp-code input{width:100%;height:58px;padding:0;border:1px solid #d9e0e6;border-radius:10px;background:#fff;text-align:center;font:600 24px/1 var(--font);color:#1b2421;outline:0;transition:border-color .15s,box-shadow .15s}
+.cp-code input::placeholder{color:#8a96a0;font-weight:400}
+.cp-code input:focus{border:2px solid var(--teal);box-shadow:0 0 0 3px rgba(11,122,117,.15)}
+.cp-code.has-error input{border-color:#b42318}
+.cp-reset-btn{height:50px;font-size:17px;margin-top:6px}
+.cp-eye .eye-off{display:none}
+.cp-eye[aria-pressed="true"] .eye-open{display:none}
+.cp-eye[aria-pressed="true"] .eye-off{display:inline}
+@media (max-width:900px){.cp-code{gap:6px}.cp-code input{height:52px;font-size:20px}}
+
+/* ======================================================================
+   Müşteri girişi = Personel girişiyle AYNI ölçüler (yalnızca body.cp-fixed, yani giriş sayfası).
+   Değerler login.css'teki .lp-* kurallarından alınmıştır; görsel sağda olduğu için sağ/sol boşluklar aynalanmıştır.
+   ====================================================================== */
+/* Üst şerit: logo ve sağ düğme personel sayfasındaki konumlarda */
+.cp-fixed .cp-head{display:block;height:60px;padding:0;position:relative}
+.cp-fixed .cp-logo-link{position:absolute;left:35px;top:10px}
+.cp-fixed .cp-head-link{position:absolute;right:49px;top:50%;transform:translateY(-50%)}
+
+/* Görsel + koyu panel: aynı oran, aynı iç boşluk, aynı yazı ölçüsü */
+.cp-fixed .cp-hero{aspect-ratio:720/503;border-top-left-radius:10px;flex-shrink:1;min-height:0}
+.cp-fixed .cp-panel{padding:20px 9.444% 20px 4.444%}
+.cp-fixed .cp-box{padding:12px}
+.cp-fixed .cp-box h2{font:500 28px/36px var(--font)}
+.cp-fixed .cp-box p{margin:10px 0 0;font:600 16px/20px var(--font)}
+
+/* Form sütunu */
+.cp-fixed .cp-form-side{padding:40px 0 20px}
+.cp-fixed .cp-form-wrap{max-width:none;margin:0;width:100%}
+.cp-fixed .cp-title{font:600 40px/40px var(--font);color:#000}
+.cp-fixed .cp-sub{margin:10px 0 0;font:400 16px/22px var(--font)}
+
+/* Giriş alanları: 52 px yükseklik, 75 px'lik ikon kutusu, 18 px ortalanmış yazı */
+.cp-fixed .cp-input{height:52px;margin-bottom:20px;padding:0;overflow:hidden}
+.cp-fixed .cp-ico{flex:none;display:flex;align-items:center;justify-content:center;width:75px;height:100%;border-right:1px solid #b3b3b3}
+.cp-fixed .cp-input svg{margin:0}
+.cp-fixed .cp-input input{height:100%;padding:0 12px;text-align:center;font:400 18px/1 var(--font);letter-spacing:1.4px}
+.cp-fixed .cp-input input:-webkit-autofill{-webkit-box-shadow:0 0 0 60px #fff inset}
+.cp-fixed .cp-msgs{margin:0 0 10px}
+
+/* Giriş düğmesi */
+.cp-fixed .cp-btn{height:58px;margin-top:25px;font:600 22px/1 var(--font)}
+.cp-fixed form .cp-input:last-of-type{margin-bottom:0}
+
+/* Şifremi unuttum (düğmenin altında, ortalı) ve alt bağlantılar */
+.cp-fixed .cp-forgot-row{margin:14px 0 0;text-align:center}
+.cp-fixed .cp-forgot{display:inline;margin:0;font:700 16px/20px var(--font);text-decoration:underline;text-underline-offset:3px}
+.cp-fixed .cp-alt{margin:14px 0 0;font:400 15px/20px var(--font)}
+.cp-fixed .cp-legal{gap:26px;margin-top:12px;padding-right:0;font:400 15px/18px var(--font)}
+
+@media (min-width:901px){
+  /* Personel sayfasındaki sağ/sol boşlukların aynası (form solda, görsel sağda) */
+  .cp-fixed .cp-title{margin:0}
+  .cp-fixed .cp-form-wrap>:not(.cp-title){margin-left:4.583%;margin-right:9.861%}
+  .cp-fixed .cp-form-wrap>.cp-legal{padding-right:23px}
+}
+@media (max-width:900px){
+  .cp-fixed .cp-head-link{right:16px}
+  .cp-fixed .cp-form-wrap>*{margin-left:0;margin-right:0}
+  .cp-fixed .cp-form-side{padding:48px 24px 32px}
+}

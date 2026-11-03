@@ -1,0 +1,120 @@
+{% extends "core/base_app.html" %}
+{% load static %}
+{% block title %}Yeni cihaz kaydı{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/newdevices.css' %}?v=4"><link rel="stylesheet" href="{% static 'core/css/admin_devices.css' %}?v=1">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="ad">
+  <div class="ad-bellrow">{% include "core/_notify_bell.html" %}</div>
+  <div class="ad-head">
+    <div><h1>Yeni cihaz kaydı</h1><p>Müşteri ve cihaz bilgilerini girin; takip kodu otomatik üretilir.</p></div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" id="ad-form">
+    {% csrf_token %}
+    <div class="ad-grid">
+      <div class="ad-main">
+        <section class="ad-card" aria-labelledby="ad-customer">
+          <h2 id="ad-customer">Müşteri</h2>
+          <div class="ad-row2">
+            <div class="ad-field {% if form.customer_name.errors %}has-error{% endif %}">
+              <label class="ndd-label" for="ad-name">Ad soyad</label>
+              <input class="ndd-input" type="text" id="ad-name" name="customer_name" maxlength="150" value="{{ form.customer_name.value|default_if_none:'' }}" placeholder="Örn. Mehmet Kaya" autocomplete="off" data-name-only="1" required>
+              {% if form.customer_name.errors %}<div class="ad-err">{{ form.customer_name.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="ad-field {% if form.customer_phone.errors %}has-error{% endif %}">
+              <label class="ndd-label" for="ad-phone">Telefon</label>
+              <input class="ndd-input" type="tel" id="ad-phone" name="customer_phone" maxlength="20" inputmode="tel" value="{{ form.customer_phone.value|default_if_none:'' }}" placeholder="(5XX) XXX XX XX" required>
+              {% if form.customer_phone.errors %}<div class="ad-err">{{ form.customer_phone.errors.0 }}</div>{% endif %}
+            </div>
+          </div>
+          <div class="ad-field {% if form.customer_email.errors %}has-error{% endif %}">
+            <label class="ndd-label" for="ad-email">E-posta</label>
+            <input class="ndd-input" type="email" id="ad-email" name="customer_email" maxlength="254" value="{{ form.customer_email.value|default_if_none:'' }}" placeholder="ornek@mail.com" autocomplete="off" required>
+            {% if form.customer_email.errors %}<div class="ad-err">{{ form.customer_email.errors.0 }}</div>{% endif %}
+          </div>
+
+          <hr class="ad-sep">
+
+          <h2 id="ad-device">Cihaz</h2>
+          <div class="ad-row2">
+            <div class="ad-field {% if form.device_type.errors %}has-error{% endif %}">
+              <label class="ndd-label" for="ad-type">Kategori</label>
+              <select class="ndd-input" id="ad-type" name="device_type" required>
+                {% for value, label in type_choices %}<option value="{{ value }}" {% if form.device_type.value == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+              </select>
+              {% if form.device_type.errors %}<div class="ad-err">{{ form.device_type.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="ad-field {% if form.brand.errors %}has-error{% endif %}">
+              <label class="ndd-label" for="ad-brand">Marka</label>
+              <input class="ndd-input" type="text" id="ad-brand" name="brand" maxlength="80" value="{{ form.brand.value|default_if_none:'' }}" placeholder="Örn. Dell" autocomplete="off" required>
+              {% if form.brand.errors %}<div class="ad-err">{{ form.brand.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="ad-field {% if form.model.errors %}has-error{% endif %}">
+              <label class="ndd-label" for="ad-model">Model</label>
+              <input class="ndd-input" type="text" id="ad-model" name="model" maxlength="120" value="{{ form.model.value|default_if_none:'' }}" placeholder="Örn. Latitude 5420" autocomplete="off" required>
+              {% if form.model.errors %}<div class="ad-err">{{ form.model.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="ad-field {% if form.serial_number.errors %}has-error{% endif %}">
+              <label class="ndd-label" for="ad-serial">Seri no <span>(isteğe bağlı)</span></label>
+              <input class="ndd-input" type="text" id="ad-serial" name="serial_number" maxlength="100" value="{{ form.serial_number.value|default_if_none:'' }}" placeholder="Seri numarası" autocomplete="off">
+              {% if form.serial_number.errors %}<div class="ad-err">{{ form.serial_number.errors.0 }}</div>{% endif %}
+            </div>
+          </div>
+          <div class="ad-field {% if form.issue_description.errors %}has-error{% endif %}">
+            <label class="ndd-label" for="ad-issue">Müşterinin bildirdiği arıza</label>
+            <textarea class="ndd-textarea" id="ad-issue" name="issue_description" rows="4" placeholder="Arızayı kısaca yazın…" required>{{ form.issue_description.value|default_if_none:'' }}</textarea>
+            {% if form.issue_description.errors %}<div class="ad-err">{{ form.issue_description.errors.0 }}</div>{% endif %}
+          </div>
+        </section>
+
+        <section class="ad-card" aria-labelledby="ad-files-title">
+          <div class="ad-upload">
+            <h3 id="ad-files-title">Fotoğraf ve video ekle</h3>
+            <p class="ad-lead">Arızayı daha iyi anlatmak için fotoğraf ve video ekleyebilirsiniz. Birden fazla dosya eklemeye uygun bir alandır.</p>
+            <div class="ad-drop" id="ad-drop">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg>
+              <p>Fotoğraf ve videoları sürükleyip bırakın</p>
+              <button type="button" class="ad-pick" id="ad-pick">Dosya Seç</button>
+              <small>Önerilen formatlar: JPG / PNG / MP4 / MOV (en fazla {{ max_files }} dosya; fotoğraf {{ max_photo_mb }} MB, video {{ max_video_mb }} MB)</small>
+              <input type="file" id="ad-files" name="attachments" multiple accept=".jpg,.jpeg,.png,.mp4,.mov,image/jpeg,image/png,video/mp4,video/quicktime" hidden data-max="{{ max_files }}" data-photo-mb="{{ max_photo_mb }}" data-video-mb="{{ max_video_mb }}">
+            </div>
+            <div class="ad-err" id="ad-fileerr" role="alert" {% if not file_errors %}hidden{% endif %}>{% for e in file_errors %}{{ e }} {% endfor %}</div>
+            <div class="ad-files-head" id="ad-filehead" hidden><span id="ad-filecount">0 dosya</span><button type="button" id="ad-more">+ Dosya ekle</button></div>
+            <div id="ad-filelist"></div>
+            <noscript><p class="ad-lead">Dosya seçmek için tarayıcınızda JavaScript açık olmalıdır.</p></noscript>
+          </div>
+
+          <div class="ad-assign ad-field {% if form.technician.errors %}has-error{% endif %}">
+            <label class="ndd-label" for="ad-tech">Teknisyen ata <span>(en az işi olandan en çok olana doğru)</span></label>
+            <select class="ndd-select" id="ad-tech" name="technician">
+              {% for r in technicians %}
+              <option value="{{ r.tech.pk }}" data-name="{{ r.tech.display_name }}"{% if r.tech.pk == selected_id %} selected{% endif %}{% if not r.available %} disabled{% endif %}>{{ r.tech.display_name }} — {{ r.open_jobs }} aktif iş{% if r.specialization %} · {{ r.specialization }}{% endif %}{% if r.on_leave %} · İzinde{% endif %}</option>
+              {% endfor %}
+              <option value=""{% if not selected_id %} selected{% endif %}>Şimdilik atama yapma</option>
+            </select>
+            {% if form.technician.errors %}<div class="ad-err">{{ form.technician.errors.0 }}</div>{% endif %}
+            {% if not available_count %}<p class="ndd-note ndd-note-warn" role="alert">Şu anda atanabilecek teknisyen yok: tüm teknisyenler izinde ya da pasif. Kayıt atamasız oluşturulur; Personel Yönetimi’nden durumlarını kontrol edin.</p>{% endif %}
+            <label class="ndd-label ad-note-label" for="ad-note">Teknisyene not <span>(isteğe bağlı)</span></label>
+            <textarea class="ndd-textarea" id="ad-note" name="technician_note" rows="3" maxlength="200" placeholder="Örn. Müşteri veriyi yedekletmek istemiyor, önce depolama birimini kontrol edin.">{{ form.technician_note.value|default_if_none:'' }}</textarea>
+            {% if form.technician_note.errors %}<div class="ad-err">{{ form.technician_note.errors.0 }}</div>{% endif %}
+            <p class="ad-assign-note" id="ad-selected"></p>
+          </div>
+        </section>
+      </div>
+
+      <aside class="ad-side">
+        <section class="ad-card" aria-labelledby="ad-summary">
+          <h2 id="ad-summary">Kayıt özeti</h2>
+          <p>Kayıt oluşturulduğunda müşteriye verilecek takip kodu otomatik üretilir.</p>
+          <p>Teknisyen atanmazsa kayıt “Teslim alındı” durumunda atanmamış olarak bekler.</p>
+          <button class="ad-btn ad-btn-primary ad-btn-block" type="submit">Kaydı oluştur</button>
+          <a class="ad-btn ad-btn-ghost ad-btn-block" href="{% url 'core:admin_device_list' %}">Vazgeç</a>
+        </section>
+      </aside>
+    </div>
+  </form>
+</div>
+<script src="{% static 'core/js/names.js' %}?v=1"></script>
+<script src="{% static 'core/js/admin_devices.js' %}?v=1"></script>
+{% endblock %}

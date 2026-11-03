@@ -1,0 +1,14 @@
+{% extends "core/base_customer_app.html" %}
+{% block title %}Servis Kayıtlarım{% endblock %}
+{% block crumb %}Servis Kayıtlarım{% endblock %}
+{% block content %}
+<h1 class="pt-h1">Servis kayıtlarım</h1>
+<p class="pt-lead">{% if query %}«{{ query }}» için {{ devices|length }} sonuç.{% else %}Hesabınıza bağlı tüm servis kayıtları.{% endif %}</p>
+<section class="pt-panel">
+  {% for device in devices %}{% include "core/_device_card.html" %}
+  {% empty %}
+  <div class="pt-empty">{% if query %}Aramanızla eşleşen bir kayıt bulunamadı. Takip kodu, marka, model veya arıza metniyle tekrar deneyin.{% else %}Henüz servis kaydınız yok. «Cihaz Kaydı Oluştur» ile ilk kaydınızı açabilirsiniz.{% endif %}</div>
+  {% endfor %}
+</section>
+<p><a class="pt-btn" href="{% url 'core:customer_home' %}">Ana Sayfaya Dön</a></p>
+{% endblock %}

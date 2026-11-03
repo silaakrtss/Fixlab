@@ -1,0 +1,32 @@
+{% load static %}<!doctype html>
+<html lang="tr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}Müşteri · FIXLAB{% endblock %}</title>
+{% include "core/_favicon.html" %}
+{% include "core/_fonts.html" %}
+<link rel="stylesheet" href="{% static 'core/css/app.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/customer.css' %}?v=5">
+</head><body class="cp{% block body_class %}{% endblock %}">
+<header class="cp-head">
+  <a href="{% url 'core:landing' %}" class="cp-logo-link" aria-label="FIXLAB ana sayfa"><img class="cp-logo" src="{% static 'core/images/logo.png' %}" width="126" height="49" alt="FIXLAB Technical Service"></a>
+  {% block head_right %}{% endblock %}
+</header>
+<div class="cp-grid">
+  <main class="cp-form-side"><div class="cp-form-wrap">
+    {% block content %}{% endblock %}
+  </div></main>
+  <section class="cp-visual" aria-label="FIXLAB">
+    <div class="cp-hero"><img src="{% static 'core/images/hero.jpg' %}" width="1233" height="864" alt="FIXLAB teknik servis ekibi"></div>
+    {% block panel %}
+    <div class="cp-panel">
+      <div class="cp-box">
+        <h2>Cihazlarınız Güvenli Ellerde</h2>
+        <p>7/24 canlı takip ve şeffaf teknik<br>servis süreçleri.</p>
+      </div>
+    </div>
+    {% endblock %}
+  </section>
+</div>
+<script src="{% static 'core/js/phone.js' %}?v=1" defer></script>
+{% block scripts %}{% endblock %}
+</body></html>

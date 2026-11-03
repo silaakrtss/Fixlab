@@ -1,0 +1,101 @@
+/* FIXLAB · Admin › Cihazlar › Tüm cihazlar · Yeni cihaz kaydı · Kayıt oluşturuldu — yalnızca .ad-* sınıfları.
+   newdevices.css (nd-/ndd- sınıfları) ile birlikte yüklenir; onlara dokunmaz. */
+.ad{color:#15222d;font-family:var(--font)}
+.ad-bellrow{display:flex;justify-content:flex-end;margin-bottom:24px}
+
+/* Başlık satırı */
+.ad-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px}
+.ad-head h1{margin:0;font:700 28px/1.2 var(--font);letter-spacing:-.01em}
+.ad-head p{margin:6px 0 0;font-size:14px;color:#5b6b78}
+.ad-btn{display:inline-flex;align-items:center;justify-content:center;height:42px;padding:0 22px;border-radius:10px;font:600 14px/1 var(--font);text-decoration:none;white-space:nowrap;cursor:pointer;transition:background .15s}
+.ad-btn:focus-visible{outline:3px solid #0b7a75;outline-offset:2px}
+.ad-btn-primary{border:1px solid #0b7a75;background:#0b7a75;color:#fff}
+.ad-btn-primary:hover{background:#09665f}
+.ad-btn-primary:disabled{opacity:.55;cursor:not-allowed}
+.ad-btn-ghost{border:1px solid #d6dde2;background:#fff;color:#15222d}
+.ad-btn-ghost:hover{background:#f2f5f7}
+.ad-btn-block{display:flex;width:100%}
+
+/* Liste: ek sütunlar ve durum rozetleri (tablo/süzgeç görünümü nd- sınıflarından gelir) */
+.ad-table td.ad-muted{color:#7b8a96}
+.ad-pill{display:inline-block;padding:2px 10px;border-radius:99px;font:500 12px/18px var(--font);white-space:nowrap}
+.ad-pill-grey{background:#eef1f3;color:#5c6c79}
+.ad-pill-blue{background:#e1f1fb;color:#0b7fb0}
+.ad-pill-amber{background:#fdf0c7;color:#b45309}
+.ad-pill-orange{background:#fde8d7;color:#c2410c}
+.ad-pill-green{background:#dcf5e7;color:#15803d}
+.ad-pill-red{background:#fdecea;color:#b42318}
+.ad-detail{color:#0b7a75;font:500 14px/20px var(--font);text-decoration:none}
+.ad-detail:hover{text-decoration:underline}
+
+/* Alt çubuk + sayfalama */
+.ad-foot{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:20px;font-size:13px;color:#667581}
+.ad-pages{display:flex;gap:8px;align-items:center}
+.ad-pages a,.ad-pages span{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:34px;padding:0 8px;border:1px solid #d6dde2;border-radius:8px;background:#fff;color:#15222d;font:500 13px/1 var(--font);text-decoration:none}
+.ad-pages a:hover{background:#f2f5f7}
+.ad-pages a:focus-visible{outline:3px solid #0b7a75;outline-offset:2px}
+.ad-pages .is-current{border-color:#0b7a75;background:#0b7a75;color:#fff}
+.ad-pages .is-gap{border-color:transparent;background:transparent;color:#7b8a96;min-width:20px}
+
+/* Yeni cihaz kaydı */
+.ad-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:start}
+.ad-main{display:grid;gap:20px;min-width:0}
+.ad-card{background:#fff;border:1px solid #e2e8ec;border-radius:12px;padding:20px 22px}
+.ad-card h2{margin:0 0 16px;font:600 17px/24px var(--font)}
+.ad-card h3{margin:0 0 6px;font:600 15px/22px var(--font)}
+.ad-lead{margin:0 0 14px;font-size:13px;line-height:20px;color:#667581}
+.ad-row2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.ad-field{min-width:0;margin-bottom:16px}
+.ad-field .ndd-label{margin-bottom:6px}
+.ad-field .ndd-input{margin:0}
+.ad-field .ndd-textarea{min-height:92px}
+.ad-field.has-error .ndd-input,.ad-field.has-error .ndd-textarea,.ad-field.has-error .ndd-select{border-color:#d92d20}
+.ad-err{margin:6px 0 0;color:#b42318;font:500 12px/18px var(--font)}
+.ad-sep{border:0;border-top:1px solid #e2e8ec;margin:6px 0 20px}
+.ad-assign .ndd-select{margin-bottom:10px}
+.ad-note-label{margin-top:8px}
+.ad-assign-note{margin:0;font-size:13px;color:#667581}
+.ad-assign-note b{font-weight:600;color:#4f6470}
+.ad-side{position:sticky;top:24px;display:grid;gap:16px}
+.ad-side p{margin:0 0 12px;font-size:13px;line-height:20px;color:#667581}
+.ad-side .ad-btn+.ad-btn{margin-top:10px}
+
+/* Fotoğraf / video yükleme alanı */
+.ad-upload{border:1px solid #e2e8ec;border-radius:12px;padding:18px 20px;margin-bottom:20px}
+.ad-drop{border:1.5px dashed #b9c7c5;border-radius:12px;background:#f9fbfb;padding:26px 16px;text-align:center}
+.ad-drop.is-over{background:#e4f1ef;border-color:#0b7a75}
+.ad-drop svg{color:#0b7a75}
+.ad-drop p{margin:8px 0 12px;font-weight:600;font-size:14px}
+.ad-drop small{display:block;margin-top:12px;color:#667581;font-size:12px}
+.ad-pick{display:inline-flex;align-items:center;height:36px;padding:0 18px;border:1px solid #d6dde2;border-radius:8px;background:#fff;color:#15222d;font:600 13px/1 var(--font);cursor:pointer}
+.ad-pick:hover{background:#f2f5f7}
+.ad-files-head{display:flex;justify-content:space-between;align-items:center;margin:18px 0 10px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#667581}
+.ad-files-head button{background:none;border:0;color:#0b7a75;font:600 13px var(--font);letter-spacing:0;text-transform:none;cursor:pointer}
+.ad-file{display:flex;align-items:center;gap:14px;border:1px solid #e2e8ec;border-radius:12px;padding:10px 14px;margin-bottom:10px}
+.ad-file-ico{flex:none;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:10px;background:#e4f1ef;color:#0b7a75}
+.ad-file-txt{flex:1;min-width:0}
+.ad-file-txt b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:600 14px/20px var(--font)}
+.ad-file-txt small{color:#667581;font-size:12px}
+.ad-file button{background:none;border:0;color:#0b7a75;font:600 13px var(--font);cursor:pointer}
+
+/* Kayıt oluşturuldu */
+.ad-done{display:flex;justify-content:center;padding-top:36px}
+.ad-done-card{width:100%;max-width:416px;padding:34px 28px 38px;text-align:center;background:#fff;border:1px solid #e2e8ec;border-radius:16px}
+.ad-tick{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin-bottom:14px;border-radius:50%;background:#0f9d6a;color:#fff}
+.ad-done-card h1{margin:0 0 8px;font:700 22px/30px var(--font)}
+.ad-done-card p{margin:0 0 18px;font-size:13px;line-height:20px;color:#667581}
+.ad-done-card p.ad-warn{padding:8px 12px;border:1px solid #f3e3a5;border-radius:8px;background:#fffbea;color:#9a3412}
+.ad-code{display:block;margin:0 0 20px;padding:16px 12px;border-radius:12px;background:#e4f1ef;color:#0b7a75;font:700 30px/1.2 var(--font);letter-spacing:.08em;overflow-wrap:anywhere}
+.ad-done-actions{display:grid;justify-items:center;gap:14px}
+.ad-link{color:#0b7a75;font:500 13px/18px var(--font);text-decoration:none}
+.ad-link:hover{text-decoration:underline}
+
+@media(max-width:1100px){
+  .ad-grid{grid-template-columns:1fr}
+  .ad-side{position:static}
+}
+@media(max-width:700px){
+  .ad-head{flex-direction:column}
+  .ad-row2{grid-template-columns:1fr}
+  .ad-code{font-size:24px}
+}

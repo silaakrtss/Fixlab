@@ -1,0 +1,87 @@
+{% extends "core/base_customer_app.html" %}
+{% block title %}Cihaz Durumu Sorgula{% endblock %}
+{% block crumb %}Cihaz Durumu Sorgula{% endblock %}
+{% block content %}
+<h1 class="pt-h1">Cihaz Durumu Sorgula</h1>
+<p class="pt-lead">Servis sürecinizi görüntülemek için cihaz takip kodunuzu girin.</p>
+
+<div class="pt-lookup">
+  <section class="pt-card">
+    <h2>Servis kaydınızı bulun</h2>
+    <form method="get" action="{% url 'core:customer_device_lookup' %}" style="margin-top:18px">
+      <div class="pt-field">
+        <label for="f-kod">Cihaz takip kodu</label>
+        <input type="text" id="f-kod" name="kod" value="{{ code }}" placeholder="Örn. TS-2025-1024" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="30" required>
+        <div class="pt-hint">Kodunuzu servis kaydı bilgilendirmesinde bulabilirsiniz.</div>
+      </div>
+      <button type="submit" class="pt-btn pt-btn-primary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>Sorgula</button>
+    </form>
+  </section>
+  <aside class="pt-stack" style="gap:20px">
+    <div class="pt-info"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg><span>Yalnızca kendi müşteri hesabınıza ait servis kayıtlarını görüntüleyebilirsiniz.</span></div>
+    <section class="pt-card pt-code-help">
+      <h2 class="sm">Takip kodu nedir?</h2>
+      <p class="pt-aside-text" style="margin-bottom:0">Her servis kaydına özel oluşturulan koddur. Kayıt bilgilendirmenizde ve Ana Sayfa'daki mevcut servis kaydınızda yer alır.</p>
+      <span class="pt-mono">Örnek biçim: TS-2025-1024</span>
+    </section>
+  </aside>
+</div>
+
+{% if searched and not device %}
+<div class="pt-card pt-result" role="alert">
+  <div class="pt-alert pt-alert-bad" style="margin:0">«{{ code }}» takip koduyla hesabınıza ait bir servis kaydı bulunamadı. Kodu kontrol edip tekrar deneyin.</div>
+</div>
+{% endif %}
+
+{% if device %}
+<section class="pt-card pt-result" aria-label="Servis kaydı {{ device.tracking_id }}">
+  <div class="pt-rec-top">
+    <div class="pt-ico">{% include "core/_device_icon.html" %}</div>
+    <div class="pt-rec-name"><h3 style="margin:0;font:600 20px/1.3 var(--font)">{{ device.title }}</h3><small class="pt-mono pt-muted">{{ device.tracking_id }}</small></div>
+    <span class="pt-pill pt-pill-{{ device.tone }}">{{ device.get_status_display }}</span>
+  </div>
+  <p class="pt-rec-issue"><b>{{ device.issue_title|default:"Bildirilen arıza" }}</b>{% if device.issue_title and device.issue_description %}<br><span class="pt-muted">{{ device.issue_description|truncatechars:240 }}</span>{% elif device.issue_description %}<br><span class="pt-muted">{{ device.issue_description|truncatechars:240 }}</span>{% endif %}</p>
+
+  {% if timeline.failed %}<div class="pt-alert pt-alert-bad">{{ device.note }}</div>{% else %}<div class="pt-alert pt-alert-info">{{ device.note }}</div>{% endif %}
+
+  <div class="pt-meta">
+    <div><small>Kayıt tarihi</small><b>{{ device.received_at|date:"d.m.Y, H:i" }}</b></div>
+    <div><small>Tahmini teslim</small><b>{% if device.estimated_delivery %}{{ device.estimated_delivery|date:"d.m.Y" }}{% else %}—{% endif %}</b></div>
+    <div><small>Tahmini ücret</small><b>{% if device.estimated_cost %}{{ device.estimated_cost|floatformat:"0g" }} ₺{% else %}—{% endif %}</b></div>
+    <div><small>Son güncelleme</small><b>{{ device.updated_at|date:"d.m.Y, H:i" }}</b></div>
+  </div>
+  <div class="pt-meta" style="border:0;padding-top:12px">
+    <div><small>Teslim yöntemi</small><b>{{ device.get_delivery_method_display }}</b></div>
+    {% if device.is_cargo and device.cargo_tracking_code %}<div><small>Kargo takip kodu</small><b>{{ device.cargo_tracking_code }}</b></div>{% endif %}
+    {% if device.return_cargo_tracking_code %}<div><small>Geri kargo takip kodu</small><b>{{ device.return_cargo_tracking_code }}</b></div>{% endif %}
+    {% if device.estimated_cost %}<div><small>Ödeme</small><b>{% if device.is_paid %}Ödendi{% else %}Ödeme bekleniyor{% endif %}</b></div>{% endif %}
+  </div>
+
+  <hr class="pt-divider">
+  <h2 style="margin:0;font:600 16px/1.3 var(--font)">Servis süreci</h2>
+  <div class="pt-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ timeline.percent }}" style="margin-top:12px"><i style="width:{{ timeline.percent }}%"></i></div>
+  <ol class="pt-tl" style="margin-top:8px">
+    {% for s in timeline.stages %}
+    <li class="{{ s.state }}">
+      <span class="pt-dot">{% if s.state == 'done' %}✓{% else %}{{ forloop.counter }}{% endif %}</span>
+      <div><b>{{ s.title }}</b><p>{{ s.desc }}</p>{% if s.extra %}<span class="extra">{{ s.extra }}</span>{% endif %}{% if s.when %}<time>{{ s.when|date:"d.m.Y, H:i" }}</time>{% endif %}</div>
+    </li>
+    {% endfor %}
+  </ol>
+
+  {% if attachments %}
+  <hr class="pt-divider">
+  <b>Ekler · {{ attachments|length }} dosya</b>
+  <ul class="pt-attach">{% for a in attachments %}<li><a href="{% url 'core:attachment' a.pk %}" target="_blank" rel="noopener">{{ a.original_name }}</a> · {{ a.get_kind_display }} · {{ a.size_label }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  <div class="pt-rowbtns">
+    {% if device.is_cargo and device.awaiting_arrival or device.status == 'return_shipping' %}<a class="pt-btn pt-btn-primary" href="{% url 'core:customer_cargo' device.tracking_id %}">Kargo sürecini görüntüle</a>{% endif %}
+    <a class="pt-btn" href="{% url 'core:customer_home' %}">Ana Sayfaya Dön</a>
+    {% include "core/_cancel_device_form.html" %}
+  </div>
+</section>
+{% endif %}
+
+{% include "core/_help_box.html" %}
+{% endblock %}

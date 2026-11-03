@@ -1,0 +1,167 @@
+{% extends "core/base_customer_app.html" %}
+{% load static %}
+{% block title %}Cihaz Kaydı Oluştur{% endblock %}
+{% block crumb %}Cihaz Kaydı Oluştur{% endblock %}
+{% block content %}
+<h1 class="pt-h1">Cihaz Kaydı Oluştur</h1>
+<p class="pt-lead">Cihazınızı, yaşadığınız sorunu ve teslim yöntemini seçin. Servis için bir ön kayıt oluşturun.</p>
+
+<form method="post" enctype="multipart/form-data" novalidate id="device-form">{% csrf_token %}
+{% if form.errors or file_errors %}<ul class="pt-msgs" role="alert"><li class="pt-msg pt-msg-error">Formda eksik veya hatalı alanlar var. Lütfen kırmızı ile işaretli alanları kontrol edin.</li></ul>{% endif %}
+<div class="pt-two">
+  <div class="pt-stack">
+
+    <section class="pt-card">
+      <h2>Cihaz bilgileri</h2>
+      <p class="pt-form-note">* işaretli alanlar zorunludur.</p>
+      <div class="pt-grid2">
+        <div class="pt-field {% if form.device_type.errors %}has-error{% endif %}">
+          <label for="f-type">Cihaz türü *</label>
+          <select id="f-type" name="device_type" required>
+            {% for value, label in form.device_type.field.choices %}<option value="{{ value }}" {% if form.device_type.value == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+          </select>
+          {% if form.device_type.errors %}<div class="pt-err">{{ form.device_type.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="pt-field {% if form.brand.errors %}has-error{% endif %}">
+          <label for="f-brand">Marka *</label>
+          <select id="f-brand" name="brand" required>
+            {% for value, label in form.brand.field.choices %}<option value="{{ value }}" {% if form.brand.value == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+          </select>
+          {% if form.brand.errors %}<div class="pt-err">{{ form.brand.errors.0 }}</div>{% endif %}
+        </div>
+      </div>
+      <div class="pt-field {% if form.brand_other.errors %}has-error{% endif %}" id="f-brand-other-wrap" {% if form.brand.value != '__other__' %}hidden{% endif %}>
+        <label for="f-brand-other">Marka adı *</label>
+        <input type="text" id="f-brand-other" name="brand_other" maxlength="80" value="{{ form.brand_other.value|default_if_none:'' }}" placeholder="Markayı yazın">
+        {% if form.brand_other.errors %}<div class="pt-err">{{ form.brand_other.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="pt-grid2">
+        <div class="pt-field {% if form.model.errors %}has-error{% endif %}">
+          <label for="f-model">Model *</label>
+          <input type="text" id="f-model" name="model" maxlength="120" required value="{{ form.model.value|default_if_none:'' }}" placeholder="Örn. Vivobook 15">
+          {% if form.model.errors %}<div class="pt-err">{{ form.model.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="pt-field">
+          <label for="f-serial">Seri numarası (isteğe bağlı)</label>
+          <input type="text" id="f-serial" name="serial_number" maxlength="100" value="{{ form.serial_number.value|default_if_none:'' }}" placeholder="Seri numarasını girin">
+        </div>
+      </div>
+    </section>
+
+    <section class="pt-card">
+      <h2>Arıza bilgileri</h2>
+      <div class="pt-field {% if form.issue_title.errors %}has-error{% endif %}" style="margin-top:16px">
+        <label for="f-title">Arıza başlığı *</label>
+        <input type="text" id="f-title" name="issue_title" maxlength="150" required value="{{ form.issue_title.value|default_if_none:'' }}" placeholder="Örn. Ekranda aralıklı titreme">
+        {% if form.issue_title.errors %}<div class="pt-err">{{ form.issue_title.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="pt-field {% if form.issue_description.errors %}has-error{% endif %}">
+        <label for="f-desc">Ayrıntılı arıza açıklaması *</label>
+        <textarea id="f-desc" name="issue_description" rows="5" required>{{ form.issue_description.value|default_if_none:'' }}</textarea>
+        <div class="pt-hint">Sorunun ne zaman başladığını ve hangi durumlarda oluştuğunu yazın.</div>
+        {% if form.issue_description.errors %}<div class="pt-err">{{ form.issue_description.errors.0 }}</div>{% endif %}
+      </div>
+    </section>
+
+    <section class="pt-card">
+      <h2>Teslim yöntemi</h2>
+      <p class="pt-aside-text" style="margin-bottom:0">Cihazın servise nasıl ulaşacağını seçin. Kargo seçiminde önce «Kargo bekleniyor», kargoya teslimden sonra «Kargoda · Servise geliyor» aşaması görünür.</p>
+      <div class="pt-methods" role="radiogroup" aria-label="Teslim yöntemi">
+        <label class="pt-method"><input type="radio" name="delivery_method" value="self" {% if form.delivery_method.value != 'cargo' %}checked{% endif %}><div><b>Kendim teslim edeceğim</b><span>Cihazı bizzat servise teslim edeceğim.</span></div></label>
+        <label class="pt-method"><input type="radio" name="delivery_method" value="cargo" {% if form.delivery_method.value == 'cargo' %}checked{% endif %}><div><b>Kargo ile göndereceğim</b><span>Cihazı servise kargolayacağım.</span></div></label>
+      </div>
+      <div class="pt-flow" data-show-for="cargo">
+        <h3>Kargo akışı</h3>
+        <ol>
+          <li><span class="pt-num">1</span>Müşteri cihazı servise kargolar.</li>
+          <li><span class="pt-num">2</span>Servis onarım işlemlerini tamamlar.</li>
+          <li><span class="pt-num">3</span>Servis onarılmış cihazı müşteriye geri kargolar.</li>
+        </ol>
+      </div>
+      <div class="pt-flow" data-show-for="self">
+        <h3>Teslim akışı</h3>
+        <ol>
+          <li><span class="pt-num">1</span>Cihazı takip kodunuzla birlikte servise getirirsiniz.</li>
+          <li><span class="pt-num">2</span>Servis teknik inceleme ve onarımı tamamlar.</li>
+          <li><span class="pt-num">3</span>Onarılmış cihazı servisten teslim alırsınız.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="pt-card">
+      <h2>Fotoğraf ve Video Ekle</h2>
+      <p class="pt-aside-text">Ekler isteğe bağlıdır. Birden fazla fotoğraf ve video ekleyebilirsiniz. Kargo seçiliyse ambalaj ve kargo etiketi fotoğrafı eklemeyi unutmayın.</p>
+      <div class="pt-drop" id="f-drop">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg>
+        <p>Fotoğraf ve videoları sürükleyip bırakın</p>
+        <button type="button" class="pt-btn pt-btn-sm" id="f-pick">Dosya Seç</button>
+        <small>Önerilen formatlar: JPG / PNG · MP4 / MOV (en fazla {{ max_files }} dosya; fotoğraf {{ max_photo_mb }} MB, video {{ max_video_mb }} MB)</small>
+        <input type="file" id="f-files" name="attachments" multiple accept=".jpg,.jpeg,.png,.mp4,.mov,image/jpeg,image/png,video/mp4,video/quicktime" hidden data-max="{{ max_files }}" data-photo-mb="{{ max_photo_mb }}" data-video-mb="{{ max_video_mb }}">
+      </div>
+      <div class="pt-err" id="f-fileerr" role="alert" {% if not file_errors %}hidden{% endif %}>{% for e in file_errors %}{{ e }} {% endfor %}</div>
+      <div class="pt-files-head" id="f-filehead" hidden><span id="f-filecount">0 dosya</span><button type="button" id="f-more">+ Dosya ekle</button></div>
+      <div id="f-filelist"></div>
+      <noscript><p class="pt-hint">Dosya seçmek için tarayıcınızda JavaScript açık olmalıdır.</p></noscript>
+    </section>
+
+    <div class="pt-formbar">
+      <a class="pt-btn" href="{% url 'core:customer_home' %}">Vazgeç</a>
+      <button type="submit" class="pt-btn pt-btn-primary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Kaydı Oluştur</button>
+    </div>
+  </div>
+
+  <aside class="pt-stack">
+    <section class="pt-card">
+      <h2>İletişim bilgileriniz</h2>
+      <p class="pt-aside-text">Bu kayıt müşteri hesabınıza bağlanır. Servis bilgilendirmeleri hesabınızdaki e-posta adresi üzerinden paylaşılır.</p>
+      <div class="pt-field {% if form.contact_phone.errors %}has-error{% endif %}">
+        <label for="f-phone">İletişim telefonu (isteğe bağlı)</label>
+        <input type="tel" id="f-phone" name="contact_phone" maxlength="20" inputmode="tel" value="{{ form.contact_phone.value|default_if_none:'' }}" placeholder="(5XX) XXX XX XX">
+        <div class="pt-hint">Gerekirse sizinle iletişime geçilebilmesi için.</div>
+        {% if form.contact_phone.errors %}<div class="pt-err">{{ form.contact_phone.errors.0 }}</div>{% endif %}
+      </div>
+    </section>
+
+    <div class="pt-info"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg><span>Güvenliğiniz için şifre, kimlik bilgisi veya özel veri içeren fotoğraf ve videolar paylaşmayın.</span></div>
+
+    <section class="pt-card">
+      <h2 class="sm">Ön kayıt hakkında</h2>
+      <p class="pt-aside-text" style="margin-bottom:0">Formu tamamladığınızda bir takip kodu oluşturulur. Ön kayıt, cihazınızın fiziksel olarak servise teslim edildiği anlamına gelmez.</p>
+    </section>
+
+    <section class="pt-card" data-show-for="cargo">
+      <h2 class="sm">Kargo geri gönderim bilgileri</h2>
+      <p class="pt-aside-text">Onarılan cihaz, bu adrese geri kargolanacaktır. Teslimat sırasında bu bilgilerin doğru olması önemlidir.</p>
+      <div class="pt-grid2">
+        <div class="pt-field {% if form.return_recipient.errors %}has-error{% endif %}">
+          <label for="f-rr">Alıcı *</label>
+          <input type="text" id="f-rr" name="return_recipient" maxlength="150" data-name-only="1" value="{{ form.return_recipient.value|default:request.user.display_name }}">
+          {% if form.return_recipient.errors %}<div class="pt-err">{{ form.return_recipient.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="pt-field {% if form.return_phone.errors %}has-error{% endif %}">
+          <label for="f-rp">Telefon *</label>
+          <input type="tel" id="f-rp" name="return_phone" maxlength="20" inputmode="tel" value="{{ form.return_phone.value|default:request.user.phone }}">
+          {% if form.return_phone.errors %}<div class="pt-err">{{ form.return_phone.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="pt-field {% if form.return_city.errors %}has-error{% endif %}">
+          <label for="f-rc">İl *</label>
+          <input type="text" id="f-rc" name="return_city" maxlength="60" value="{{ form.return_city.value|default_if_none:'' }}">
+          {% if form.return_city.errors %}<div class="pt-err">{{ form.return_city.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="pt-field {% if form.return_district.errors %}has-error{% endif %}">
+          <label for="f-rd">İlçe *</label>
+          <input type="text" id="f-rd" name="return_district" maxlength="60" value="{{ form.return_district.value|default_if_none:'' }}">
+          {% if form.return_district.errors %}<div class="pt-err">{{ form.return_district.errors.0 }}</div>{% endif %}
+        </div>
+      </div>
+      <div class="pt-field {% if form.return_address.errors %}has-error{% endif %}">
+        <label for="f-ra">Açık adres *</label>
+        <textarea id="f-ra" name="return_address" rows="3">{{ form.return_address.value|default_if_none:'' }}</textarea>
+        {% if form.return_address.errors %}<div class="pt-err">{{ form.return_address.errors.0 }}</div>{% endif %}
+      </div>
+    </section>
+  </aside>
+</div>
+</form>
+<script src="{% static 'core/js/names.js' %}?v=1"></script>
+{% endblock %}
