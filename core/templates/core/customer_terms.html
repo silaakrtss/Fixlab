@@ -1,0 +1,20 @@
+{% extends "core/base_customer_legal.html" %}
+{% block title %}Kullanım ve Servis Şartları{% endblock %}
+{% block crumb %}Şartlar{% endblock %}
+{% block toc %}
+<a href="#ct1">1. Uygulamanın kapsamı</a>
+<a href="#ct2">2. Servis kodu ve yetkili kullanım</a>
+<a href="#ct3">3. Bilgilerin doğruluğu ve iletişim</a>
+<a href="#ct4">4. Tahmini ücret ve müşteri onayı</a>
+<a href="#ct5">5. Servis durumu ve tahmini teslim</a>
+<a href="#ct6">6. Cihaz verileri ve yedekleme</a>
+<a href="#ct7">7. Cihaz tesliminde doğrulama</a>
+<a href="#ct8">8. Kanuni haklar ve başvuru</a>
+{% endblock %}
+{% block content %}
+<p class="lg-eyebrow">Müşteri • Kullanım koşulları</p>
+<h1>Kullanım ve Servis Şartları</h1>
+<p class="lg-lead">Servis kodunun güvenli kullanımı, onay süreci ve cihaz teslimine ilişkin müşteri koşulları. Kanuni tüketici haklarınız saklıdır.</p>
+<hr class="lg-rule">
+{% include "core/_customer_terms_body.html" %}
+{% endblock %}

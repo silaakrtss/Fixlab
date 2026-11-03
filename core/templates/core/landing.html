@@ -1,0 +1,213 @@
+{% load static %}<!doctype html>
+<html lang="tr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FIXLAB · Teknik Servis</title>
+<meta name="description" content="FIXLAB: cihazınızın servise kaydından teslimine kadar her adımı tek ekranda takip edin.">
+{% include "core/_favicon.html" %}
+{% include "core/_fonts.html" %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@600;700&display=swap">
+<link rel="stylesheet" href="{% static 'core/css/landing.css' %}?v=2">
+</head><body class="ld">
+<header class="ld-header" id="ust">
+  <div class="ld-wrap ld-bar">
+    <a href="#ust" class="ld-logo" aria-label="FIXLAB Technical Service — sayfa başı"><img src="{% static 'core/images/logo.png' %}" width="126" height="49" alt="FIXLAB Technical Service"></a>
+    <nav class="ld-nav" id="ld-nav" aria-label="Ana menü">
+      <a href="#markalar">Markalar</a>
+      <a href="#sss">SSS</a>
+      <a href="#hakkimizda">Hakkımızda</a>
+      <a href="{% url 'core:login' %}">Bayi Portal</a>
+      <a href="#iletisim">İletişim</a>
+    </nav>
+    <div class="ld-actions">
+      {% if request.user.is_authenticated %}
+      <a class="ld-btn ld-btn-fill" href="{% url 'core:home' %}">Panelim</a>
+      {% else %}
+      <a class="ld-btn ld-btn-line" href="{% url 'core:customer_login' %}">Giriş Yap</a>
+      <a class="ld-btn ld-btn-fill" href="{% url 'core:customer_register' %}">Üye Ol</a>
+      {% endif %}
+    </div>
+    <button class="ld-burger" type="button" aria-label="Menüyü aç" aria-expanded="false" aria-controls="ld-nav"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main>
+<section class="ld-hero" aria-roledescription="carousel" aria-label="Tanıtım">
+  <div class="ld-wrap ld-hero-in">
+    <div class="ld-slides">
+      <div class="ld-slide is-active" data-slide>
+        <p class="ld-eyebrow">CİHAZ TAKİBİ</p>
+        <h1 class="ld-serif">Cihazınız güvenli ellerde</h1>
+        <p class="ld-lead">Servis kaydınızı oluşturun, onarım sürecini adım adım takip edin. Cihazınızın durumu her an elinizin altında.</p>
+      </div>
+      <div class="ld-slide" data-slide>
+        <p class="ld-eyebrow">ŞEFFAF SÜREÇ</p>
+        <h1 class="ld-serif">Takip koduyla her adım görünür</h1>
+        <p class="ld-lead">Kayıt, teşhis, onarım ve teslim aşamalarını tek ekrandan izleyin; durum değiştikçe haberdar olun.</p>
+      </div>
+      <div class="ld-slide" data-slide>
+        <p class="ld-eyebrow">KOLAY TESLİM</p>
+        <h1 class="ld-serif">Kargoyla gönderin, kapınıza gelsin</h1>
+        <p class="ld-lead">Cihazınızı servise kargoyla ya da elden teslim edin; onarım sonrası adresinize ulaştıralım.</p>
+      </div>
+    </div>
+    <div class="ld-devices" aria-hidden="true">
+      <div class="ld-dev is-active" data-device>
+      <div class="ld-phone" aria-hidden="true">
+        <div class="ld-phone-top"></div>
+        <div class="ld-phone-screen">
+          <i class="ld-bar ld-bar-1"></i><i class="ld-bar ld-bar-2"></i>
+          <div class="ld-phone-card"><b></b><span><i></i><i></i></span></div>
+          <i class="ld-bar ld-bar-3"></i><i class="ld-bar ld-bar-4"></i>
+          <div class="ld-phone-btn"></div>
+        </div>
+      </div>
+      </div>
+      <div class="ld-dev" data-device>
+        <svg viewBox="0 0 260 180" width="250" height="173" fill="none" focusable="false">
+          <rect x="40" y="10" width="180" height="122" rx="10" fill="#0c2a28" stroke="#fff" stroke-width="4"/>
+          <rect x="50" y="21" width="160" height="101" rx="5" fill="#e8f3f1"/>
+          <circle cx="130" cy="15.5" r="1.8" fill="#2f9f95"/>
+          <rect x="60" y="30" width="70" height="8" rx="4" fill="#0e7c76"/>
+          <rect x="60" y="44" width="36" height="6" rx="3" fill="#8fcfc8"/>
+          <rect x="158" y="30" width="42" height="14" rx="5" fill="#0e7c76"/>
+          <rect x="60" y="58" width="92" height="30" rx="6" fill="#fff"/>
+          <circle cx="76" cy="73" r="7" fill="#0e7c76"/>
+          <rect x="89" y="67" width="48" height="5" rx="2.5" fill="#8fcfc8"/>
+          <rect x="89" y="77" width="30" height="5" rx="2.5" fill="#cfe2df"/>
+          <rect x="60" y="96" width="140" height="6" rx="3" fill="#cfe2df"/>
+          <rect x="60" y="107" width="100" height="6" rx="3" fill="#cfe2df"/>
+          <path d="M22 140H238L246 158Q246 168 236 168H24Q14 168 14 158Z" fill="#0c2a28" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+          <rect x="106" y="140" width="48" height="7" rx="3.5" fill="#2f9f95"/>
+        </svg>
+      </div>
+      <div class="ld-dev" data-device>
+        <svg viewBox="0 0 260 200" width="250" height="192" fill="none" focusable="false">
+          <rect x="72" y="14" width="116" height="62" rx="4" fill="#e8f3f1" stroke="#fff" stroke-width="4"/>
+          <rect x="86" y="28" width="60" height="6" rx="3" fill="#8fcfc8"/>
+          <rect x="86" y="40" width="88" height="6" rx="3" fill="#cfe2df"/>
+          <rect x="86" y="52" width="74" height="6" rx="3" fill="#cfe2df"/>
+          <rect x="22" y="70" width="216" height="86" rx="14" fill="#0c2a28" stroke="#fff" stroke-width="4"/>
+          <rect x="36" y="82" width="188" height="14" rx="7" fill="#14403d"/>
+          <circle cx="52" cy="89" r="3.5" fill="#2f9f95"/>
+          <rect x="170" y="84" width="40" height="10" rx="5" fill="#e8f3f1"/>
+          <rect x="48" y="116" width="164" height="8" rx="4" fill="#06191a"/>
+          <rect x="62" y="124" width="136" height="68" rx="3" fill="#fff"/>
+          <rect x="76" y="138" width="70" height="7" rx="3.5" fill="#0e7c76"/>
+          <rect x="76" y="152" width="104" height="6" rx="3" fill="#8fcfc8"/>
+          <rect x="76" y="164" width="90" height="6" rx="3" fill="#cfe2df"/>
+          <rect x="76" y="176" width="60" height="6" rx="3" fill="#cfe2df"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <div class="ld-ctrl">
+    <button type="button" class="ld-arrow" data-prev aria-label="Önceki"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <div class="ld-dots" role="tablist" aria-label="Slaytlar">
+      <button type="button" class="is-active" data-dot aria-label="1. slayt"></button>
+      <button type="button" data-dot aria-label="2. slayt"></button>
+      <button type="button" data-dot aria-label="3. slayt"></button>
+    </div>
+    <button type="button" class="ld-arrow" data-next aria-label="Sonraki"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+  </div>
+</section>
+
+<section class="ld-sec" id="hakkimizda">
+  <div class="ld-wrap ld-about">
+    <div class="ld-about-text">
+      <h2 class="ld-serif ld-h2">Hakkımızda</h2>
+      <p>FIXLAB, cihazınızın servise kaydından teslimine kadar her adımı tek ekranda izlemenizi sağlayan teknik servis yönetim sistemidir. Teknisyenler işlemleri kayda geçirir, siz de takip koduyla durumu anında görürsünüz.</p>
+      <h3 class="ld-h3">Hikâyemiz ve Kurumsal Yolculuğumuz</h3>
+      <p>2018 yılında Düzce’de yerel bir teknoloji girişimi olarak kurulan FIXLAB, teknik servis süreçlerindeki belirsizlikleri ve iletişim aksaklıklarını ortadan kaldırma vizyonuyla yola çıktı. Kuruluşumuzdan bu yana müşteri memnuniyetini ve şeffaflığı merkeze alarak, geleneksel tamir hizmetlerini modern dijital çözümlerle yeniden tanımladık.</p>
+      <p>Düzce Merkez’de başlayan yolculuğumuz, bugün Marmara ve Batı Karadeniz bölgelerine yayılan 8 yetkili servis noktası ve 50’den fazla uzman personelden oluşan güçlü bir kadro ile devam etmektedir. Deneyimli mühendislerimiz, sertifikalı teknisyenlerimiz ve müşteri odaklı destek ekibimizle her yıl binlerce cihazı güvenle hayata döndürüyoruz.</p>
+      <p>FIXLAB olarak, yalnızca arızaları gidermekle kalmıyor; geliştirmiş olduğumuz anlık takip altyapısı sayesinde müşterilerimize kesintisiz, hızlı ve tamamen şeffaf bir servis deneyimi sunuyoruz.</p>
+    </div>
+    <div class="ld-cards">
+      <article class="ld-card">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <h3>Şeffaf takip</h3><p>Takip koduyla cihazınızın durumunu her an görün.</p>
+      </article>
+      <article class="ld-card">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 7.9-8 9-4.8-1.1-8-4.5-8-9V6l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
+        <h3>Orijinal parça</h3><p>Onarımlarda kullanılan parçalar kayıt altındadır.</p>
+      </article>
+      <article class="ld-card">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 10h18M7 15h4"/></svg>
+        <h3>Online ödeme</h3><p>Servis ücretini güvenle çevrimiçi ödeyin.</p>
+      </article>
+      <article class="ld-card">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h11v10H3zM14 9h4l3 3v4h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>
+        <h3>Kargo ile teslim</h3><p>Cihazınız onarım sonrası adresinize gönderilir.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="ld-sec ld-sec-alt" id="markalar">
+  <div class="ld-wrap">
+    <h2 class="ld-serif ld-h2">Markalar</h2>
+    <p class="ld-sub">Hizmet verdiğimiz markalar. [MARKA LİSTESİ: kendi markalarınızla değiştirin]</p>
+    <ul class="ld-brands">
+      <li>Apple</li><li>Samsung</li><li>Xiaomi</li><li>Huawei</li>
+      <li>Realme</li><li>Oppo</li><li>Vivo</li><li>Honor</li>
+      <li>TCL</li><li>OnePlus</li><li>Asus</li><li>Lenovo</li>
+    </ul>
+  </div>
+</section>
+
+<section class="ld-sec" id="sss">
+  <div class="ld-wrap ld-faq">
+    <div>
+      <h2 class="ld-serif ld-h2">Sık Sorulan Sorular</h2>
+      <p class="ld-sub">Aradığınız cevabı bulamazsanız iletişim bölümünden bize ulaşın.</p>
+    </div>
+    <div class="ld-acc">
+      <div class="ld-item is-open">
+        <button type="button" class="ld-q" aria-expanded="true" aria-controls="a1" id="q1">Cihazımı servise nasıl kaydederim?<span class="ld-pm" aria-hidden="true"></span></button>
+        <div class="ld-a" id="a1" role="region" aria-labelledby="q1"><p>Üye olup giriş yaptıktan sonra yeni servis kaydı oluşturabilir, cihaz bilgilerinizi ve arıza açıklamasını girebilirsiniz. [DETAY: kayıt adımlarını kendi sürecinize göre güncelleyin]</p></div>
+      </div>
+      <div class="ld-item">
+        <button type="button" class="ld-q" aria-expanded="false" aria-controls="a2" id="q2">Takip kodu nereden öğrenebilirim?<span class="ld-pm" aria-hidden="true"></span></button>
+        <div class="ld-a" id="a2" role="region" aria-labelledby="q2" hidden><p>Kaydınızı oluşturduğunuzda takip (sorgulama) kodunuz ekranda gösterilir ve e-posta adresinize gönderilir. Kodu, hesabınızdaki Cihaz Sorgula bölümünde de görebilirsiniz.</p></div>
+      </div>
+      <div class="ld-item">
+        <button type="button" class="ld-q" aria-expanded="false" aria-controls="a3" id="q3">Ödemeyi nasıl yapabilirim?<span class="ld-pm" aria-hidden="true"></span></button>
+        <div class="ld-a" id="a3" role="region" aria-labelledby="q3" hidden><p>Servis ücretini kredi/banka kartı (Visa, Mastercard, Troy) veya havale / EFT ile ödeyebilirsiniz. [DETAY: ödeme adımlarını kendi sürecinize göre güncelleyin]</p></div>
+      </div>
+      <div class="ld-item">
+        <button type="button" class="ld-q" aria-expanded="false" aria-controls="a4" id="q4">Cihazım bana nasıl teslim edilir?<span class="ld-pm" aria-hidden="true"></span></button>
+        <div class="ld-a" id="a4" role="region" aria-labelledby="q4" hidden><p>Onarım tamamlandığında cihazınız kayıtta belirttiğiniz adrese kargoyla gönderilir. [DETAY: teslimat seçeneklerini kendi sürecinize göre güncelleyin]</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="ld-footer" id="iletisim">
+  <div class="ld-wrap ld-foot-grid">
+    <div class="ld-foot-brand">
+      <div class="ld-foot-logo ld-serif">FIXLAB<small>TECHNICAL SERVICE</small></div>
+      <h4>Ödeme Yöntemleri</h4>
+      <ul class="ld-pay"><li>VISA</li><li>Mastercard</li><li>Troy</li><li>Havale / EFT</li></ul>
+    </div>
+    <div>
+      <h4>İletişim Bilgileri</h4>
+      <ul class="ld-contact">
+        <li><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>[ADRES: mahalle, cadde, no, ilçe / il]</li>
+        <li><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg>[TELEFON]</li>
+        <li><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>[E-POSTA]</li>
+        <li><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>[ÇALIŞMA SAATLERİ]</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Harita</h4>
+      <div class="ld-map" role="img" aria-label="Harita yer tutucusu">
+        <svg viewBox="0 0 320 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="320" height="220" fill="#16222a"/><path d="M60 0l10 220M0 70h320M200 0l-20 220" stroke="#243540" stroke-width="5" fill="none"/><rect x="16" y="104" width="44" height="40" rx="6" fill="#1f2f39"/><rect x="236" y="130" width="52" height="56" rx="6" fill="#1f2f39"/><rect x="110" y="96" width="34" height="30" rx="6" fill="#1c2b34"/></svg>
+        <span class="ld-pin"><svg viewBox="0 0 40 52" width="40" height="52" aria-hidden="true"><path d="M20 0C9 0 0 8.8 0 19.7 0 33 20 52 20 52s20-19 20-32.3C40 8.8 31 0 20 0z" fill="#0e8f87" stroke="#fff" stroke-width="2.5"/><circle cx="20" cy="19" r="7.5" fill="#fff"/></svg></span>
+      </div>
+      <p class="ld-map-note">[HARİTA: gerçek konum bağlantısı eklenecek]</p>
+    </div>
+  </div>
+  <div class="ld-copy"><div class="ld-wrap">© {% now "Y" %} FIXLAB Teknik Servis. Tüm hakları saklıdır.</div></div>
+</footer>
+<script src="{% static 'core/js/landing.js' %}?v=2" defer></script>
+</body></html>

@@ -1,0 +1,18 @@
+{% extends base_template %}
+{% block title %}Bildirimler{% endblock %}
+{% block crumb %}Bildirimler{% endblock %}
+{% block content %}
+<div class="nt-page">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap">
+    <h1 style="margin:0;font:700 28px/1.2 var(--font)">Bildirimler</h1>
+    <form method="post" action="{% url 'core:notifications_mark_read' %}" style="margin:0">{% csrf_token %}<button type="submit" class="btn btn-ghost btn-sm">Tümünü okundu say</button></form>
+  </div>
+  <div style="background:#fff;border:1px solid #e2e8ec;border-radius:14px;overflow:hidden">
+    {% if items %}
+    <ul>{% for n in items %}
+      <li class="{% if not n.is_read %}unread{% endif %}"><a href="{% url 'core:notification_open' n.pk %}"><b>{{ n.title }}</b>{% if n.body %}<span style="display:block;color:#5b6b78;font-size:13px">{{ n.body }}</span>{% endif %}<time style="display:block;color:#8794a0;font-size:12px;margin-top:4px">{{ n.created_at|date:"d.m.Y H:i" }}</time></a></li>
+    {% endfor %}</ul>
+    {% else %}<div class="nt-empty" style="padding:40px">Henüz bildiriminiz yok.</div>{% endif %}
+  </div>
+</div>
+{% endblock %}

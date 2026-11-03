@@ -1,0 +1,67 @@
+{% extends "core/base_customer_app.html" %}
+{% block title %}Yardım &amp; Destek{% endblock %}
+{% block crumb %}Yardım &amp; Destek{% endblock %}
+{% block content %}
+<h1 class="pt-h1">Yardım &amp; Destek</h1>
+<p class="pt-lead">Servis sürecini, sık sorulan soruları ve bize nasıl ulaşabileceğinizi burada bulabilirsiniz.</p>
+
+<div class="pt-help-grid">
+  <div class="pt-help-main">
+    <section class="pt-panel" aria-labelledby="h-surec">
+      <h2 id="h-surec">Servis süreci nasıl işler?</h2>
+      <ol class="pt-process">
+        <li><span class="pt-num">1</span><div><b>Kayıt oluşturun</b><p>Cihaz bilgilerinizi ve arızayı yazın, dilerseniz fotoğraf veya video ekleyin. Size bir takip kodu verilir ve e-postanıza gönderilir.</p></div></li>
+        <li><span class="pt-num">2</span><div><b>Cihazı teslim edin</b><p>Cihazınızı kargoyla gönderebilir ya da servisimize kendiniz getirebilirsiniz. Kargoyla göndereceksiniz, cihazı kargo şirketine vereceğiniz an kayıt ekranındaki «Kod oluştur» düğmesiyle kargo kodunuzu oluşturun.</p></div></li>
+        <li><span class="pt-num">3</span><div><b>İnceleme ve onarım</b><p>Teknisyenimiz cihazı inceler, gerekirse onayınızı alır ve onarımı yapar. Her aşama kaydınızda görünür.</p></div></li>
+        <li><span class="pt-num">4</span><div><b>Teslim</b><p>Cihaz hazır olduğunda size bildirim gelir. Cihazınızı servisten alabilir ya da kargoyla adresinize gönderilmesini sağlayabilirsiniz; kargoya verilince size e-posta gelir ve ürünü teslim aldığınızda «Ürünü teslim aldım» düğmesine tıklarsınız.</p></div></li>
+      </ol>
+    </section>
+
+    <section class="pt-panel" aria-labelledby="h-sss">
+      <h2 id="h-sss">Sık sorulan sorular</h2>
+      <div class="pt-faq">
+        <details open><summary>Cihazımı servise nasıl kaydederim?</summary><p>Sol menüden «Cihaz Kaydı Oluştur»a tıklayın, cihaz ve arıza bilgilerini girin, teslim yöntemini (kargo ya da elden teslim) seçin. Kaydınız oluştuğunda takip kodunuz ekranda gösterilir.</p></details>
+        <details><summary>Takip kodumu nerede görebilirim?</summary><p>Kayıt sonrası ekranda, e-posta adresinize gelen bilgilendirme mesajında ve Ana Sayfa’daki kayıt kartınızda görebilirsiniz. Kodu «Cihaz Durumu Sorgula» sayfasına yazarak kaydınızın ayrıntılarına ulaşırsınız.</p></details>
+        <details><summary>Kaydımı iptal edebilir miyim?</summary><p>Cihazı kargoya vermediyseniz ya da servise teslim etmediyseniz kayıt kartınızdaki «Kaydı iptal et» düğmesiyle iptal edebilirsiniz. Cihaz kargoya verildikten veya servise ulaştıktan sonra iptal edilemez; bu durumda destek hattımızı arayın.</p></details>
+        <details><summary>Cihazımı kargoyla nasıl göndermeliyim?</summary><p>Cihazı sağlam ve darbeye karşı korumalı şekilde paketleyin. Kargo şirketine vereceğiniz an «Kargo sürecini görüntüle» sayfasından «Kod oluştur» düğmesine tıklayın; kodu yanlışlıkla oluşturduysanız ya da teslim edemediyseniz «Kod oluştu, teslim sağlanmadı» düğmesiyle servise haber verin. Kargo servise ulaşınca teknisyenimiz teslim aldığını işaretler.</p></details>
+        <details><summary>Onarım ücretini ve süreyi nasıl öğrenirim?</summary><p>Teknisyen cihazı inceledikten sonra tahmini ücret ve teslim tarihi kayıt kartınızda görünür. Onayınız gereken bir durumda kaydınız «Müşteri onayı bekliyor» olur ve servis sizinle iletişime geçer.</p></details>
+        <details><summary>Cihazım hazır olduğunda ne olur?</summary><p>Kaydınız «Teslime hazır» durumuna geçer ve bildirim alırsınız. Elden teslim seçtiyseniz cihazınızı servisten alabilirsiniz; kargo seçtiyseniz cihaz adresinize gönderilir ve kargo adımlarını kayıt ekranından izlersiniz.</p></details>
+      </div>
+    </section>
+
+    <section class="pt-panel" id="hazirlik" aria-labelledby="h-hazirlik">
+      <h2 id="h-hazirlik">Cihazınızı teslim etmeden önce</h2>
+      <ul class="pt-check">
+        <li><b>Verilerinizi yedekleyin.</b> Onarım sırasında verilerin silinmesi gerekebilir; fotoğraf, belge ve rehberinizi önceden yedekleyin.</li>
+        <li><b>Hesap kilitlerini kapatın.</b> Cihaz bulma, hesap kilidi ve ekran şifresi gibi korumalar onarımı geciktirebilir; mümkünse servis için kapatın.</li>
+        <li><b>Aksesuarları göndermeyin.</b> Gerekmedikçe şarj aleti, kılıf, SIM ve hafıza kartını cihazdan çıkarın.</li>
+        <li><b>Arızayı ayrıntılı anlatın.</b> Ne zaman başladığını yazın, mümkünse fotoğraf veya video ekleyin; inceleme daha hızlı ilerler.</li>
+      </ul>
+    </section>
+  </div>
+
+  <aside class="pt-help-side" aria-label="İletişim">
+    <section class="pt-panel pt-helpcard">
+      <div class="pt-helphead"><span class="pt-helpico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><path d="M21 15a2 2 0 0 1-2 2h-1v-6h1a2 2 0 0 1 2 2z"/><path d="M3 15a2 2 0 0 0 2 2h1v-6H5a2 2 0 0 0-2 2z"/><path d="M18 17v1a3 3 0 0 1-3 3h-2"/></svg></span><b>Bize ulaşın</b></div>
+      <p>Servis kaydınızla ilgili sorularınız için destek hattımızı arayabilirsiniz.</p>
+      <p class="pt-phone"><b>{{ SUPPORT_PHONE }}</b></p>
+      {% if SUPPORT_PHONE_TEL %}<a class="pt-call" href="tel:{{ SUPPORT_PHONE_TEL }}">Hemen Ara<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></a>{% endif %}
+      <dl class="pt-contact">
+        {% if SERVICE_HOURS %}<div><dt>Çalışma saatleri</dt><dd>{{ SERVICE_HOURS }}</dd></div>{% endif %}
+        {% if COMPANY_ADDRESS %}<div><dt>Adres</dt><dd>{{ COMPANY_ADDRESS }}</dd></div>{% endif %}
+        {% if KVKK_EMAIL %}<div><dt>Kişisel veriler (KVKK)</dt><dd><a href="mailto:{{ KVKK_EMAIL }}">{{ KVKK_EMAIL }}</a></dd></div>{% endif %}
+      </dl>
+    </section>
+    <section class="pt-panel pt-quick">
+      <h2>Kısayollar</h2>
+      <div class="pt-short">
+        <a href="{% url 'core:customer_devices' %}">Servis kayıtlarım</a>
+        <a href="{% url 'core:customer_device_lookup' %}">Cihaz durumu sorgula</a>
+        <a href="{% url 'core:customer_device_create' %}">Yeni cihaz kaydı oluştur</a>
+        <a href="{% url 'core:customer_privacy' %}">Gizlilik politikası</a>
+        <a href="{% url 'core:customer_terms' %}">Kullanım şartları</a>
+      </div>
+    </section>
+  </aside>
+</div>
+{% endblock %}

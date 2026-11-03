@@ -1,0 +1,89 @@
+{% extends "core/base_app.html" %}
+{% load static %}
+{% block title %}Personel Yönetimi{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/personnel.css' %}?v=2">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="pm">
+  <div class="pm-head">
+    <div><h1>Personel Yönetimi</h1><p>Teknisyen hesapları, iş yükü ve izinler</p></div>
+    <div class="pm-actions">
+      <a class="pm-btn pm-btn-primary" href="{% url 'core:staff_create' %}">Yeni teknisyen</a>
+      {% include "core/_notify_bell.html" %}
+    </div>
+  </div>
+
+  <section class="pm-card" aria-label="Teknisyenler">
+    {% if rows %}
+    <div class="pm-scroll"><table class="pm-table">
+      <thead><tr><th>Ad soyad</th><th>E-posta</th><th>Telefon</th><th>Açık iş</th><th>Tamamlanan</th><th>Durum</th><th>İzin</th><th><span class="sr-only">İşlemler</span></th></tr></thead>
+      <tbody>
+      {% for r in rows %}
+        <tr>
+          <td class="pm-name"><span class="pm-name-row"><span>{{ r.tech.display_name }}</span><button type="button" class="pm-viewas" disabled aria-disabled="true" title="Yakında" data-staff-id="{{ r.tech.pk }}">Personel olarak görüntüle</button></span></td>
+          <td>{{ r.tech.email|default:"—" }}</td>
+          <td>{{ r.tech.phone|default:"—" }}</td>
+          <td>{{ r.open_jobs }}</td>
+          <td>{{ r.done_jobs }}</td>
+          <td><span class="pm-pill pm-pill-{{ r.state }}">{{ r.state_label }}</span></td>
+          <td class="pm-leave">{% if r.leave_text %}{{ r.leave_text }}{% else %}<span class="pm-dash">—</span>{% endif %}</td>
+          <td class="pm-ops">
+            {% if r.tech.is_active %}
+              <a class="pm-link" href="{% url 'core:staff_leave_create' r.tech.pk %}">İzin ver</a>
+            {% else %}
+              <form method="post" action="{% url 'core:staff_toggle' r.tech.pk %}">{% csrf_token %}<button class="pm-link" type="submit">Aktifleştir</button></form>
+            {% endif %}
+            <form method="post" action="{% url 'core:staff_delete' r.tech.pk %}" data-name="{{ r.tech.display_name }}" class="pm-delete">{% csrf_token %}<button class="pm-link" type="submit">Sil</button></form>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {% else %}
+    <p class="pm-empty">Henüz teknisyen yok. «Yeni teknisyen» ile hesap oluşturun.</p>
+    {% endif %}
+  </section>
+
+  <section class="pm-card pm-calendar" aria-labelledby="pm-cal-title">
+    <div class="pm-card-head"><h2 id="pm-cal-title">İzin takvimi</h2><span>Devam eden ve planlı izinler</span></div>
+    {% if leaves %}
+    <div class="pm-scroll"><table class="pm-table">
+      <thead><tr><th>Teknisyen</th><th>İzin türü</th><th>Tarih aralığı</th><th>Süre</th><th>Durum</th><th><span class="sr-only">İşlemler</span></th></tr></thead>
+      <tbody>
+      {% for l in leaves %}
+        <tr>
+          <td class="pm-name">{{ l.technician.display_name }}</td>
+          <td>{{ l.get_leave_type_display }}</td>
+          <td>{{ l.span }}</td>
+          <td>{{ l.workdays }} iş günü</td>
+          <td>{% if l.ongoing %}<span class="pm-pill pm-pill-leave">Devam ediyor</span>{% else %}<span class="pm-pill pm-pill-plan">Planlandı</span>{% endif %}</td>
+          <td class="pm-ops">
+            <a class="pm-link" href="{% url 'core:staff_leave_edit' l.pk %}">Düzenle</a>
+            <form method="post" action="{% url 'core:staff_leave_cancel' l.pk %}" class="pm-cancel" data-name="{{ l.technician.display_name }}">{% csrf_token %}<button class="pm-link pm-link-danger" type="submit">İptal et</button></form>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {% else %}
+    <p class="pm-empty">Devam eden veya planlı izin yok.</p>
+    {% endif %}
+  </section>
+
+  <p class="pm-note">Silmek yerine pasife alınan teknisyenlerin geçmiş kayıtları korunur. İzindeki teknisyenlere yeni iş atanmaz.</p>
+</div>
+<script>
+(function(){
+  document.querySelectorAll('.pm-delete').forEach(function(f){
+    f.addEventListener('submit',function(e){
+      if(!confirm('«'+f.dataset.name+'» silinsin mi?\nGeçmiş kaydı olan teknisyen silinmez, pasife alınır; geçmiş kayıtları korunur.')){e.preventDefault();}
+    });
+  });
+  document.querySelectorAll('.pm-cancel').forEach(function(f){
+    f.addEventListener('submit',function(e){
+      if(!confirm('«'+f.dataset.name+'» için bu izin iptal edilsin mi?')){e.preventDefault();}
+    });
+  });
+})();
+</script>
+{% endblock %}

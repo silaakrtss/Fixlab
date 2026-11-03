@@ -1,0 +1,50 @@
+{% extends "core/base_app.html" %}
+{% load static fixlab_tags %}
+{% block title %}Stok Depo{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/stock.css' %}?v=1">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="st">
+  <div class="st-head">
+    <div><h1>Stok Depo</h1><p>Parça stoğu ve kritik seviyeler</p></div>
+    <div class="st-actions">
+      <a class="st-btn st-btn-primary" href="{% url 'core:stock_create' %}">Yeni parça</a>
+      {% include "core/_notify_bell.html" %}
+    </div>
+  </div>
+
+  <div class="st-stats">
+    <div class="st-stat"><div class="lbl">Parça çeşidi</div><div class="num">{{ part_count }}</div><div class="sub">Kayıtlı toplam</div></div>
+    <div class="st-stat"><div class="lbl">Kritik stok</div><div class="num">{{ critical_count }}</div><div class="sub">Minimum seviyenin altında</div></div>
+    <div class="st-stat"><div class="lbl">Bu hafta stok girişi</div><div class="num">{{ week_in }}</div><div class="sub">Adet</div></div>
+  </div>
+
+  <div class="st-filter">
+    <label class="sr-only" for="st-search">Parça ara</label>
+    <input id="st-search" type="search" placeholder="Stok kodu veya parça adı ara..." autocomplete="off">
+    <button type="button" class="st-btn st-btn-ghost" id="st-crit" aria-pressed="false">Sadece kritik olanlar</button>
+  </div>
+
+  <div class="st-card">
+    <div class="table-wrap"><table class="st-table" id="st-table">
+      <thead><tr><th>Stok kodu</th><th>Parça</th><th>Adet</th><th>Min. seviye</th><th>Birim fiyat</th><th>Durum</th><th></th><th></th></tr></thead>
+      <tbody>
+      {% for p in parts %}
+        <tr data-search="{{ p.code }} {{ p.name }}" data-critical="{% if p.is_critical %}1{% else %}0{% endif %}">
+          <td class="code">{{ p.code }}</td>
+          <td>{{ p.name }}</td>
+          <td>{{ p.quantity }}</td>
+          <td>{{ p.critical_level }}</td>
+          <td>{{ p.unit_price|money }} ₺</td>
+          <td>{% if p.is_critical %}<span class="st-pill st-pill-bad">Kritik</span>{% else %}<span class="st-pill st-pill-ok">Yeterli</span>{% endif %}</td>
+          <td class="lnk"><a href="{% url 'core:stock_detail' p.pk %}">Parça detay ve stok giriş</a></td>
+          <td class="del"><form method="post" action="{% url 'core:stock_delete' p.pk %}" onsubmit="return confirm('«{{ p.name|escapejs }}» stok depodan silinsin mi?')">{% csrf_token %}<button type="submit" class="st-del" aria-label="{{ p.name }} parçasını sil">Sil</button></form></td>
+        </tr>
+      {% endfor %}
+        <tr class="st-none" id="st-none" {% if parts %}hidden{% endif %}><td colspan="8">{% if parts %}Aramanızla eşleşen parça yok.{% else %}Henüz parça yok. «Yeni parça» ile ilk kaydı ekleyin.{% endif %}</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+<script src="{% static 'core/js/stock.js' %}?v=1" defer></script>
+{% endblock %}

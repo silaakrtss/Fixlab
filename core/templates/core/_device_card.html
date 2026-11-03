@@ -1,0 +1,26 @@
+<article class="pt-rc" aria-label="{{ device.tracking_id }}">
+  <div class="pt-rec-top">
+    <div class="pt-ico">{% include "core/_device_icon.html" %}</div>
+    <div class="pt-rec-name"><h3>{{ device.title }}</h3><small class="pt-mono">{{ device.tracking_id }}</small></div>
+    <span class="pt-pill pt-pill-{{ device.tone }}">{{ device.get_status_display }}</span>
+    {% if device.is_cargo and device.awaiting_arrival or device.status == 'return_shipping' %}
+    <a class="pt-go" href="{% url 'core:customer_cargo' device.tracking_id %}"><span class="pt-sr">Kargo sürecini görüntüle</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    {% else %}
+    <a class="pt-go" href="{% url 'core:customer_device_lookup' %}?kod={{ device.tracking_id|urlencode }}"><span class="pt-sr">Detayları görüntüle</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    {% endif %}
+  </div>
+  <p class="pt-rec-issue">{{ device.issue_title|default:device.issue_description|truncatechars:140 }}</p>
+  <div class="pt-meta">
+    <div><small>Kayıt tarihi</small><b>{{ device.received_at|date:"d.m.Y, H:i" }}</b></div>
+    {% if device.show_cargo_code %}
+      <div><small>Kargo takip kodu</small><b>{{ device.cargo_tracking_code|default:"Henüz girilmedi" }}</b></div>
+      <div><small>Tahmini teslim</small><b>{% if device.estimated_delivery %}{{ device.estimated_delivery|date:"d.m.Y" }}{% else %}—{% endif %}</b></div>
+    {% else %}
+      <div><small>Tahmini teslim</small><b>{% if device.estimated_delivery %}{{ device.estimated_delivery|date:"d.m.Y" }}{% else %}—{% endif %}</b></div>
+      <div><small>Tahmini ücret</small><b>{% if device.estimated_cost %}{{ device.estimated_cost|floatformat:"0g" }} ₺{% else %}—{% endif %}</b></div>
+    {% endif %}
+    <div><small>Son güncelleme</small><b>{{ device.updated_at|date:"d.m.Y, H:i" }}</b></div>
+  </div>
+  {% if device.note %}<p class="pt-note">Son durum: {{ device.note }}</p>{% endif %}
+  {% include "core/_cancel_device_form.html" %}
+</article>

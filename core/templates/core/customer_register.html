@@ -1,0 +1,156 @@
+{% extends "core/base_customer.html" %}
+{% load static %}
+{% block title %}Üye Ol · FIXLAB{% endblock %}
+{% block head_right %}<span class="cp-head-text">Müşteri Portalı</span>{% endblock %}
+{% block content %}
+<p class="cp-eyebrow">Müşteri hesabı</p>
+<h1 class="cp-title-left">Üye Ol</h1>
+<p class="cp-lead">Cihaz kayıtlarınızı tek bir yerden yönetin.</p>
+<p class="cp-req">* işaretli alanlar zorunludur.</p>
+
+{% if form.errors %}<div class="cp-msgs" role="alert"><div class="cp-msg cp-msg-error">Lütfen işaretli alanları kontrol edin.</div></div>{% endif %}
+
+<form method="post" id="register-form" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="cp-msgs" role="alert"><div class="cp-msg cp-msg-error">{{ form.non_field_errors.0 }}</div></div>{% endif %}
+  <div class="cp-row">
+    <div class="cp-field{% if form.first_name.errors %} has-error{% endif %}">
+      <label for="{{ form.first_name.id_for_label }}">Ad *</label>
+      <input type="text" name="first_name" id="{{ form.first_name.id_for_label }}" value="{{ form.first_name.value|default:'' }}" placeholder="Adınız" maxlength="60" autocomplete="given-name" data-name-only="1" required>
+      {% for e in form.first_name.errors %}<p class="cp-err">{{ e }}</p>{% endfor %}
+    </div>
+    <div class="cp-field{% if form.last_name.errors %} has-error{% endif %}">
+      <label for="{{ form.last_name.id_for_label }}">Soyad *</label>
+      <input type="text" name="last_name" id="{{ form.last_name.id_for_label }}" value="{{ form.last_name.value|default:'' }}" placeholder="Soyadınız" maxlength="60" autocomplete="family-name" data-name-only="1" required>
+      {% for e in form.last_name.errors %}<p class="cp-err">{{ e }}</p>{% endfor %}
+    </div>
+  </div>
+
+  <div class="cp-field{% if form.email.errors %} has-error{% endif %}">
+    <label for="{{ form.email.id_for_label }}">E-posta *</label>
+    <input type="email" name="email" id="{{ form.email.id_for_label }}" value="{{ form.email.value|default:'' }}" placeholder="E-posta adresiniz" autocomplete="email" required>
+    {% for e in form.email.errors %}<p class="cp-err">{{ e }}</p>{% endfor %}
+  </div>
+
+  <div class="cp-field{% if form.phone.errors %} has-error{% endif %}">
+    <label for="{{ form.phone.id_for_label }}">Telefon (isteğe bağlı)</label>
+    <input type="tel" name="phone" id="{{ form.phone.id_for_label }}" value="{{ form.phone.value|default:'' }}" placeholder="(5XX) XXX XX XX" maxlength="20" inputmode="tel" autocomplete="tel">
+    {% for e in form.phone.errors %}<p class="cp-err">{{ e }}</p>{% endfor %}
+  </div>
+
+  <div class="cp-row">
+    <div class="cp-field{% if form.password1.errors %} has-error{% endif %}">
+      <label for="id_password1">Şifre *</label>
+      <div class="cp-control">
+        <input type="password" name="password1" id="id_password1" placeholder="Şifreniz" autocomplete="new-password" required>
+        <button type="button" class="cp-eye" data-target="id_password1" aria-label="Şifreyi göster" aria-pressed="false">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="eye-open" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle class="eye-open" cx="12" cy="12" r="3"/><path class="eye-off" d="M17.9 17.9A10.9 10.9 0 0 1 12 19c-6.4 0-10-7-10-7a18.5 18.5 0 0 1 4.1-5.1M9.9 5.2A10 10 0 0 1 12 5c6.4 0 10 7 10 7a18.6 18.6 0 0 1-2.2 3.2M1 1l22 22"/></svg>
+        </button>
+      </div>
+      {% for e in form.password1.errors %}<p class="cp-err">{{ e }}</p>{% endfor %}
+    </div>
+    <div class="cp-field{% if form.password2.errors %} has-error{% endif %}">
+      <label for="id_password2">Şifre tekrar *</label>
+      <div class="cp-control">
+        <input type="password" name="password2" id="id_password2" placeholder="Şifrenizi tekrar girin" autocomplete="new-password" required>
+        <button type="button" class="cp-eye" data-target="id_password2" aria-label="Şifreyi göster" aria-pressed="false">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="eye-open" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle class="eye-open" cx="12" cy="12" r="3"/><path class="eye-off" d="M17.9 17.9A10.9 10.9 0 0 1 12 19c-6.4 0-10-7-10-7a18.5 18.5 0 0 1 4.1-5.1M9.9 5.2A10 10 0 0 1 12 5c6.4 0 10 7 10 7a18.6 18.6 0 0 1-2.2 3.2M1 1l22 22"/></svg>
+        </button>
+      </div>
+      {% for e in form.password2.errors %}<p class="cp-err">{{ e }}</p>{% endfor %}
+    </div>
+  </div>
+  <p class="cp-hint">En az 12 karakter kullanın. İki şifre birbiriyle eşleşmelidir.</p>
+
+  <div class="cp-consent">
+    <div class="cp-consent-row">
+      <span>Kişisel verilerinizin işlenmesi hakkında</span>
+      <a href="{% url 'core:customer_privacy' %}" target="_blank" rel="noopener">Gizlilik / KVKK’yı İncele</a>
+    </div>
+    <label class="cp-check" for="id_accept_terms">
+      <input type="checkbox" name="accept_terms" id="id_accept_terms" required{% if form.accept_terms.value %} checked{% endif %}>
+      <span><a href="{% url 'core:customer_terms' %}" class="cp-link" id="open-terms">Kullanım Şartları</a>’nı okudum ve kabul ediyorum. *</span>
+    </label>
+    {% for e in form.accept_terms.errors %}<p class="cp-err" id="terms-error">{{ e }}</p>{% endfor %}
+    <p class="cp-note">KVKK aydınlatması bilgilendirme amaçlıdır; açık rıza talebi değildir.</p>
+  </div>
+
+  <button class="cp-btn cp-register-btn" type="submit">Üye Ol</button>
+</form>
+<p class="cp-alt">Zaten hesabınız var mı? <a href="{% url 'core:customer_login' %}">Giriş Yap</a></p>
+
+<dialog class="cp-modal" id="terms-modal" aria-labelledby="terms-modal-title">
+  <div class="cp-modal-head">
+    <h2 id="terms-modal-title">Kullanım ve Servis Şartları</h2>
+    <button type="button" class="cp-modal-close" id="terms-close" aria-label="Kapat">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="cp-modal-body cp-doc">
+    {% include "core/_customer_terms_body.html" %}
+  </div>
+  <div class="cp-modal-foot"><button type="button" class="cp-btn" id="terms-ok">Kapat</button></div>
+</dialog>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'core/js/names.js' %}?v=1"></script>
+<style>
+  .cp-eye .eye-off{display:none}
+  .cp-eye[aria-pressed="true"] .eye-open{display:none}
+  .cp-eye[aria-pressed="true"] .eye-off{display:inline}
+</style>
+<script>
+(function(){
+  var form=document.getElementById('register-form');
+  var box=document.getElementById('id_accept_terms');
+  var msg='Üye olmak için Kullanım Şartları\u2019nı kabul etmelisiniz.';
+
+  /* Zorunlu onay kutusu: işaretlenmeden form gönderilemez (sunucu da ayrıca kontrol eder) */
+  box.addEventListener('invalid',function(){box.setCustomValidity(msg);});
+  box.addEventListener('change',function(){box.setCustomValidity('');});
+  form.addEventListener('submit',function(e){
+    var p1=form.elements['password1'].value,p2=form.elements['password2'].value;
+    if(!box.checked){e.preventDefault();box.setCustomValidity(msg);box.reportValidity();return;}
+    if(p1.length<12){e.preventDefault();form.elements['password1'].setCustomValidity('Şifre en az 12 karakter olmalıdır.');form.elements['password1'].reportValidity();return;}
+    if(p1!==p2){e.preventDefault();form.elements['password2'].setCustomValidity('Girilen şifreler eşleşmiyor.');form.elements['password2'].reportValidity();return;}
+  });
+  ['password1','password2'].forEach(function(n){
+    form.elements[n].addEventListener('input',function(){this.setCustomValidity('');});
+  });
+  /* novalidate olduğundan boş zorunlu alanları da burada yakala */
+  form.addEventListener('submit',function(e){
+    if(e.defaultPrevented)return;
+    var f=form.querySelectorAll('input[required]:not([type=checkbox])');
+    for(var i=0;i<f.length;i++){if(!f[i].value.trim()){e.preventDefault();f[i].focus();f[i].reportValidity();return;}}
+  },true);
+
+  /* Şifre göster / gizle */
+  document.querySelectorAll('.cp-eye').forEach(function(b){
+    b.addEventListener('click',function(){
+      var inp=document.getElementById(b.getAttribute('data-target'));
+      var show=inp.type==='password';
+      inp.type=show?'text':'password';
+      b.setAttribute('aria-pressed',show?'true':'false');
+      b.setAttribute('aria-label',show?'Şifreyi gizle':'Şifreyi göster');
+    });
+  });
+
+  /* Kullanım Şartları kutusu */
+  var dlg=document.getElementById('terms-modal');
+  var open=document.getElementById('open-terms');
+  if(dlg&&typeof dlg.showModal==='function'){
+    open.addEventListener('click',function(e){
+      e.preventDefault();
+      dlg.showModal();
+      dlg.querySelector('.cp-modal-body').scrollTop=0;
+    });
+    function close(){dlg.close();open.focus();}
+    document.getElementById('terms-close').addEventListener('click',close);
+    document.getElementById('terms-ok').addEventListener('click',close);
+    dlg.addEventListener('click',function(e){if(e.target===dlg)close();}); /* kutunun dışına tıklayınca kapanır */
+  } else {
+    open.setAttribute('target','_blank');open.setAttribute('rel','noopener'); /* eski tarayıcı: ayrı sayfada aç */
+  }
+})();
+</script>
+{% endblock %}

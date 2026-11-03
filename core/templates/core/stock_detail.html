@@ -1,0 +1,66 @@
+{% extends "core/base_app.html" %}
+{% load static fixlab_tags %}
+{% block title %}{{ part.name }}{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/stock.css' %}?v=1">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="st">
+  <div class="st-head st-head-bell"><div class="st-actions">{% include "core/_notify_bell.html" %}</div></div>
+
+  <div class="st-detail">
+    <div class="st-col">
+      <section class="st-card st-info">
+        <div class="st-info-top">
+          <div><h1>{{ part.name }}</h1><p>{{ part.code }}</p></div>
+          {% if part.is_critical %}<span class="st-pill st-pill-bad">Kritik</span>{% else %}<span class="st-pill st-pill-ok">Yeterli</span>{% endif %}
+        </div>
+        <dl class="st-metrics">
+          <div><dt>Mevcut adet</dt><dd>{{ part.quantity }}</dd></div>
+          <div><dt>Minimum seviye</dt><dd>{{ part.critical_level }}</dd></div>
+          <div><dt>Birim fiyat</dt><dd>{{ part.unit_price|money }} ₺</dd></div>
+          <div><dt>Son hareket</dt><dd>{{ last_move.created_at|tr_day }}</dd></div>
+        </dl>
+      </section>
+
+      <section class="st-card st-moves">
+        <h2>Stok hareketleri</h2>
+        {% if movements %}
+        <div class="table-wrap"><table class="st-table st-table-sm">
+          <thead><tr><th>Tarih</th><th>Tür</th><th>Adet</th><th>İşlem yapan</th><th>İlişkili kayıt</th></tr></thead>
+          <tbody>
+          {% for m in movements %}
+            <tr>
+              <td class="code">{{ m.created_at|tr_stamp }}</td>
+              <td>{% if m.movement_type == 'out' %}<span class="st-pill st-pill-out">Çıkış</span>{% elif m.movement_type == 'in' %}<span class="st-pill st-pill-ok">Giriş</span>{% elif m.movement_type == 'return' %}<span class="st-pill st-pill-ok">İade</span>{% else %}<span class="st-pill st-pill-adj">Düzeltme</span>{% endif %}</td>
+              <td>{% if m.movement_type == 'out' %}-{{ m.quantity }}{% elif m.quantity > 0 %}+{{ m.quantity }}{% else %}{{ m.quantity }}{% endif %}</td>
+              <td>{% if m.created_by %}{{ m.created_by.display_name }}{% else %}—{% endif %}</td>
+              <td>{% if m.device %}{% if request.user.is_staff %}<a href="{% url 'admin:core_device_change' m.device.pk %}">{{ m.device.tracking_id }}</a>{% else %}{{ m.device.tracking_id }}{% endif %}{% else %}<span title="{{ m.note }}">—</span>{% endif %}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table></div>
+        {% else %}<p class="st-empty">Bu parça için henüz stok hareketi yok.</p>{% endif %}
+      </section>
+
+      <a class="st-btn st-btn-back" href="{% url 'core:stock_list' %}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>Stok Depoya Dön</a>
+    </div>
+
+    <aside class="st-card st-entry">
+      <h2>Stok girişi</h2>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="st-field {% if form.quantity.errors %}has-error{% endif %}">
+          <label for="{{ form.quantity.id_for_label }}">Adet</label>{{ form.quantity }}
+          {% for e in form.quantity.errors %}<div class="st-err">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="st-field {% if form.note.errors %}has-error{% endif %}">
+          <label for="{{ form.note.id_for_label }}">Not (isteğe bağlı)</label>{{ form.note }}
+          {% for e in form.note.errors %}<div class="st-err">{{ e }}</div>{% endfor %}
+        </div>
+        <button type="submit" class="st-btn st-btn-primary st-btn-block">Stok girişi yap</button>
+      </form>
+      <a class="st-btn st-btn-ghost st-btn-block" href="{% url 'core:stock_edit' part.pk %}">Parçayı düzenle</a>
+    </aside>
+  </div>
+</div>
+{% endblock %}

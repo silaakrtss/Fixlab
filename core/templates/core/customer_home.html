@@ -1,0 +1,88 @@
+{% extends "core/base_customer_app.html" %}
+{% block title %}Ana Sayfa{% endblock %}
+{% block crumb %}Ana Sayfa{% endblock %}
+{% block content %}
+<div class="pt-home">
+  <div class="pt-home-main">
+    <section class="pt-banner" aria-label="Karşılama">
+      <div class="pt-banner-text">
+        <h1>Merhaba,<br>tekrar hoş geldin!</h1>
+        <p>Cihaz kayıtlarınızı ve servis sürecinizdeki gelişmeleri buradan takip edebilirsiniz.</p>
+        <a class="pt-btn pt-btn-primary pt-btn-sm" href="{% url 'core:customer_device_create' %}">Cihaz Kaydı Oluştur<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <svg class="pt-banner-art" viewBox="0 0 420 190" role="img" aria-label="Dizüstü bilgisayar ve bitki çizimi" preserveAspectRatio="xMaxYMid meet">
+        <defs><linearGradient id="bn-sc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0f3d3a"/><stop offset=".55" stop-color="#1c6f69"/><stop offset="1" stop-color="#7fc6bd"/></linearGradient></defs>
+        <ellipse cx="236" cy="168" rx="150" ry="9" fill="#0b7a75" opacity=".12"/>
+        <g><path d="M96 168h30l-4-34H100z" fill="#e9efee"/><rect x="92" y="130" width="38" height="8" rx="3" fill="#dbe5e3"/>
+          <path d="M111 130c-2-26-14-40-26-48 12 2 24 10 28 26 2-16 8-30 22-38-6 18-8 36-8 60z" fill="#3f8f55"/>
+          <path d="M111 130c4-20 16-34 34-38-10 8-16 22-16 38z" fill="#5aa86d"/><path d="M111 130c-8-14-24-22-40-22 14 0 28 8 36 22z" fill="#2f7a47"/></g>
+        <g><path d="M152 150l26-82a6 6 0 0 1 6-4h132a4 4 0 0 1 4 5l-24 78z" fill="#17262b"/>
+          <path d="M160 146l24-76h126l-22 76z" fill="url(#bn-sc)"/>
+          <path d="M138 152h182c8 0 10 6 6 10l-4 4H146c-8 0-12-6-8-14z" fill="#cfd8d6"/><path d="M146 152h168l-2 4H144z" fill="#b6c2c0"/></g>
+        <g><rect x="322" y="150" width="44" height="12" rx="6" fill="#7e8f8d" transform="rotate(-8 344 156)"/></g>
+        <text x="330" y="52" fill="#0b7a75" font-size="23" font-style="italic" transform="rotate(-12 330 52)" font-family="'Segoe Script','Brush Script MT','Bradley Hand',cursive">Teknolojiniz</text>
+        <text x="344" y="78" fill="#0b7a75" font-size="23" font-style="italic" transform="rotate(-12 344 78)" font-family="'Segoe Script','Brush Script MT','Bradley Hand',cursive">güvende</text>
+        <path d="M382 98q8 10 18 0" fill="none" stroke="#0b7a75" stroke-width="2.4" stroke-linecap="round"/>
+      </svg>
+    </section>
+
+    <div class="pt-stats3">
+      <div class="pt-stat3">
+        <span class="pt-stat-ico pt-ico-green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.1L3 17.7V21h3.3l6.3-6.3a4 4 0 0 0 5.1-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg></span>
+        <span>Toplam Servis Kaydı</span><strong>{{ total_count }}</strong><small>Hesabınızda bağlı mevcut kayıt.</small>
+      </div>
+      <div class="pt-stat3">
+        <span class="pt-stat-ico pt-ico-blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+        <span>İncelenen Cihaz</span><strong>{{ diagnosing_count }}</strong><small>{% if diagnosing_count %}Teknisyen kontrolü devam ediyor.{% else %}Şu an incelenen cihazınız yok.{% endif %}</small>
+      </div>
+      <div class="pt-stat3">
+        <span class="pt-stat-ico pt-ico-ok"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.4 2.4 4.6-5"/></svg></span>
+        <span>Teslimat Hazır</span><strong>{{ ready_count }}</strong><small>{% if ready_count %}Cihazınız teslime hazır.{% else %}Henüz hazır bir cihazınız yok.{% endif %}</small>
+      </div>
+    </div>
+
+    {% if not has_devices %}
+    <section class="pt-panel"><div class="pt-empty">Henüz servis kaydınız yok. «Cihaz Kaydı Oluştur» ile ilk kaydınızı açabilirsiniz.</div></section>
+    {% endif %}
+
+    {% if current_devices %}
+    <section class="pt-panel" aria-labelledby="h-current">
+      <div class="pt-panel-head"><h2 id="h-current">Mevcut servis kayıtlarınız</h2>
+        <a class="pt-link" href="{% url 'core:customer_devices' %}">Tümünü Gör<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+      {% for device in current_devices %}{% include "core/_device_card.html" %}{% endfor %}
+    </section>
+    {% endif %}
+
+    {% if new_devices %}
+    <section class="pt-panel" aria-labelledby="h-new">
+      <div class="pt-panel-head"><h2 id="h-new">Yeni servis kaydınız</h2>{% if not current_devices %}<a class="pt-link" href="{% url 'core:customer_devices' %}">Tümünü Gör<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>{% endif %}</div>
+      {% for device in new_devices %}{% include "core/_device_card.html" %}{% endfor %}
+      <a class="pt-notice" href="{% url 'core:customer_help' %}#hazirlik">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+        <span><b>Cihazınızı teslim etmeden önce lütfen veri yedeklemesi yapmayı unutmayın.</b><small>Kişisel verilerinizin güvenliği bizim için önemlidir.</small></span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </section>
+    {% endif %}
+  </div>
+
+  <aside class="pt-home-side" aria-label="Yan bilgiler">
+    <section class="pt-panel pt-quick">
+      <h2>Hızlı İşlemler</h2>
+      <div class="pt-quick-grid">
+        <a class="pt-qcard" href="{% url 'core:customer_device_create' %}">
+          <span class="pt-stat-ico pt-ico-green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span>
+          <b>Cihaz Kaydı Oluştur</b><small>Yeni cihazınızı kaydedin.</small></a>
+        <a class="pt-qcard" href="{% url 'core:customer_device_lookup' %}">
+          <span class="pt-stat-ico pt-ico-blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span>
+          <b>Cihaz Durumu Sorgula</b><small>Takip kodunuzla sorgulayın.</small></a>
+      </div>
+    </section>
+    <section class="pt-panel pt-helpcard">
+      <div class="pt-helphead"><span class="pt-helpico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><path d="M21 15a2 2 0 0 1-2 2h-1v-6h1a2 2 0 0 1 2 2z"/><path d="M3 15a2 2 0 0 0 2 2h1v-6H5a2 2 0 0 0-2 2z"/><path d="M18 17v1a3 3 0 0 1-3 3h-2"/></svg></span><b>Yardıma mı ihtiyacınız var?</b></div>
+      <p>Servis kaydınızla ilgili sorularınız için {{ SUPPORT_PHONE }} numaralı hattımızdan bize ulaşabilirsiniz.</p>
+      {% if SUPPORT_PHONE_TEL %}<a class="pt-call" href="tel:{{ SUPPORT_PHONE_TEL }}">Hemen Ara<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></a>{% endif %}
+    </section>
+  </aside>
+</div>
+{% endblock %}

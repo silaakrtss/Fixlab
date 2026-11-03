@@ -1,0 +1,14 @@
+<div style="font-family:Segoe UI,Arial,sans-serif;color:#1b2421;max-width:520px">
+<h2 style="color:#0b7a75;margin:0 0 10px">Cihazınız kargoya verildi</h2>
+<p style="margin:0 0 14px">Merhaba {{ name }}, cihazınızın onarımı tamamlandı ve ürününüz kargoya verildi.</p>
+<table style="border-collapse:collapse;font-size:14px;margin:0 0 18px">
+<tr><td style="padding:4px 18px 4px 0;color:#6b7773">Servis kaydı</td><td><b style="font-family:Consolas,monospace">{{ tracking_id }}</b></td></tr>
+<tr><td style="padding:4px 18px 4px 0;color:#6b7773">Cihaz</td><td>{{ device_label }}</td></tr>
+{% if return_code %}<tr><td style="padding:4px 18px 4px 0;color:#6b7773">Kargo kodu</td><td><b style="font-family:Consolas,monospace">{{ return_code }}</b></td></tr>{% endif %}
+{% if cargo_company %}<tr><td style="padding:4px 18px 4px 0;color:#6b7773">Kargo firması</td><td>{{ cargo_company }}</td></tr>{% endif %}
+{% if cargo_tracking %}<tr><td style="padding:4px 18px 4px 0;color:#6b7773">Kargo takip no</td><td>{{ cargo_tracking }}</td></tr>{% endif %}
+{% if address %}<tr><td style="padding:4px 18px 4px 0;color:#6b7773;vertical-align:top">Teslimat adresi</td><td>{% if recipient %}{{ recipient }}<br>{% endif %}{{ address }}</td></tr>{% endif %}
+</table>
+<p style="margin:0 0 12px">Ürününüzü teslim aldığınızda aşağıdaki düğmeye tıklayın:</p>
+<p style="margin:0 0 18px"><a href="{{ confirm_url }}" style="display:inline-block;background:#0b7a75;color:#fff;text-decoration:none;font-weight:600;padding:12px 24px;border-radius:8px">Ürünü teslim aldım</a></p>
+<p style="color:#6b7773;font-size:13px">Ürünü henüz teslim almadıysanız düğmeye tıklamayın. Bir sorun yaşarsanız destek hattımızla iletişime geçin.</p></div>

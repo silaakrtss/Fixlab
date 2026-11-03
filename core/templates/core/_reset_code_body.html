@@ -1,0 +1,28 @@
+<p class="cp-eyebrow">{{ scope_label }}</p>
+<h1 class="cp-reset-title" style="margin-bottom:12px">Doğrulama Kodu</h1>
+<p class="cp-reset-lead" style="font-size:14px;margin-bottom:14px">E-postanıza gönderdiğimiz 6 haneli kodu girin. Kod doğruysa yeni şifrenizi belirleyeceksiniz.</p>
+<div class="cp-email-row"><span>{{ masked_email }}</span><a href="{{ forgot_url }}">E-postayı Değiştir</a></div>
+
+{% if messages %}<div class="cp-msgs" role="status">{% for m in messages %}<div class="cp-msg cp-msg-{{ m.level_tag }}">{{ m }}</div>{% endfor %}</div>{% endif %}
+
+<form method="post" id="reset-form" novalidate>
+  {% csrf_token %}
+  <div class="cp-field">
+    <label id="code-label">6 haneli e-posta kodu</label>
+    <div class="cp-code{% if form.code.errors %} has-error{% endif %}" id="code-boxes" role="group" aria-labelledby="code-label">
+      {% for i in "012345" %}<input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" placeholder="–" aria-label="Kod hanesi {{ forloop.counter }}"{% if forloop.first %} autocomplete="one-time-code" autofocus{% else %} autocomplete="off"{% endif %}>{% endfor %}
+    </div>
+    <input type="hidden" name="code" id="code-value">
+    {% for e in form.code.errors %}<p class="cp-err" id="code-error">{{ e }}</p>{% endfor %}
+    <p class="cp-hint" style="margin:10px 0 0">Kod tek kullanımlıktır ve sınırlı süre geçerlidir. Süresi dolduysa yeni kod isteyin.</p>
+  </div>
+  <button class="cp-btn cp-reset-btn" type="submit" style="margin-top:22px">Kodu Doğrula</button>
+</form>
+
+<form method="post" action="{{ resend_url }}" style="margin:0">
+  {% csrf_token %}
+  <button type="submit" class="cp-center-link">Kodu Yeniden Gönder</button>
+</form>
+<a class="cp-center-link" href="{{ login_url }}">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>{{ login_label }}
+</a>

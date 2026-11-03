@@ -1,0 +1,121 @@
+{% extends "core/base_app.html" %}
+{% load static %}
+{% block title %}{{ device.tracking_id }}{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/technician.css' %}?v=4">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="tech">
+  <div class="td-top">
+    <a class="td-back" href="{% url 'core:technician_dashboard' %}">← Cihazlarım</a>
+    {% include "core/_notify_bell.html" %}
+  </div>
+  {% if messages %}<ul class="td-msgs">{% for m in messages %}<li class="td-msg td-msg-{{ m.level_tag }}" role="status">{{ m }}</li>{% endfor %}</ul>{% endif %}
+
+  <div class="td-title">
+    <h1>{{ device.brand }} {{ device.model }}</h1>
+    <span class="pill pill-{{ device.status }}">{{ device.get_status_display }}</span>
+  </div>
+  <p class="td-sub"><span class="td-code">{{ device.tracking_id }}</span> · {{ delivery_label }}</p>
+
+  <div class="td-grid">
+    <div>
+      <section class="td-card">
+        <h2>Cihaz ve müşteri</h2>
+        <dl class="td-info">
+          <div><dt>Müşteri</dt><dd>{{ device.customer_name }}</dd></div>
+          <div><dt>Telefon</dt><dd>{{ device.customer_phone|default:"—" }}</dd></div>
+          <div><dt>Kayıt tarihi</dt><dd>{{ device.received_at|date:"d.m.Y, H:i" }}</dd></div>
+          <div><dt>Teslim yöntemi</dt><dd>{{ delivery_label }}</dd></div>
+          <div class="full"><dt>Arıza</dt><dd>{{ device.issue_title|default:device.issue_description }}</dd></div>
+          {% if device.issue_title and device.issue_description %}<div class="full"><dt>Açıklama</dt><dd style="font-weight:400">{{ device.issue_description }}</dd></div>{% endif %}
+        </dl>
+      </section>
+
+      {% if device.is_cargo %}
+      <section class="td-card">
+        <h2>Kargo bilgileri</h2>
+        <dl class="td-info">
+          <div><dt>Kargo kodu (müşteri → servis)</dt><dd class="td-code">{{ device.cargo_code|default:"Henüz oluşturulmadı" }}</dd></div>
+          <div><dt>Kodun oluşturulması</dt><dd>{% if device.cargo_code_created_at %}{{ device.cargo_code_created_at|date:"d.m.Y, H:i" }}{% else %}—{% endif %}</dd></div>
+          {% if device.cargo_company or device.cargo_tracking_code %}
+          <div><dt>Kargo firması</dt><dd>{{ device.cargo_company|default:"—" }}</dd></div>
+          <div><dt>Takip no</dt><dd class="td-code">{{ device.cargo_tracking_code|default:"—" }}</dd></div>
+          {% endif %}
+          {% if device.return_cargo_code %}
+          <div><dt>Geri kargo kodu</dt><dd class="td-code">{{ device.return_cargo_code }}</dd></div>
+          <div><dt>Geri kargo firması / takip</dt><dd>{{ device.return_cargo_company|default:"—" }}{% if device.return_cargo_tracking_code %} · {{ device.return_cargo_tracking_code }}{% endif %}</dd></div>
+          {% endif %}
+          {% if device.return_received_at %}<div class="full"><dt>Müşteri teslim aldığını onayladı</dt><dd>{{ device.return_received_at|date:"d.m.Y, H:i" }}</dd></div>{% endif %}
+          <div class="full"><dt>Teslimat adresi (geri gönderim)</dt><dd>{% if device.return_recipient %}{{ device.return_recipient }}{% if device.return_phone %} · {{ device.return_phone }}{% endif %}<br>{% endif %}{{ return_address|default:"—" }}</dd></div>
+        </dl>
+      </section>
+      {% endif %}
+
+      <section class="td-card">
+        <h2>İşlem geçmişi</h2>
+        <ul class="td-hist">{% for e in history %}<li><time>{{ e.when }}</time><span>{{ e.text }}</span></li>{% empty %}<li>Henüz işlem yok.</li>{% endfor %}</ul>
+      </section>
+    </div>
+
+    <aside>
+      <section class="td-card">
+        <h2>İşlemler</h2>
+
+        {% if awaiting_customer_code %}
+        <p class="td-note">Müşterinin kargo kodunu oluşturması bekleniyor. Kod oluşturulunca size bildirim gelir.</p>
+        {% endif %}
+
+        {% if can_receive %}
+        <p class="td-note">Müşteri kargo kodunu oluşturdu: <b class="td-code">{{ device.cargo_code|default:"—" }}</b>. Kargo servise ulaştığında teslim alındı olarak işaretleyin.</p>
+        <form method="post" action="{% url 'core:technician_device_action' device.tracking_id %}">{% csrf_token %}
+          <input type="hidden" name="action" value="receive">
+          <button type="submit" class="td-btn">Kargo teslim alındı</button>
+        </form>
+        {% endif %}
+
+        {% if can_start %}
+        <p class="td-note">Cihaz teslim alındı. İnceleme ve onarım için işleme başlayabilirsiniz.</p>
+        <form method="post" action="{% url 'core:technician_device_action' device.tracking_id %}">{% csrf_token %}
+          <input type="hidden" name="action" value="start">
+          <button type="submit" class="td-btn">İşleme başla</button>
+        </form>
+        {% endif %}
+
+        {% if can_set_status %}
+        <form method="post" action="{% url 'core:technician_device_action' device.tracking_id %}">{% csrf_token %}
+          <input type="hidden" name="action" value="status">
+          <div class="td-field"><label for="td-status">Durumu güncelle</label>
+            <select id="td-status" name="status" required>
+              <option value="">Seçin</option>
+              {% for value, label in status_options %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+            </select></div>
+          <button type="submit" class="td-btn td-btn-line">Durumu kaydet</button>
+        </form>
+        {% endif %}
+
+        {% if can_return %}
+        <div class="td-sep"></div>
+        <p class="td-note">Cihaz teslime hazır. Ürünü müşteriye kargolayacağınız an geri kargo kodunu oluşturun; müşteriye bildirim ve e-posta gider.</p>
+        <form method="post" action="{% url 'core:technician_device_action' device.tracking_id %}">{% csrf_token %}
+          <input type="hidden" name="action" value="return_code">
+          <div class="td-field"><label for="td-company">Kargo firması (isteğe bağlı)</label>
+            <select id="td-company" name="cargo_company"><option value="">Seçin</option>{% for c in cargo_companies %}<option value="{{ c }}">{{ c }}</option>{% endfor %}</select></div>
+          <div class="td-field"><label for="td-track">Kargo takip no (isteğe bağlı)</label>
+            <input type="text" id="td-track" name="cargo_tracking_code" maxlength="60" autocomplete="off"></div>
+          <button type="submit" class="td-btn">Geri kargo kodu oluştur</button>
+          <p class="td-warn" role="note">Kargo şirketine verileceği zaman oluşturulmalıdır.</p>
+        </form>
+        {% endif %}
+
+        {% if returning %}
+        <p class="td-note">Ürün müşteriye geri kargoya verildi{% if device.return_cargo_code %} (kod: <b class="td-code">{{ device.return_cargo_code }}</b>){% endif %}. Müşterinin «Ürünü teslim aldım» onayı bekleniyor; onaylandığında size bildirim gelir.</p>
+        {% endif %}
+
+        {% if not awaiting_customer_code and not can_receive and not can_start and not can_set_status and not can_return and not returning %}
+        <p class="td-note" style="margin-bottom:0">Bu aşamada yapılacak bir işlem yok.</p>
+        {% endif %}
+      </section>
+    </aside>
+  </div>
+</div>
+{% endblock %}

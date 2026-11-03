@@ -1,0 +1,2 @@
+{% load static %}{% if request.user.is_authenticated %}<div id="nt-config" hidden data-feed="{% url 'core:notifications_feed' %}" data-markread="{% url 'core:notifications_mark_read' %}" data-user="{{ request.user.pk }}" data-icon="{% static 'core/images/favicon-192.png' %}"></div>
+<script src="{% static 'core/js/notify.js' %}?v=3" defer></script>{% endif %}

@@ -1,0 +1,44 @@
+{% extends "core/base_app.html" %}
+{% load static %}
+{% block title %}{% if leave %}İzni düzenle{% else %}İzin ver{% endif %}{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/personnel.css' %}?v=1">{% endblock %}
+{% block content %}
+<div class="pm">
+  <div class="pm-head">
+    <div><h1>{% if leave %}İzni düzenle{% else %}İzin ver{% endif %}</h1><p>{{ person.display_name }} · {{ person.username }}</p></div>
+  </div>
+  <section class="pm-card pm-formcard">
+    <form method="post" novalidate id="leave-form">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="pm-formerr" role="alert">{{ form.non_field_errors.0 }}</div>{% endif %}
+      <div class="pm-field">
+        <label for="{{ form.leave_type.id_for_label }}">{{ form.leave_type.label }}</label>
+        {{ form.leave_type }}
+        {% for e in form.leave_type.errors %}<p class="pm-err">{{ e }}</p>{% endfor %}
+      </div>
+      <div class="pm-row">
+        <div class="pm-field">
+          <label for="{{ form.start_date.id_for_label }}">{{ form.start_date.label }}</label>
+          {{ form.start_date }}
+          {% for e in form.start_date.errors %}<p class="pm-err">{{ e }}</p>{% endfor %}
+        </div>
+        <div class="pm-field">
+          <label for="{{ form.end_date.id_for_label }}">{{ form.end_date.label }}</label>
+          {{ form.end_date }}
+          {% for e in form.end_date.errors %}<p class="pm-err">{{ e }}</p>{% endfor %}
+        </div>
+      </div>
+      <div class="pm-field">
+        <label for="{{ form.description.id_for_label }}">{{ form.description.label }} <span class="pm-opt">(isteğe bağlı)</span></label>
+        {{ form.description }}
+        {% for e in form.description.errors %}<p class="pm-err">{{ e }}</p>{% endfor %}
+      </div>
+      <p class="pm-hint">İzin hemen onaylı olarak kaydedilir ve teknisyene bildirilir. İzin süresince teknisyene yeni iş atanmaz.</p>
+      <div class="pm-formbtns">
+        <button class="pm-btn pm-btn-primary" type="submit">{% if leave %}Değişiklikleri kaydet{% else %}İzni kaydet{% endif %}</button>
+        <a class="pm-btn" href="{% url 'core:staff_list' %}">Vazgeç</a>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

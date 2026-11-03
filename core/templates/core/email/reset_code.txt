@@ -1,0 +1,11 @@
+Merhaba {{ user.display_name }},
+
+FIXLAB hesabınız için şifre sıfırlama talebi aldık.
+
+Doğrulama kodunuz: {{ code }}
+
+Bu kod {{ minutes }} dakika geçerlidir ve yalnızca bir kez kullanılabilir.
+Bu talebi siz yapmadıysanız bu e-postayı yok sayabilirsiniz; şifreniz değişmez.
+Kodu kimseyle paylaşmayın.
+
+FIXLAB

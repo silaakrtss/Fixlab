@@ -1,0 +1,17 @@
+Merhaba {{ name }},
+
+Cihazınızın onarımı tamamlandı ve ürününüz kargoya verildi.
+
+Servis kaydı: {{ tracking_id }}
+Cihaz: {{ device_label }}
+{% if return_code %}Kargo kodu: {{ return_code }}
+{% endif %}{% if cargo_company %}Kargo firması: {{ cargo_company }}
+{% endif %}{% if cargo_tracking %}Kargo takip no: {{ cargo_tracking }}
+{% endif %}{% if address %}Teslimat adresi: {% if recipient %}{{ recipient }}, {% endif %}{{ address }}
+{% endif %}
+Ürününüzü teslim aldığınızda aşağıdaki bağlantıyı açıp «Ürünü teslim aldım» düğmesine tıklayın:
+{{ confirm_url }}
+
+Ürünü henüz teslim almadıysanız bu bağlantıya tıklamayın. Bir sorun yaşarsanız destek hattımızla iletişime geçin.
+
+FIXLAB Technical Service

@@ -1,0 +1,21 @@
+Merhaba {{ name }},
+
+Ödemeniz başarıyla alındı. Teşekkür ederiz. Ödeme dökümünüz aşağıdadır.
+
+Servis kaydı: {{ tracking_id }}
+Cihaz: {{ device_label }}{% if issue_title %}
+Arıza: {{ issue_title }}{% endif %}
+Ödeme tarihi: {{ paid_at|date:"d.m.Y H:i" }}
+Ödeme durumu: Ödendi
+
+DÖKÜM
+{% for line in lines %}- {{ line.label }}{% if line.detail %} ({{ line.detail }}){% endif %}: {{ line.amount }}
+{% endfor %}
+TOPLAM ÖDENEN: {{ total }}
+
+Servis kaydınızın güncel durumunu müşteri hesabınızla giriş yaparak takip edebilirsiniz:
+{{ login_url }}
+
+Bu e-posta otomatik gönderilmiştir. Bir sorunuz varsa destek hattımızla iletişime geçebilirsiniz.
+
+FIXLAB Technical Service
