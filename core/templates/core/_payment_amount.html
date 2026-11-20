@@ -1,0 +1,10 @@
+<section class="pt-card py-amount">
+  <h2>Ödenecek tutar</h2>
+  <p class="py-sub">{{ device.brand }} {{ device.model }} · {{ device.tracking_id }}</p>
+  <ul class="py-lines">
+    {% for l in lines %}<li><span>{{ l.label }}{% if l.detail %} <small>({{ l.detail }})</small>{% endif %}</span><b>{{ l.amount|floatformat:"2g" }} ₺</b></li>{% endfor %}
+    <li class="py-vat"><span>Bu tutara dahil KDV (%20)</span><b>{{ vat|floatformat:"2g" }} ₺</b></li>
+  </ul>
+  <div class="py-total"><small>Toplam (KDV dahil)</small><b>{{ amount|floatformat:"2g" }} ₺</b></div>
+  <p class="py-hint">Kargo ücreti servis politikası gereği bu tutara eklenmemiştir.</p>
+</section>

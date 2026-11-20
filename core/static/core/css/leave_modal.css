@@ -1,0 +1,90 @@
+/* FIXLAB · Personel Yönetimi › İzin ver / İzni düzenle penceresi — yalnızca .lv-* sınıfları (personnel.css ile birlikte) */
+body.lv-open{overflow:hidden}
+.lv-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px 16px;background:rgba(15,23,28,.45);overflow-y:auto}
+.lv-modal{width:100%;max-width:880px;max-height:calc(100vh - 48px);display:flex;background:#fff;border-radius:14px;box-shadow:0 24px 60px rgba(15,23,28,.28);color:#15222d;font-family:var(--font)}
+.lv-form{display:flex;flex-direction:column;width:100%;min-height:0}
+
+.lv-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:22px 28px 18px;border-bottom:1px solid #e2e8ec}
+.lv-head h2{margin:0;font:700 20px/26px var(--font)}
+.lv-head p{margin:2px 0 0;font-size:13px;color:#667581}
+.lv-x{flex:none;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border:1px solid #dfe4e9;border-radius:8px;color:#15222d;background:#fff}
+.lv-x:hover{background:#f2f5f7}
+.lv-x:focus-visible{outline:3px solid #0b7a75;outline-offset:2px}
+
+.lv-body{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:24px;padding:20px 28px 24px;overflow-y:auto}
+.lv-left{min-width:0}
+.lv-left .pm-field label{font-size:13px;margin-bottom:6px}
+.lv-left .pm-field select,.lv-left .pm-field input{height:42px}
+.lv-left .pm-field textarea{min-height:84px}
+.lv-dates input[type=date]{cursor:pointer}
+.lv-dates input[type=date]::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.7}
+
+/* İş günü özeti */
+.lv-summary{display:flex;gap:10px;align-items:flex-start;margin:-2px 0 18px;padding:12px 14px;border-radius:10px;background:#e4f1ef;color:#0b7a75}
+.lv-summary[hidden]{display:none}
+.lv-summary svg{flex:none;margin-top:2px}
+.lv-summary b{display:block;font:600 14px/20px var(--font)}
+.lv-summary span{display:block;font-size:12px;line-height:18px;color:#0a5f5b}
+
+/* Takvim */
+.lv-cal{border:1px solid #e2e8ec;border-radius:12px;padding:14px 14px 10px}
+.lv-cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.lv-cal-head b{font:600 14px/20px var(--font)}
+.lv-nav{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:0;border-radius:8px;background:none;color:#15222d;cursor:pointer}
+.lv-nav:hover{background:#f2f5f7}
+.lv-nav:focus-visible,.lv-day:focus-visible{outline:2px solid #0b7a75;outline-offset:1px}
+.lv-grid{display:grid;grid-template-columns:repeat(7,1fr);row-gap:4px}
+.lv-dow span{padding:4px 0 8px;text-align:center;font-size:11px;color:#8a99a5}
+.lv-day{position:relative;height:34px;padding:0;border:0;background:none;color:#15222d;font:500 13px/1 var(--font);cursor:pointer}
+.lv-day span{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%}
+.lv-day:hover span{background:#eef3f5}
+.lv-day.is-out{color:#b6c1c9}
+.lv-day.is-today span{box-shadow:inset 0 0 0 1px #9cc9c4}
+.lv-day.in-range{background:#d9ece9}
+.lv-day.in-range:hover span{background:#c4e1dc}
+.lv-day.has-range.is-start{background:linear-gradient(90deg,transparent 50%,#d9ece9 50%)}
+.lv-day.has-range.is-end{background:linear-gradient(90deg,#d9ece9 50%,transparent 50%)}
+.lv-day.is-start span,.lv-day.is-end span{background:#0b7a75;color:#fff;font-weight:700}
+.lv-cal-hint{margin:8px 2px 0;font-size:11px;color:#8a99a5}
+
+/* Açık iş uyarısı + aktarım */
+.lv-warn{margin-top:16px;padding:14px 16px;border:1px solid #f3dca5;border-radius:12px;background:#fff8ea;font-size:12px;line-height:18px;color:#8a5a12}
+.lv-warn p{margin:0}
+.lv-warn .lv-warn-title{display:flex;align-items:center;gap:7px;margin-bottom:4px;font:600 13px/18px var(--font);color:#b45309}
+.lv-warn-none{margin-top:8px!important;font-style:italic}
+.lv-check{display:flex;align-items:center;gap:8px;margin:12px 0 10px;font:600 13px/18px var(--font);color:#15222d;cursor:pointer}
+.lv-check input{width:16px;height:16px;margin:0;accent-color:#0b7a75;cursor:pointer}
+.lv-transfer-to{margin:0}
+.lv-transfer-to select{height:40px;background:#fff}
+.lv-transfer-to.is-off select{opacity:.55;cursor:not-allowed}
+
+.lv-foot{display:flex;gap:12px;padding:16px 28px;border-top:1px solid #e2e8ec;background:#f9fbfb;border-radius:0 0 14px 14px}
+.lv-foot .pm-btn{height:40px;padding:0 18px}
+
+/* Koyu tema */
+html[data-theme="dark"] .lv-modal,html[data-theme="dark"] .lv-x{background:#16222a;color:#e6edf2;border-color:#2b3b45}
+html[data-theme="dark"] .lv-head,html[data-theme="dark"] .lv-cal,html[data-theme="dark"] .lv-foot{border-color:#2b3b45}
+html[data-theme="dark"] .lv-foot{background:#121d24}
+html[data-theme="dark"] .lv-head p,html[data-theme="dark"] .lv-dow span,html[data-theme="dark"] .lv-cal-hint{color:#8597a3}
+html[data-theme="dark"] .lv-nav,html[data-theme="dark"] .lv-day,html[data-theme="dark"] .lv-check{color:#e6edf2}
+html[data-theme="dark"] .lv-nav:hover,html[data-theme="dark"] .lv-day:hover span,html[data-theme="dark"] .lv-x:hover{background:#1f2f39}
+html[data-theme="dark"] .lv-day.is-out{color:#4f6370}
+html[data-theme="dark"] .lv-day.in-range{background:#173b39}
+html[data-theme="dark"] .lv-day.has-range.is-start{background:linear-gradient(90deg,transparent 50%,#173b39 50%)}
+html[data-theme="dark"] .lv-day.has-range.is-end{background:linear-gradient(90deg,#173b39 50%,transparent 50%)}
+html[data-theme="dark"] .lv-day.is-start span,html[data-theme="dark"] .lv-day.is-end span{background:#14968f}
+html[data-theme="dark"] .lv-summary{background:#173b39;color:#5fc9bf}
+html[data-theme="dark"] .lv-summary span{color:#9fd8d1}
+html[data-theme="dark"] .lv-warn{background:#2d2414;border-color:#5a4520;color:#e2c48f}
+html[data-theme="dark"] .lv-warn .lv-warn-title{color:#f0b35a}
+html[data-theme="dark"] .lv-transfer-to select{background:#121d24}
+
+@media(max-width:860px){
+  .lv-body{grid-template-columns:1fr}
+  .lv-modal{max-height:none}
+  .lv-overlay{align-items:flex-start}
+}
+@media(max-width:520px){
+  .lv-head,.lv-body,.lv-foot{padding-left:16px;padding-right:16px}
+  .lv-foot .pm-btn{flex:1}
+}

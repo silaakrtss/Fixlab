@@ -1,0 +1,37 @@
+{% extends "core/base_customer_app.html" %}
+{% load static %}
+{% block title %}Ödeme belgesi · {{ attempt.reference }}{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'core/css/payment.css' %}?v=2">
+<div class="py py-doc-wrap">
+  <div class="py-doc-bar no-print">
+    <a class="pt-btn" href="{% url 'core:customer_payment_result' attempt.pk %}">Geri dön</a>
+    <button type="button" class="pt-btn pt-btn-primary" onclick="window.print()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"/><rect x="6" y="14" width="12" height="8"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/></svg>Yazdır / PDF olarak kaydet</button>
+  </div>
+  <article class="pt-card py-doc" aria-label="Ödeme belgesi">
+    <header class="py-doc-head">
+      <img src="{% static 'core/images/logo.png' %}" width="126" height="49" alt="FIXLAB Technical Service">
+      <div><h1>Ödeme belgesi</h1><p>{{ COMPANY_NAME }}</p></div>
+    </header>
+    <dl class="py-kv py-doc-kv">
+      <div><dt>İşlem referansı</dt><dd class="py-mono">{{ attempt.reference }}</dd></div>
+      <div><dt>Ödeme tarihi</dt><dd>{{ attempt.completed_at|date:"d.m.Y, H:i" }}</dd></div>
+      <div><dt>Servis kaydı</dt><dd class="py-mono">{{ device.tracking_id }}</dd></div>
+      <div><dt>Cihaz</dt><dd>{{ device.brand }} {{ device.model }}</dd></div>
+      <div><dt>Ödeme yöntemi</dt><dd>Kart ile ödeme{% if attempt.card_brand %} · {{ attempt.card_brand }}{% endif %} {{ attempt.masked_card }}</dd></div>
+      <div><dt>Kart sahibi</dt><dd>{{ attempt.holder_name }}</dd></div>
+      <div><dt>Fatura</dt><dd>{{ attempt.billing_name }} · {{ attempt.billing_phone }}</dd></div>
+      <div><dt>Fatura adresi</dt><dd>{{ attempt.billing_address }}</dd></div>
+    </dl>
+    <table class="py-doc-table">
+      <thead><tr><th>Kalem</th><th>Tutar</th></tr></thead>
+      <tbody>
+        {% for l in lines %}<tr><td>{{ l.label }}{% if l.detail %} <small>({{ l.detail }})</small>{% endif %}</td><td>{{ l.amount|floatformat:"2g" }} ₺</td></tr>{% endfor %}
+        <tr class="py-doc-vat"><td>Bu tutara dahil KDV (%20)</td><td>{{ vat|floatformat:"2g" }} ₺</td></tr>
+      </tbody>
+      <tfoot><tr><td>Ödenen toplam (KDV dahil)</td><td>{{ attempt.amount|floatformat:"2g" }} ₺</td></tr></tfoot>
+    </table>
+    <p class="py-doc-note">Ödeme durumu: <b>Ödendi</b>. Bu belge FIXLAB müşteri portalında oluşturulmuştur; aynı bilgiler e-posta adresinize de gönderilmiştir. Bu ödeme bir simülasyondur, gerçek tahsilat yapılmamıştır.</p>
+  </article>
+</div>
+{% endblock %}

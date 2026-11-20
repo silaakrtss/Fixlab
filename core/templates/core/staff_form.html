@@ -1,0 +1,62 @@
+{% extends "core/base_app.html" %}
+{% load static %}
+{% block title %}Yeni Kullanıcı{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/staff_form.css' %}?v=2">{% endblock %}
+{% block content %}
+<div class="sf">
+  <div class="sf-head"><h1>Yeni Kullanıcı</h1><p>Kullanıcı hesabı oluşturun.</p></div>
+
+  <section class="sf-card">
+    <form method="post" novalidate id="staff-form">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="sf-formerr" role="alert">{% for e in form.non_field_errors %}{{ e }} {% endfor %}</div>{% endif %}
+
+      <div class="sf-grid">
+        {% include "core/_sf_field.html" with f=form.first_name %}
+        {% include "core/_sf_field.html" with f=form.last_name %}
+        {% include "core/_sf_field.html" with f=form.phone wide=True %}
+        {% include "core/_sf_field.html" with f=form.email %}
+        {% include "core/_sf_field.html" with f=form.specialization %}
+      </div>
+
+      <fieldset class="sf-role">
+        <legend>{{ form.role.label }}</legend>
+        <div class="sf-seg">
+          {% for value, label in form.role.field.choices %}
+          <label class="sf-seg-opt"><input type="radio" name="{{ form.role.html_name }}" value="{{ value }}" id="role-{{ value }}" {% if form.role.value == value %}checked{% endif %}><span>{{ label }}</span></label>
+          {% endfor %}
+        </div>
+        {% for e in form.role.errors %}<p class="sf-err">{{ e }}</p>{% endfor %}
+      </fieldset>
+
+      <p class="sf-note">Kullanıcı ilk girişte geçici şifresini değiştirmelidir.</p>
+      <div class="sf-actions">
+        <button class="sf-btn sf-btn-primary" type="submit">Hesap oluştur ve e-posta gönder</button>
+        <a class="sf-btn" href="{% url 'core:staff_list' %}">Vazgeç</a>
+      </div>
+    </form>
+  </section>
+</div>
+<script src="{% static 'core/js/names.js' %}?v=1"></script>
+<script>
+(function(){
+  var form=document.getElementById('staff-form'),msgs={valueMissing:'Bu alan zorunlu.',typeMismatch:'Geçerli bir e-posta adresi girin.',patternMismatch:'Geçerli bir telefon numarası girin (örn. 0532 123 45 67).'};
+  form.querySelectorAll('input').forEach(function(i){
+    i.addEventListener('invalid',function(){var v=i.validity;i.setCustomValidity(v.valueMissing?msgs.valueMissing:v.typeMismatch?msgs.typeMismatch:v.patternMismatch?msgs.patternMismatch:'');});
+    i.addEventListener('input',function(){i.setCustomValidity('');});
+    i.addEventListener('blur',function(){i.value=i.value.trim();});
+  });
+  form.removeAttribute('novalidate');
+
+  // Uzmanlık alanı yalnızca teknisyen için gösterilir
+  var spec=document.getElementById('wrap-specialization');
+  function role(){var r=form.querySelector('input[name="{{ form.role.html_name }}"]:checked');return r?r.value:'';}
+  var mail=document.getElementById('wrap-email');
+  function sync(){var admin=role()==='admin';spec.hidden=admin;mail.classList.toggle('sf-wide',admin);}  // admin: e-posta tam genişlik
+  form.querySelectorAll('input[name="{{ form.role.html_name }}"]').forEach(function(r){r.addEventListener('change',sync);});
+  sync();
+
+
+})();
+</script>
+{% endblock %}

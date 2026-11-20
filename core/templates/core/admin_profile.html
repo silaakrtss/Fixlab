@@ -1,0 +1,44 @@
+{% extends "core/base_app.html" %}
+{% load static %}
+{% block title %}Profil{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/technician.css' %}?v=5"><link rel="stylesheet" href="{% static 'core/css/tech_profile.css' %}?v=1">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="tech tp">
+  <div class="tech-head">
+    <div><h1>{{ request.user.display_name }}</h1><p>Profil · {{ request.user.get_role_display }}</p></div>
+    {% include "core/_notify_bell.html" %}
+  </div>
+  {% if messages %}<ul class="td-msgs">{% for m in messages %}<li class="td-msg td-msg-{{ m.level_tag }}" role="status">{{ m }}</li>{% endfor %}</ul>{% endif %}
+
+  {# --- Hesap bilgileri (salt-okunur) --- #}
+  <section class="tp-card" aria-labelledby="tp-acc-title">
+    <h2 id="tp-acc-title" class="sr-only">Hesap bilgileri</h2>
+    <div class="tp-grid">
+      <div class="tp-field"><label for="tp-role">Hesap Bilgileri</label><input id="tp-role" type="text" value="{{ request.user.get_role_display }}" readonly></div>
+      <div class="tp-field"><label for="tp-phone">Telefon</label><input id="tp-phone" type="text" value="{{ request.user.phone|default:'' }}" placeholder="Kayıtlı telefon yok" readonly></div>
+      <div class="tp-field tp-wide"><label for="tp-mail">E-posta</label><input id="tp-mail" type="text" value="{{ request.user.email }}" readonly></div>
+      <div class="tp-field tp-wide"><label for="tp-user">Kullanıcı Adı</label><input id="tp-user" type="text" value="{{ request.user.username }}" readonly></div>
+    </div>
+  </section>
+
+  {# --- Şifre değiştir (teknisyen profiliyle aynı form ve kurallar) --- #}
+  <section class="tp-card" aria-labelledby="tp-pw-title">
+    <h2 id="tp-pw-title" class="sr-only">Şifreyi değiştir</h2>
+    <form method="post" novalidate>{% csrf_token %}
+      {% if pw_form.non_field_errors %}<div class="tp-formerr" role="alert">{{ pw_form.non_field_errors.0 }}</div>{% endif %}
+      <div class="tp-grid">
+        {% for f in pw_form %}
+        <div class="tp-field tp-wide"><label for="{{ f.id_for_label }}">{% if f.name == 'old_password' %}Mevcut şifre{% else %}{{ f.label }}{% endif %}</label>{{ f }}
+          {% for e in f.errors %}<p class="tp-err">{{ e }}</p>{% endfor %}</div>
+        {% endfor %}
+      </div>
+      <div class="tp-actions">
+        <button type="submit" class="tp-btn tp-btn-primary">Şifreyi Değiştir</button>
+        <a class="tp-btn" href="{% url 'core:admin_profile' %}">Vazgeç</a>
+      </div>
+      <p class="tp-hint">Yeni şifre en az 8 karakter olmalı; yalnızca rakamlardan oluşamaz, çok yaygın bir şifre ya da adınıza / e-postanıza benzer olamaz.</p>
+    </form>
+  </section>
+</div>
+{% endblock %}

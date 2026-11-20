@@ -1,0 +1,11 @@
+Merhaba {{ name }},
+
+{{ tracking_id }} servis kaydınız için başlattığınız {{ amount|floatformat:"2g" }} ₺ tutarındaki online ödemeyi (kart **** {{ last4 }}) tamamlamak için doğrulama kodunuz:
+
+{{ code }}
+
+Bu kod {{ minutes }} dakika geçerlidir ve yalnızca bir kez kullanılabilir.
+
+Bu işlemi siz başlatmadıysanız kodu kimseyle paylaşmayın ve destek hattımızı arayın. Servis personeli bu kodu asla sizden istemez.
+
+FIXLAB Technical Service

@@ -1,0 +1,46 @@
+{% load static %}<!doctype html>
+<html lang="tr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Ürün teslim onayı · FIXLAB</title>
+{% include "core/_favicon.html" %}
+{% include "core/_fonts.html" %}
+<style>
+  body{margin:0;background:#f4f8f7;font:400 15px/1.6 var(--font,Inter,system-ui,sans-serif);color:#1b2421;display:grid;min-height:100vh;place-items:center;padding:20px;box-sizing:border-box}
+  .rc{width:min(460px,100%);background:#fff;border:1px solid #e1e6e4;border-radius:16px;padding:32px 28px;box-shadow:0 10px 30px rgba(15,34,45,.08);text-align:center}
+  .rc img{height:40px;width:auto;margin-bottom:18px}
+  h1{margin:0 0 10px;font-size:22px;line-height:1.3;color:#0a5c57}
+  p{margin:0 0 14px;color:#475569}
+  .meta{background:#f4f8f7;border-radius:10px;padding:14px;margin:0 0 18px;text-align:left;font-size:14px}
+  .meta b{display:block;color:#1b2421}.meta span{color:#6b7773;font-size:13px}
+  .mono{font-family:ui-monospace,Consolas,monospace;letter-spacing:.04em}
+  button,.btn{display:inline-flex;align-items:center;justify-content:center;width:100%;height:46px;border:0;border-radius:10px;background:#0b7a75;color:#fff;font:600 15px var(--font,inherit);cursor:pointer;text-decoration:none}
+  button:hover,.btn:hover{background:#08625e} button:focus-visible,.btn:focus-visible{outline:3px solid #0b7a75;outline-offset:2px}
+  .ok{color:#1b8a4d}.warn{color:#b42318}
+</style>
+</head><body>
+<main class="rc">
+  <img src="{% static 'core/images/logo.png' %}" alt="FIXLAB Technical Service" width="105" height="40">
+  {% if state == "ready" %}
+    <h1>Ürününüzü teslim aldınız mı?</h1>
+    <p>Ürününüz size kargoyla gönderildi. Teslim aldıysanız aşağıdaki düğmeye tıklayın; servis ekibine bildirim gider.</p>
+    <div class="meta"><b>{{ label }}</b><span class="mono">{{ device.tracking_id }}</span>{% if device.return_cargo_code %}<br><span>Kargo kodu: <span class="mono">{{ device.return_cargo_code }}</span></span>{% endif %}</div>
+    <form method="post">{% csrf_token %}<button type="submit">Ürünü teslim aldım</button></form>
+    <p style="margin:14px 0 0;font-size:13px">Ürünü henüz teslim almadıysanız bu sayfayı kapatabilirsiniz.</p>
+  {% elif state == "confirmed" %}
+    <h1 class="ok">Teşekkürler!</h1>
+    <p>Ürünü teslim aldığınızı servis ekibine bildirdik. Kaydınız «Teslim edildi» olarak güncellendi.</p>
+    <div class="meta"><b>{{ label }}</b><span class="mono">{{ device.tracking_id }}</span></div>
+    <a class="btn" href="{{ login_url }}">Müşteri girişi</a>
+  {% elif state == "done" %}
+    <h1 class="ok">Teslim zaten onaylandı</h1>
+    <p>Bu ürünün teslimi daha önce onaylanmış. Başka bir işlem yapmanıza gerek yok.</p>
+    <div class="meta"><b>{{ label }}</b><span class="mono">{{ device.tracking_id }}</span></div>
+    <a class="btn" href="{{ login_url }}">Müşteri girişi</a>
+  {% else %}
+    <h1 class="warn">Bu işlem şu anda yapılamıyor</h1>
+    <p>Kaydınız şu an teslim onayı beklemiyor. Sorunuz varsa destek hattımızla iletişime geçin.</p>
+    <a class="btn" href="{{ login_url }}">Müşteri girişi</a>
+  {% endif %}
+</main>
+</body></html>

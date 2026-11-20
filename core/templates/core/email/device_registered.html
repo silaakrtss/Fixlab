@@ -1,0 +1,14 @@
+<div style="font-family:Segoe UI,Arial,sans-serif;color:#1b2421;max-width:520px">
+<h2 style="color:#0b7a75;margin:0 0 12px">Servis kaydınız oluşturuldu</h2>
+<p>Merhaba {{ name }}, cihaz servis kaydınız başarıyla oluşturuldu. Sorgulama kodunuz:</p>
+<p style="font-family:Consolas,monospace;font-size:28px;letter-spacing:3px;font-weight:700;background:#e6f2f1;color:#0b7a75;display:inline-block;padding:12px 22px;border-radius:10px;margin:4px 0 12px">{{ tracking_id }}</p>
+<table style="border-collapse:collapse;font-size:14px;margin:0 0 14px">
+<tr><td style="padding:4px 18px 4px 0;color:#6b7773">Cihaz</td><td><b>{{ device_label }}</b></td></tr>
+<tr><td style="padding:4px 18px 4px 0;color:#6b7773">Arıza</td><td>{{ issue_title }}</td></tr>
+<tr><td style="padding:4px 18px 4px 0;color:#6b7773">Durum</td><td>{{ status_label }}</td></tr>
+<tr><td style="padding:4px 18px 4px 0;color:#6b7773">Teslim yöntemi</td><td>{% if is_cargo %}Kargo ile gönderim{% else %}Servise elden teslim{% endif %}</td></tr>
+</table>
+<p>{% if is_cargo %}<b>Sonraki adım:</b> Cihazınızı kargoya verdikten sonra hesabınızdaki kayıt ekranından kargo firmasını ve takip numarasını girin.{% else %}<b>Sonraki adım:</b> Cihazınızı servisimize teslim edebilirsiniz. Teslim sırasında sorgulama kodunuzu belirtin.{% endif %}</p>
+<p>Kaydınızın durumunu, müşteri hesabınızla giriş yaptıktan sonra <b>Cihaz Sorgula</b> bölümüne bu kodu yazarak takip edebilirsiniz.</p>
+<p><a href="{{ login_url }}" style="display:inline-block;background:#0b7a75;color:#fff;text-decoration:none;font-weight:600;padding:10px 20px;border-radius:8px">Müşteri girişi</a></p>
+<p style="color:#6b7773;font-size:13px">Cihazınızı kargoya vermeden veya servise teslim etmeden önce kaydınızı hesabınızdan iptal edebilirsiniz. Bu e-posta otomatik gönderilmiştir; kodunuzu yalnızca servis çalışanlarıyla paylaşın.</p></div>

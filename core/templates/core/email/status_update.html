@@ -1,0 +1,14 @@
+<div style="font-family:Segoe UI,Arial,sans-serif;color:#1b2421;max-width:520px">
+<h2 style="color:#0b7a75;margin:0 0 12px">{{ title }}</h2>
+<p>Merhaba {{ name }}, <b>{{ tracking_id }}</b> kodlu servis kaydınızın durumu güncellendi.</p>
+<p style="display:inline-block;background:#e6f2f1;color:#0b7a75;font-weight:700;padding:8px 16px;border-radius:999px;margin:2px 0 12px">{{ status_label }}</p>
+<table style="border-collapse:collapse;font-size:14px;margin:0 0 14px">
+<tr><td style="padding:4px 18px 4px 0;color:#6b7773">Sorgulama kodu</td><td><b>{{ tracking_id }}</b></td></tr>
+<tr><td style="padding:4px 18px 4px 0;color:#6b7773">Cihaz</td><td><b>{{ device_label }}</b></td></tr>
+{% if issue_title %}<tr><td style="padding:4px 18px 4px 0;color:#6b7773">Arıza</td><td>{{ issue_title }}</td></tr>{% endif %}
+{% if old_status_label %}<tr><td style="padding:4px 18px 4px 0;color:#6b7773">Önceki durum</td><td>{{ old_status_label }}</td></tr>{% endif %}
+<tr><td style="padding:4px 18px 4px 0;color:#6b7773">Yeni durum</td><td><b>{{ status_label }}</b></td></tr>
+</table>
+{% if lines %}<ul style="margin:0 0 14px;padding-left:18px;font-size:14px">{% for line in lines %}<li style="margin:3px 0">{{ line }}</li>{% endfor %}</ul>{% endif %}
+<p><a href="{{ action_url }}" style="display:inline-block;background:#0b7a75;color:#fff;text-decoration:none;font-weight:600;padding:10px 20px;border-radius:8px">{{ action_label }}</a></p>
+<p style="color:#6b7773;font-size:13px">Kaydınızı müşteri hesabınızla giriş yaptıktan sonra <b>Cihaz Sorgula</b> bölümünden takip edebilirsiniz. Bu e-posta otomatik gönderilmiştir.</p></div>

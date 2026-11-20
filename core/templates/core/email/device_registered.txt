@@ -1,0 +1,21 @@
+Merhaba {{ name }},
+
+Cihaz servis kaydınız başarıyla oluşturuldu.
+
+Sorgulama kodunuz: {{ tracking_id }}
+
+Cihaz: {{ device_label }}
+Arıza: {{ issue_title }}
+Durum: {{ status_label }}
+Teslim yöntemi: {% if is_cargo %}Kargo ile gönderim{% else %}Servise elden teslim{% endif %}
+
+{% if is_cargo %}Sonraki adım: Cihazınızı kargoya verdikten sonra hesabınızdaki kayıt ekranından kargo firmasını ve takip numarasını girin.{% else %}Sonraki adım: Cihazınızı servisimize teslim edebilirsiniz. Teslim sırasında sorgulama kodunuzu belirtin.{% endif %}
+
+Kaydınızın durumunu, müşteri hesabınızla giriş yaptıktan sonra Cihaz Sorgula bölümüne bu kodu yazarak takip edebilirsiniz:
+{{ login_url }}
+
+Cihazınızı kargoya vermeden veya servise teslim etmeden önce kaydınızı hesabınızdan iptal edebilirsiniz.
+
+Bu e-posta otomatik gönderilmiştir. Kodunuzu yalnızca servis çalışanlarıyla paylaşın.
+
+FIXLAB Technical Service

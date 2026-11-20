@@ -1,0 +1,148 @@
+{% extends "core/base_app.html" %}
+{% load static %}
+{% block title %}Profil{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/technician.css' %}?v=5"><link rel="stylesheet" href="{% static 'core/css/leave_modal.css' %}?v=1"><link rel="stylesheet" href="{% static 'core/css/tech_profile.css' %}?v=1">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="tech tp">
+  <div class="tech-head">
+    <div><h1>{{ request.user.display_name }}</h1><p>Profil · {{ request.user.email }}</p></div>
+    {% include "core/_notify_bell.html" %}
+  </div>
+  {% if messages %}<ul class="td-msgs">{% for m in messages %}<li class="td-msg td-msg-{{ m.level_tag }}" role="status">{{ m }}</li>{% endfor %}</ul>{% endif %}
+
+  {# --- Hesap + şifre değiştir --- #}
+  <section class="tp-card" aria-labelledby="tp-pw-title">
+    <h2 id="tp-pw-title" class="sr-only">Şifreyi değiştir</h2>
+    <form method="post" novalidate>{% csrf_token %}
+      <input type="hidden" name="action" value="password">
+      {% if pw_form.non_field_errors %}<div class="tp-formerr" role="alert">{{ pw_form.non_field_errors.0 }}</div>{% endif %}
+      <div class="tp-grid">
+        <div class="tp-field"><label for="tp-user">Kullanıcı adı</label><input id="tp-user" type="text" value="{{ request.user.username }}" readonly></div>
+        <div class="tp-field"><label for="tp-phone-ro">Telefon</label><input id="tp-phone-ro" type="text" value="{{ request.user.phone|default:'' }}" placeholder="Kayıtlı telefon yok" readonly></div>
+        {% for f in pw_form %}
+        <div class="tp-field tp-wide"><label for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}
+          {% for e in f.errors %}<p class="tp-err">{{ e }}</p>{% endfor %}</div>
+        {% endfor %}
+      </div>
+      <div class="tp-actions">
+        <button type="submit" class="tp-btn tp-btn-primary">Şifreyi Değiştir</button>
+        <a class="tp-btn" href="{% url 'core:technician_profile' %}">Vazgeç</a>
+      </div>
+      <p class="tp-hint">Yeni şifre en az 8 karakter olmalı; yalnızca rakamlardan oluşamaz, çok yaygın bir şifre ya da adınıza / e-postanıza benzer olamaz. Kullanıcı adı ve telefon bilgilerinizi yalnızca yönetici değiştirebilir.</p>
+    </form>
+  </section>
+
+  {# --- İzin talebi --- #}
+  <section class="tp-card" aria-labelledby="tp-leave-title">
+    <h2 id="tp-leave-title" class="sr-only">İzin talebi</h2>
+    <form method="post" novalidate id="tp-leave">{% csrf_token %}
+      <input type="hidden" name="action" value="leave">
+      {% if leave_form.non_field_errors %}<div class="tp-formerr" role="alert">{{ leave_form.non_field_errors.0 }}</div>{% endif %}
+      <div class="tp-grid">
+        <div class="tp-field"><label for="{{ leave_form.leave_type.id_for_label }}">İzin talebi</label>{{ leave_form.leave_type }}
+          {% for e in leave_form.leave_type.errors %}<p class="tp-err">{{ e }}</p>{% endfor %}</div>
+        <div class="tp-field"><label for="{{ leave_form.phone.id_for_label }}">Telefon</label>{{ leave_form.phone }}
+          {% for e in leave_form.phone.errors %}<p class="tp-err">{{ e }}</p>{% endfor %}</div>
+
+        <div class="tp-field tp-wide tp-range">
+          <label for="tp-range">Tarih</label>
+          <input type="hidden" name="{{ leave_form.start_date.html_name }}" id="tp-start" value="{% if action == 'leave' %}{{ leave_form.data.start_date }}{% endif %}">
+          <input type="hidden" name="{{ leave_form.end_date.html_name }}" id="tp-end" value="{% if action == 'leave' %}{{ leave_form.data.end_date }}{% endif %}">
+          <button type="button" class="tp-range-btn" id="tp-range" aria-haspopup="dialog" aria-expanded="false" aria-controls="tp-pop">
+            <span id="tp-range-text" class="is-empty">Başlangıç Tarihi – Bitiş Tarihi</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>
+          </button>
+          <div class="tp-pop lv-cal" id="tp-pop" role="dialog" aria-label="Tarih aralığı seçin" data-today="{{ today_iso }}" hidden>
+            <div class="lv-cal-head">
+              <button type="button" class="lv-nav" id="tp-prev" aria-label="Önceki ay"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
+              <b id="tp-month" aria-live="polite"></b>
+              <button type="button" class="lv-nav" id="tp-next" aria-label="Sonraki ay"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+            </div>
+            <div class="lv-grid lv-dow" aria-hidden="true"><span>Pt</span><span>Sa</span><span>Ça</span><span>Pe</span><span>Cu</span><span>Ct</span><span>Pz</span></div>
+            <div class="lv-grid" id="tp-days" role="grid"></div>
+            <p class="lv-cal-hint" id="tp-cal-hint">Başlangıç gününe, ardından bitiş gününe tıklayın.</p>
+            <div class="tp-pop-foot"><button type="button" class="tp-btn tp-btn-sm" id="tp-clear">Temizle</button><button type="button" class="tp-btn tp-btn-primary tp-btn-sm" id="tp-done">Tamam</button></div>
+          </div>
+          {% for e in leave_form.start_date.errors %}<p class="tp-err">{{ e }}</p>{% endfor %}
+          {% for e in leave_form.end_date.errors %}{% if not leave_form.start_date.errors %}<p class="tp-err">{{ e }}</p>{% endif %}{% endfor %}
+        </div>
+
+        <div class="tp-field tp-wide"><label for="{{ leave_form.description.id_for_label }}">Açıklama</label>{{ leave_form.description }}
+          {% for e in leave_form.description.errors %}<p class="tp-err">{{ e }}</p>{% endfor %}</div>
+      </div>
+      <div class="tp-actions">
+        <button type="submit" class="tp-btn tp-btn-primary">Talep Oluştur</button>
+        <a class="tp-btn" href="{% url 'core:technician_profile' %}">Vazgeç</a>
+      </div>
+      <p class="tp-hint">Talebiniz yöneticiye bildirim olarak gider; onaylandığında ya da reddedildiğinde size bildirim gelir.</p>
+    </form>
+
+    {% if leaves %}
+    <div class="tp-leaves">
+      <h3>Son izin taleplerim</h3>
+      <ul>{% for l in leaves %}<li><span>{{ l.get_leave_type_display }} · {{ l.start_date|date:"d.m.Y" }} – {{ l.end_date|date:"d.m.Y" }}</span><span class="tp-st tp-st-{{ l.status }}">{{ l.get_status_display }}</span></li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+  </section>
+</div>
+<script>
+(function(){
+  var MONTHS=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  var startIn=document.getElementById('tp-start'),endIn=document.getElementById('tp-end'),btn=document.getElementById('tp-range'),
+      txt=document.getElementById('tp-range-text'),pop=document.getElementById('tp-pop'),grid=document.getElementById('tp-days'),
+      monthEl=document.getElementById('tp-month'),hint=document.getElementById('tp-cal-hint');
+  function parse(v){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(v||'');return m?new Date(+m[1],+m[2]-1,+m[3]):null;}
+  function iso(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
+  function tr(d){return ('0'+d.getDate()).slice(-2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+d.getFullYear();}
+  function same(a,b){return a&&b&&a.getTime()===b.getTime();}
+  function add(d,n){var x=new Date(d);x.setDate(x.getDate()+n);return x;}
+  var today=parse(pop.dataset.today),start=parse(startIn.value),end=parse(endIn.value);
+  var view=new Date((start||today).getFullYear(),(start||today).getMonth(),1);
+
+  function workdays(){var n=0;for(var d=new Date(start);d<=end;d=add(d,1)){var w=d.getDay();if(w&&w!==6)n++;}return n;}
+  function label(){
+    if(start&&end){txt.textContent=tr(start)+' – '+tr(end)+' · '+workdays()+' iş günü';txt.classList.remove('is-empty');}
+    else if(start){txt.textContent=tr(start)+' – bitiş seçin';txt.classList.remove('is-empty');}
+    else{txt.textContent='Başlangıç Tarihi – Bitiş Tarihi';txt.classList.add('is-empty');}
+    hint.textContent=start&&!end?'Şimdi bitiş gününe tıklayın.':'Başlangıç gününe, ardından bitiş gününe tıklayın.';
+  }
+  function render(){
+    monthEl.textContent=MONTHS[view.getMonth()]+' '+view.getFullYear();
+    var cur=add(view,-((view.getDay()+6)%7)),html='';
+    for(var i=0;i<42;i++){
+      var d=cur,cls=['lv-day'],past=d<today;
+      if(d.getMonth()!==view.getMonth())cls.push('is-out');
+      if(same(d,today))cls.push('is-today');
+      if(start&&end&&d>start&&d<end)cls.push('in-range');
+      if(same(d,start))cls.push('is-start');
+      if(same(d,end))cls.push('is-end');
+      if(start&&end&&!same(start,end)&&(same(d,start)||same(d,end)))cls.push('has-range');
+      if(past)cls.push('is-past');
+      html+='<button type="button" role="gridcell" class="'+cls.join(' ')+'" data-date="'+iso(d)+'"'+(past?' disabled':'')+' aria-label="'+d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear()+'"><span>'+d.getDate()+'</span></button>';
+      cur=add(cur,1);
+      if(i===34&&cur.getMonth()!==view.getMonth())break;
+    }
+    grid.innerHTML=html;label();
+  }
+  function sync(){startIn.value=start?iso(start):'';endIn.value=end?iso(end):'';}
+  function open(v){pop.hidden=!v;btn.setAttribute('aria-expanded',v?'true':'false');if(v)render();}
+
+  btn.addEventListener('click',function(){open(pop.hidden);});
+  grid.addEventListener('click',function(e){
+    var b=e.target.closest('.lv-day');if(!b||b.disabled)return;
+    var d=parse(b.dataset.date);
+    if(!start||end||d<start){start=d;end=null;}else{end=d;}
+    sync();render();
+    if(start&&end)setTimeout(function(){open(false);btn.focus();},150);
+  });
+  document.getElementById('tp-prev').addEventListener('click',function(){view=new Date(view.getFullYear(),view.getMonth()-1,1);render();});
+  document.getElementById('tp-next').addEventListener('click',function(){view=new Date(view.getFullYear(),view.getMonth()+1,1);render();});
+  document.getElementById('tp-clear').addEventListener('click',function(){start=end=null;sync();render();});
+  document.getElementById('tp-done').addEventListener('click',function(){open(false);btn.focus();});
+  document.addEventListener('click',function(e){if(!pop.hidden&&!pop.contains(e.target)&&!btn.contains(e.target))open(false);});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!pop.hidden){open(false);btn.focus();}});
+  label();
+})();
+</script>
+{% endblock %}

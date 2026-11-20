@@ -1,0 +1,98 @@
+{% extends "core/base_customer_app.html" %}
+{% load static %}
+{% block title %}{% if attempt.status == 'succeeded' %}Ödeme başarılı{% else %}Ödeme başarısız{% endif %}{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'core/css/payment.css' %}?v=2">
+<div class="py">
+  {% if attempt.status == 'succeeded' %}
+  <h1 class="pt-h1">Ödeme başarılı</h1>
+  <p class="pt-lead">Servis bedeliniz ödendi. Cihazınızın geri gönderim hazırlığını servis kaydınızdan takip edebilirsiniz.</p>
+  {% else %}
+  <h1 class="pt-h1">Ödeme başarısız</h1>
+  <p class="pt-lead">Ödemeniz tamamlanmadı. Servis kaydınız ve onaylanan tutar korunuyor; yeniden deneyebilirsiniz.</p>
+  {% endif %}
+  {% include "core/_payment_head.html" %}
+
+  {% if attempt.status == 'succeeded' %}
+  <div class="py-grid">
+    <div class="py-main">
+      <section class="pt-card py-result">
+        <div class="py-res-head"><span class="py-res-ico is-ok py-res-ico-lg" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+          <div><h2 class="py-res-title">Ödemeniz tamamlandı</h2><p class="py-sub">{{ attempt.amount|floatformat:"2g" }} ₺ tutarındaki ödeme kaydınıza işlendi.</p></div></div>
+        <div class="py-res-amount"><small>Ödenen toplam (KDV dahil)</small><b>{{ attempt.amount|floatformat:"2g" }} ₺</b><span>{{ device.brand }} {{ device.model }} · {{ device.tracking_id }}</span></div>
+        <dl class="py-kv py-kv-res">
+          <div><dt>İşlem referansı</dt><dd class="py-mono">{{ attempt.reference }}</dd></div>
+          <div><dt>Ödeme tarihi</dt><dd>{{ attempt.completed_at|date:"d.m.Y, H:i" }}</dd></div>
+          <div><dt>Ödeme yöntemi</dt><dd>Kart ile ödeme{% if attempt.card_brand %} · {{ attempt.card_brand }}{% endif %}</dd></div>
+          <div><dt>Kart</dt><dd>{{ attempt.masked_card }}</dd></div>
+        </dl>
+        <div class="py-actions py-actions-start">
+          <a class="pt-btn pt-btn-primary" href="{% url 'core:customer_payment_receipt' attempt.pk %}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h7M9 17h7"/></svg>Ödeme belgesini görüntüle</a>
+          <a class="pt-btn" href="{% url 'core:customer_device_lookup' %}?kod={{ device.tracking_id }}">Servis kaydına dön</a>
+        </div>
+      </section>
+      <div class="py-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+        {% if device.status == 'return_shipping' or device.status == 'delivered' %}
+        <div><b>Sıradaki adım: {% if device.status == 'delivered' %}Teslim edildi{% else %}Cihazınız kargoda{% endif %}</b><p>Kargo firması ve takip numarası servis kaydınızda görünür.</p></div>
+        {% else %}
+        <div><b>Sıradaki adım: Geri gönderim hazırlanıyor</b><p>Onarımı tamamlanan cihazınız paketleme aşamasına alınacak. Henüz kargoya verilmedi ve dönüş takip numarası oluşmadı.</p></div>
+        {% endif %}
+      </div>
+    </div>
+    <aside class="py-side">
+      <section class="pt-card">
+        <h2>Geri gönderim adresiniz</h2>
+        <div class="py-address">
+          <b>{{ device.return_recipient|default:attempt.billing_name }}</b>
+          <span>{{ device.return_phone|default:attempt.billing_phone }}</span>
+          <p>{% if device.return_address %}{{ device.return_address }}{% if device.return_district or device.return_city %}<br>{% if device.return_district %}{{ device.return_district }}{% endif %}{% if device.return_district and device.return_city %} / {% endif %}{{ device.return_city }}{% endif %}{% else %}{{ attempt.billing_address }}{% endif %}</p>
+        </div>
+      </section>
+      <section class="pt-card">
+        {% if device.return_cargo_company or device.return_cargo_tracking_code %}
+        <h2>Kargo bilgileri</h2>
+        <dl class="py-kv py-kv-col">
+          {% if device.return_cargo_company %}<div><dt>Kargo firması</dt><dd>{{ device.return_cargo_company }}</dd></div>{% endif %}
+          {% if device.return_cargo_tracking_code %}<div><dt>Takip numarası</dt><dd class="py-mono">{{ device.return_cargo_tracking_code }}</dd></div>{% endif %}
+        </dl>
+        {% else %}
+        <h2>Kargo bilgileri ne zaman görünür?</h2>
+        <p class="py-text">Cihazınız kargoya verildiğinde firma, dönüş takip numarası ve tahmini teslim bilgisi bu kayıtta görünecek.</p>
+        {% endif %}
+        <p class="py-text py-text-sep">Kargo firması ve ücret politikası servis tarafından paylaşılacak. Ödeme yapılmış olması, kargo teslimi anlamına gelmez.</p>
+      </section>
+    </aside>
+  </div>
+
+  {% else %}
+  <div class="py-grid">
+    <div class="py-main">
+      <section class="pt-card py-result">
+        <div class="py-res-head"><span class="py-res-ico is-bad" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></span>
+          <div><h2>Ödeme tamamlanamadı</h2><p class="py-sub">Bu işlemde kartınızdan tahsilat yapılmadı.</p></div></div>
+        <div class="py-badbox"><b>{% if attempt.status == 'cancelled' %}İşlem iptal edildi{% else %}Doğrulama tamamlanamadı{% endif %}</b><p>{{ attempt.failure_reason|default:"Ödeme işlemi iptal edildi." }} Yeniden deneyebilir veya kart bilgilerinizi düzenleyebilirsiniz.</p></div>
+        <div class="py-res-amount"><small>Ödenmesi gereken tutar (KDV dahil)</small><b>{{ attempt.amount|floatformat:"2g" }} ₺</b><span>{{ device.brand }} {{ device.model }} · {{ device.tracking_id }}</span></div>
+        <dl class="py-kv">
+          <div><dt>Deneme tarihi</dt><dd>{{ attempt.completed_at|default:attempt.created_at|date:"d.m.Y, H:i" }}</dd></div>
+          <div><dt>Kart</dt><dd>{{ attempt.card_brand }} {{ attempt.masked_card }}</dd></div>
+        </dl>
+        <div class="py-actions py-actions-start">
+          {% if not device.is_paid %}<a class="pt-btn pt-btn-primary" href="{% url 'core:customer_payment' device.tracking_id %}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>Tekrar dene</a>
+          <a class="pt-btn" href="{% url 'core:customer_payment' device.tracking_id %}">Kart bilgilerini düzenle</a>{% endif %}
+          <a class="pt-btn" href="{% url 'core:customer_device_lookup' %}?kod={{ device.tracking_id }}">Servis kaydına dön</a>
+        </div>
+      </section>
+    </div>
+    <aside class="py-side">
+      <section class="pt-card">
+        <h2>Servis kaydınız korunuyor</h2>
+        <dl class="py-kv py-kv-col"><div><dt>Güncel durum</dt><dd>{% if device.is_paid %}Ödendi{% else %}Ödeme bekleniyor{% endif %}</dd></div></dl>
+        <p class="py-text">Cihazınızın onarımı tamamlandı. Ödeme tamamlanana kadar geri gönderim hazırlığı başlamaz; cihaz henüz kargoya verilmedi. Onaylanan servis bedeli değişmedi.</p>
+      </section>
+      <div class="py-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div><b>Yeniden denemeden önce</b><p>Kart bilgilerinizi ve e-postanıza gelen doğrulama kodunu kontrol edin. Sorun devam ederse destek hattımızla iletişime geçebilirsiniz.</p></div></div>
+    </aside>
+  </div>
+  {% endif %}
+  {% include "core/_payment_help.html" %}
+</div>
+{% endblock %}

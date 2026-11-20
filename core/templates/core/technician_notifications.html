@@ -1,0 +1,68 @@
+{% extends "core/base_app.html" %}
+{% load static fixlab_tags %}
+{% block title %}Bildirimlerim{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/technician.css' %}?v=5"><link rel="stylesheet" href="{% static 'core/css/admin_notifications.css' %}?v=2"><link rel="stylesheet" href="{% static 'core/css/tech_notifications.css' %}?v=1">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="tech an tn">
+  <div class="tech-head">
+    <div><h1>Bildirimlerim</h1><p>Yönetimden gelen yanıtlar, atamalar ve hatırlatmalar</p></div>
+    {% if viewas %}{% include "core/_viewas_tools.html" %}{% else %}{% include "core/_notify_bell.html" %}{% endif %}
+  </div>
+
+  <div class="an-grid">
+    <div>
+      <section class="an-list" aria-label="Bildirimler">
+        {% for g in groups %}
+          <h2 class="an-day">{{ g.label }}</h2>
+          {% for c in g.cards %}
+          <article class="an-item {% if c.n.is_read %}is-read{% else %}unread{% endif %}" data-nt-item>
+            <span class="an-ico an-{{ c.tone }}" aria-hidden="true">{% include "core/_an_icon.html" with icon=c.icon %}</span>
+            <div class="an-body">
+              <div class="an-top">
+                <div class="an-who"><b>{{ c.who }}</b>{% if c.label %}<span class="an-tag an-tag-{{ c.tone }}">{{ c.label }}</span>{% endif %}</div>
+                <time datetime="{{ c.n.created_at|date:'c' }}">{{ c.time }}</time>
+              </div>
+              <p><span class="tn-title">{{ c.title }}</span>{% if c.body %} · {{ c.body|hl_ids }}{% endif %}</p>
+              {% if not viewas %}
+              <div class="an-row">
+                {% if c.link %}<a class="an-btn an-btn-ghost an-btn-sm" href="{{ c.link }}">Aç</a>{% endif %}
+                <span class="an-readslot">{% include "core/_nt_read_toggle.html" with n=c.n %}</span>
+              </div>
+              {% elif not c.n.is_read %}
+              <div class="an-row"><span class="tn-unread">Okunmadı</span></div>
+              {% endif %}
+            </div>
+          </article>
+          {% endfor %}
+        {% empty %}
+          <p class="an-empty">Henüz bildiriminiz yok.</p>
+        {% endfor %}
+        {% if groups %}<p class="an-limit">Son {{ panel_limit }} bildirim gösteriliyor</p>{% endif %}
+      </section>
+      {% if not viewas and unread_total %}
+      <form method="post" action="{% url 'core:notifications_mark_read' %}" class="tn-readall">{% csrf_token %}
+        <button type="submit" class="an-btn an-btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12.5 6.5 17 15 8.5"/><path d="m12 15 2 2 8-8.5"/></svg>Tümünü okundu işaretle</button>
+      </form>
+      {% endif %}
+    </div>
+
+    <aside class="an-side">
+      <section class="an-card tn-sum">
+        <h2>Özet</h2>
+        <dl>
+          <div><dt>Okunmamış</dt><dd>{{ unread_total }}</dd></div>
+          <div><dt>Bugün gelen</dt><dd>{{ today_total }}</dd></div>
+          <div><dt>Dün gelen</dt><dd>{{ yesterday_total }}</dd></div>
+        </dl>
+      </section>
+      <section class="tn-info">
+        <h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Yalnızca görüntüleme</h2>
+        <p>Bildirimler yalnızca görüntülenir. Parça veya izin işlemleri için yönetici ile iletişime geçin.</p>
+      </section>
+    </aside>
+  </div>
+  {% if viewas %}{% include "core/_viewas_note.html" %}{% endif %}
+</div>
+{% if not viewas %}<script src="{% static 'core/js/notify_read.js' %}?v=1" defer></script>{% endif %}
+{% endblock %}

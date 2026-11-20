@@ -1,0 +1,5 @@
+<div class="sf-field{% if wide %} sf-wide{% endif %}" id="wrap-{{ f.name }}">
+  <label for="{{ f.id_for_label }}">{{ f.label }}</label>
+  {{ f }}
+  {% for e in f.errors %}<p class="sf-err">{{ e }}</p>{% endfor %}
+</div>

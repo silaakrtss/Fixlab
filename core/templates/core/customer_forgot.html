@@ -1,0 +1,4 @@
+{% extends "core/base_customer.html" %}
+{% block title %}Şifremi Unuttum · FIXLAB{% endblock %}
+{% block head_right %}<a class="cp-head-link" href="{% url 'core:login' %}">Personel girişi</a>{% endblock %}
+{% block content %}{% include "core/_reset_forgot_body.html" %}{% endblock %}

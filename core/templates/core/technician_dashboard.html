@@ -1,0 +1,69 @@
+{% extends "core/base_app.html" %}
+{% load static %}
+{% block title %}Cihazlarım{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/technician.css' %}?v=5">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="tech">
+  <div class="tech-head">
+    <div><h1>Cihazlarım</h1><p>{% if viewas %}{{ viewas.display_name }}{% else %}{{ request.user.display_name }}{% endif %}, size atanan {{ active_count }} aktif kayıt</p></div>
+    {% if viewas %}{% include "core/_viewas_tools.html" %}{% else %}{% include "core/_notify_bell.html" %}{% endif %}
+  </div>
+
+  {% if new_notice %}
+  {% with d=new_notice.device %}
+  <div class="tech-notice" role="status">
+    <span class="tech-notice-tag">Yeni atama</span>
+    <div class="tech-notice-txt">
+      <b>Yönetici size yeni bir kayıt atadı: {{ d.tracking_id }} · {{ d.brand }} {{ d.model }}</b>
+      <span>Müşteri: {{ d.customer_name }} · Arıza: {{ new_notice.issue }}{% if new_notice.note %} · Atama notu: {{ new_notice.note }}{% endif %}</span>
+    </div>
+    <a class="tech-notice-btn" href="{% if viewas %}{% url 'core:viewas_device' viewas.pk d.tracking_id %}{% else %}{% url 'core:technician_device' d.tracking_id %}{% endif %}">Detayı aç</a>
+  </div>
+  {% endwith %}
+  {% endif %}
+
+  <div class="tech-stats tech-stats-4">
+    <div class="tech-stat"><div class="lbl">Yeni atama</div><div class="num">{{ new_count }}</div><div class="sub">Henüz başlanmadı</div></div>
+    <div class="tech-stat"><div class="lbl">Tamirde</div><div class="num">{{ repairing_count }}</div><div class="sub">Aktif iş</div></div>
+    <div class="tech-stat"><div class="lbl">Parça bekleyen</div><div class="num">{{ waiting_part_count }}</div><div class="sub">Sipariş bekleniyor</div></div>
+    <div class="tech-stat"><div class="lbl">İnceleniyor</div><div class="num">{{ diagnosing_count }}</div><div class="sub">Teşhis aşamasında</div></div>
+  </div>
+
+  {% if device_cards %}
+  <div class="tech-filters" role="group" aria-label="Filtre">
+    <button type="button" class="tech-chip" data-filter="all" aria-pressed="true">Tümü</button>
+    <button type="button" class="tech-chip" data-filter="new" aria-pressed="false">Yeni ({{ new_count }})</button>
+    <button type="button" class="tech-chip" data-filter="active" aria-pressed="false">Aktif</button>
+    <button type="button" class="tech-chip" data-filter="done" aria-pressed="false">Tamamlanan</button>
+  </div>
+  <div class="tech-grid">
+    {% for d in device_cards %}
+    <article class="tech-card{% if d.is_new %} is-new{% endif %}" data-group="{{ d.group }}">
+      <div class="tech-card-top"><h3 title="{{ d.brand }} {{ d.model }}">{{ d.brand }} {{ d.model }}</h3>{% if d.not_started %}<span class="pill pill-new">Yeni atama</span>{% else %}<span class="pill pill-{{ d.status }}">{% if d.status == 'waiting_part' %}Parça bekleniyor{% else %}{{ d.get_status_display }}{% endif %}</span>{% endif %}</div>
+      <div class="tech-code">{{ d.tracking_id }}</div>
+      <p class="tech-issue">{{ d.issue_description }}</p>
+      <div class="tech-date">Kayıt: {{ d.card_date }}{% if d.assigned_ago %} · Atandı: {{ d.assigned_ago }}{% endif %}</div>
+      <a class="tech-open" href="{% if viewas %}{% url 'core:viewas_device' viewas.pk d.tracking_id %}{% else %}{% url 'core:technician_device' d.tracking_id %}{% endif %}">Detayı aç</a>
+    </article>
+    {% endfor %}
+  </div>
+  <p class="empty" id="tech-none" hidden>Bu filtrede cihaz yok.</p>
+  <script>
+  (function(){
+    var chips=document.querySelectorAll('.tech-chip'),cards=document.querySelectorAll('.tech-card'),none=document.getElementById('tech-none');
+    function apply(f){
+      var shown=0;
+      cards.forEach(function(c){var g=c.dataset.group.split(' ');c.hidden=(f!=='all'&&g.indexOf(f)<0);if(!c.hidden)shown++;});
+      none.hidden=shown>0;
+      chips.forEach(function(b){b.setAttribute('aria-pressed',b.dataset.filter===f?'true':'false');});
+    }
+    chips.forEach(function(b){b.addEventListener('click',function(){apply(b.dataset.filter);});});
+  })();
+  </script>
+  {% else %}
+  <p class="empty">Size atanmış açık cihaz yok.</p>
+  {% endif %}
+  {% if viewas %}{% include "core/_viewas_note.html" %}{% endif %}
+</div>
+{% endblock %}

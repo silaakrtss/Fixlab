@@ -1,0 +1,42 @@
+{% load static %}
+{# ---- Yapay zekâ arıza asistanı (sohbet). mod: "ana" (müşteri ana sayfası) | "form" (cihaz kaydı sayfası) ---- #}
+{# Formların DIŞINDA durmalı: sohbette Enter'a basmak cihaz kaydı formunu göndermesin. #}
+<link rel="stylesheet" href="{% static 'core/css/ai_chat.css' %}?v=1">
+<div class="ai-teaser" id="ai-teaser" role="status" hidden>
+  <button type="button" class="ai-teaser-x" id="ai-teaser-x" aria-label="Kapat">×</button>
+  <b>💬 Kayıt oluşturmadan önce birlikte çözelim!</b>
+  <span>Arızanızı yazın, yapay zekâ asistanımız fotoğraflarınızı da inceleyip anında çözüm önersin.</span>
+</div>
+<button type="button" id="ai-fab" class="ai-fab" aria-controls="ai-chat" aria-expanded="false">
+  <span class="ai-fab-ico" aria-hidden="true">🤖</span><span class="ai-fab-txt">Arıza Asistanı</span><span class="ai-fab-tag">AI</span>
+</button>
+<section id="ai-chat" class="ai-chat" aria-label="Arıza asistanı" hidden data-mod="{{ mod|default:'form' }}"
+         data-analiz-url="{% url 'core:customer_ai_analyze' %}" data-sohbet-url="{% url 'core:customer_ai_chat' %}"
+         data-home-url="{% url 'core:customer_home' %}" data-kayit-url="{% url 'core:customer_device_create' %}">
+  <header class="ai-head">
+    <span class="ai-avatar" aria-hidden="true">🤖</span>
+    <div><b>Arıza Asistanı</b><small>Fotoğraflarınızı da inceler · Kişisel bilgileriniz gizlenir</small></div>
+    <button type="button" class="ai-x" id="ai-close" aria-label="Kapat">×</button>
+  </header>
+  <div class="ai-msgs" id="ai-msgs" aria-live="polite">
+    {% if mod == "ana" %}
+    <div class="ai-msg ai-bot">Merhaba! 👋 Cihazınızda ne sorun var? Arızayı bana yazın, isterseniz <b>📎</b> ile fotoğraf da ekleyin. Birçok basit sorunu <b>servis kaydı oluşturmadan</b> birlikte çözebiliriz.</div>
+    {% else %}
+    <div class="ai-msg ai-bot">Merhaba! 👋 Arızanızı soldaki <b>Ayrıntılı arıza açıklaması</b> kutusuna yazın, isterseniz fotoğraf da ekleyin. Size servise gelmeden önce deneyebileceğiniz basit çözümler önereyim. Buradan da bana yazabilirsiniz.</div>
+    {% endif %}
+  </div>
+  <div class="ai-decide" id="ai-decide" hidden>
+    <button type="button" class="ai-ok" id="ai-solved">✅ Sorunum çözüldü</button>
+    <button type="button" class="ai-go" id="ai-still">🛠 Hâlâ düzelmedi, servis kaydı oluştur</button>
+  </div>
+  {% if mod == "ana" %}<div class="ai-chips" id="ai-chips" hidden></div>{% endif %}
+  <form class="ai-input" id="ai-form" autocomplete="off">
+    {% if mod == "ana" %}
+    <button type="button" class="ai-attach" id="ai-attach" aria-label="Fotoğraf ekle" title="Fotoğraf ekle (en fazla 3)">📎</button>
+    <input type="file" id="ai-photos" accept="image/jpeg,image/png" multiple hidden>
+    {% endif %}
+    <input type="text" id="ai-text" maxlength="500" placeholder="{% if mod == 'ana' %}Arızanızı yazın… (örn. telefonum şarj olmuyor){% else %}Mesajınızı yazın… (örn. denedim, olmadı){% endif %}" aria-label="Mesajınız">
+    <button type="submit" class="ai-send" aria-label="Gönder"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </form>
+</section>
+<script src="{% static 'core/js/ai_assist.js' %}?v=4" defer></script>

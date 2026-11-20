@@ -1,0 +1,70 @@
+{% extends "core/base_customer_app.html" %}
+{% load static %}
+{% block title %}Online ödeme{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'core/css/payment.css' %}?v=2">
+<div class="py">
+  <h1 class="pt-h1">Online ödeme</h1>
+  <p class="pt-lead">İnceleme ve onayınızın ardından onarım tamamlandı. Servis bedelini ödeyerek geri gönderim hazırlığını başlatabilirsiniz.</p>
+  {% include "core/_payment_head.html" %}
+
+  <form method="post" novalidate class="py-grid" id="py-form" autocomplete="on">{% csrf_token %}
+    <div class="py-main">
+      {% if form.non_field_errors %}<div class="pt-alert pt-alert-bad" role="alert">{{ form.non_field_errors.0 }}</div>{% endif %}
+      <section class="pt-card">
+        <h2>Kart bilgileri</h2>
+        <p class="py-note">Bu bir ödeme simülasyonudur; gerçek tahsilat yapılmaz. Gerçek kart bilgisi girmeyin. Kart numarası ve CVV kaydedilmez.</p>
+        <div class="py-field"><label for="{{ form.holder_name.id_for_label }}">Kart üzerindeki ad soyad *</label>{{ form.holder_name }}{% for e in form.holder_name.errors %}<p class="py-err">{{ e }}</p>{% endfor %}</div>
+        <div class="py-field"><label for="{{ form.card_number.id_for_label }}">Kart numarası *</label>{{ form.card_number }}{% for e in form.card_number.errors %}<p class="py-err">{{ e }}</p>{% endfor %}</div>
+        <div class="py-row">
+          <div class="py-field"><label for="{{ form.expiry.id_for_label }}">Son kullanma tarihi *</label>{{ form.expiry }}{% for e in form.expiry.errors %}<p class="py-err">{{ e }}</p>{% endfor %}</div>
+          <div class="py-field"><label for="{{ form.cvv.id_for_label }}">CVV *</label>{{ form.cvv }}{% for e in form.cvv.errors %}<p class="py-err">{{ e }}</p>{% endfor %}</div>
+        </div>
+        <p class="py-hint">Deneme için geçerli bir test kartı: <code>4111 1111 1111 1111</code>. Bankanın reddettiği durumu görmek için: <code>4000 0000 0000 0002</code>.</p>
+      </section>
+
+      <section class="pt-card">
+        <h2>Fatura bilgileri</h2>
+        <p class="py-radio"><span class="py-radio-dot" aria-hidden="true"></span>Bireysel fatura</p>
+        <div class="py-row">
+          <div class="py-field"><label for="{{ form.billing_name.id_for_label }}">Ad soyad *</label>{{ form.billing_name }}{% for e in form.billing_name.errors %}<p class="py-err">{{ e }}</p>{% endfor %}</div>
+          <div class="py-field"><label for="{{ form.billing_phone.id_for_label }}">Telefon *</label>{{ form.billing_phone }}{% for e in form.billing_phone.errors %}<p class="py-err">{{ e }}</p>{% endfor %}</div>
+        </div>
+        <div class="py-field"><label for="{{ form.billing_address.id_for_label }}">Fatura adresi *</label>{{ form.billing_address }}{% for e in form.billing_address.errors %}<p class="py-err">{{ e }}</p>{% endfor %}</div>
+      </section>
+
+      <label class="py-accept"><input type="checkbox" name="{{ form.accept.html_name }}" {% if form.accept.value %}checked{% endif %}><span>Servis kalemlerini ve KDV dahil {{ amount|floatformat:"2g" }} ₺ toplam bedeli inceledim. Servis ve ödeme <a href="{% url 'core:customer_terms' %}" target="_blank" rel="noopener">koşullarını</a> kabul ediyorum. *</span></label>
+      {% for e in form.accept.errors %}<p class="py-err">{{ e }}</p>{% endfor %}
+      <div class="py-actions">
+        <a class="pt-btn" href="{% url 'core:customer_device_lookup' %}?kod={{ device.tracking_id }}">Servis kaydına dön</a>
+        <button type="submit" class="pt-btn pt-btn-primary py-pay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>{{ amount|floatformat:"2g" }} ₺ Öde</button>
+      </div>
+      <p class="py-hint">Sonraki aşama: banka doğrulaması. Doğrulama kodu e-posta adresinize gönderilir. Henüz tahsilat yapılmadı.</p>
+    </div>
+
+    <aside class="py-side">
+      {% include "core/_payment_amount.html" %}
+      <section class="pt-card">
+        <h2>Onarım tamamlandı</h2>
+        <dl class="py-kv">
+          {% if ready_at %}<div><dt>Onarım bitişi</dt><dd>{{ ready_at|date:"d.m.Y, H:i" }}</dd></div>{% endif %}
+          <div><dt>Servis kaydı</dt><dd>{{ device.tracking_id }}</dd></div>
+        </dl>
+        {% if last_note %}<p class="py-text">{{ last_note.text }}</p>{% endif %}
+        <p class="py-total-line">Onaylanan servis bedeli: <b>{{ amount|floatformat:"2g" }} ₺</b></p>
+      </section>
+      <div class="py-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div><b>Ödeme sonrası</b><p>Ödemeniz tamamlandığında cihazınızın geri gönderimi hazırlanacak. Kargoya verildiğinde dönüş takip numarası kaydınıza eklenecek.</p></div></div>
+    </aside>
+  </form>
+  {% include "core/_payment_help.html" %}
+</div>
+<script>
+(function(){
+  var n=document.getElementById('{{ form.card_number.id_for_label }}'),e=document.getElementById('{{ form.expiry.id_for_label }}'),c=document.getElementById('{{ form.cvv.id_for_label }}');
+  if(n)n.addEventListener('input',function(){var d=n.value.replace(/\D/g,'').slice(0,19);n.value=d.replace(/(.{4})/g,'$1 ').trim();});
+  if(e)e.addEventListener('input',function(){var d=e.value.replace(/\D/g,'').slice(0,4);e.value=d.length>2?d.slice(0,2)+' / '+d.slice(2):d;});
+  if(c)c.addEventListener('input',function(){c.value=c.value.replace(/\D/g,'').slice(0,4);});
+  var f=document.getElementById('py-form');if(f)f.addEventListener('submit',function(){var b=f.querySelector('.py-pay');if(b){setTimeout(function(){b.disabled=true;},0);}});
+})();
+</script>
+{% endblock %}

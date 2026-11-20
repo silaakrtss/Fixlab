@@ -1,0 +1,56 @@
+{% extends "core/base_app.html" %}
+{% load static %}
+{% block title %}Geçmiş işlerim{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/technician.css' %}?v=4"><link rel="stylesheet" href="{% static 'core/css/newdevices.css' %}?v=4"><link rel="stylesheet" href="{% static 'core/css/admin_devices.css' %}?v=1"><link rel="stylesheet" href="{% static 'core/css/tech_history.css' %}?v=1">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="tech th">
+  <div class="tech-head">
+    <div><h1>Geçmiş işlerim</h1><p>{% if viewas %}{{ viewas.display_name }} adlı teknisyenin tamamladığı{% else %}Tamamladığınız{% endif %} servis kayıtları</p></div>
+    {% if viewas %}{% include "core/_viewas_tools.html" %}{% else %}{% include "core/_notify_bell.html" %}{% endif %}
+  </div>
+
+  <form class="nd-filter" method="get" role="search">
+    <label class="sr-only" for="th-q">Ara</label>
+    <input type="search" id="th-q" name="q" value="{{ q }}" placeholder="Takip kodu veya cihaz ara…" maxlength="100" autocomplete="off">
+    <noscript><button class="nd-go" type="submit">Ara</button></noscript>
+  </form>
+
+  <section class="nd-card" aria-label="Geçmiş işler">
+    {% if devices %}
+    <div class="nd-scroll"><table class="nd-table th-table">
+      <thead><tr><th>Takip kodu</th><th>Cihaz</th><th>Müşteri</th><th>Tamamlanma</th><th>Kullanılan parça</th><th>Durum</th><th><span class="sr-only">İşlem</span></th></tr></thead>
+      <tbody>
+      {% for d in devices %}
+        <tr>
+          <td class="nd-code">{{ d.tracking_id }}</td>
+          <td>{{ d.brand }} {{ d.model }}</td>
+          <td>{{ d.customer_name }}</td>
+          <td class="nd-date">{{ d.done_label }}</td>
+          <td class="th-parts">{{ d.parts_label|default:"—" }}</td>
+          <td><span class="ad-pill ad-pill-{{ d.pill_tone }}">{{ d.get_status_display }}</span></td>
+          <td class="nd-op"><a class="ad-detail" href="{% if viewas %}{% url 'core:viewas_history_device' viewas.pk d.tracking_id %}{% else %}{% url 'core:technician_history_device' d.tracking_id %}{% endif %}">Detay</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {% elif filtered %}
+    <p class="nd-empty">Aramanıza uyan kayıt bulunamadı.</p>
+    {% else %}
+    <p class="nd-empty">Henüz tamamlanmış servis kaydı yok. Teslim edilen, onarılamayan ya da iptal edilen işler burada listelenir.</p>
+    {% endif %}
+  </section>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+  <div class="ad-foot">
+    <span>Toplam {{ total }} kayıt</span>
+    <nav class="ad-pages" aria-label="Sayfalar">
+      {% if page_obj.has_previous %}<a href="?{% if q %}q={{ q|urlencode }}&amp;{% endif %}page={{ page_obj.previous_page_number }}" aria-label="Önceki sayfa">‹</a>{% endif %}
+      <span class="is-current" aria-current="page">{{ page_obj.number }}</span>
+      {% if page_obj.has_next %}<a href="?{% if q %}q={{ q|urlencode }}&amp;{% endif %}page={{ page_obj.next_page_number }}" aria-label="Sonraki sayfa">›</a>{% endif %}
+    </nav>
+  </div>
+  {% endif %}
+  {% if viewas %}{% include "core/_viewas_note.html" %}{% endif %}
+</div>
+{% endblock %}

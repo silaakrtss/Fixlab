@@ -1,0 +1,90 @@
+{% extends "core/base_customer_app.html" %}
+{% block title %}Profil{% endblock %}
+{% block crumb %}Profil{% endblock %}
+{% block content %}
+<h1 class="pt-h1">Profil</h1>
+<p class="pt-lead">Hesap bilgilerinizi görüntüleyin ve güncelleyin.</p>
+
+<div class="pt-profile">
+  <section class="pt-panel pt-pcard">
+    <div class="pt-phead">
+      <span class="pt-avatar pt-avatar-lg" aria-hidden="true">{{ profile_user.avatar_letter }}</span>
+      <div><h2>{{ profile_user.display_name }}</h2><p>{{ profile_user.email }}</p></div>
+      <span class="pt-pill">{{ profile_user.get_role_display }}</span>
+    </div>
+    <form method="post" class="pt-profile-form" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="pt-alert pt-alert-bad" role="alert">{{ form.non_field_errors.0 }}</div>{% endif %}
+      <div class="pt-form-grid">
+        <div class="pt-field{% if form.first_name.errors %} has-error{% endif %}">
+          <label for="p-fn">Ad *</label>
+          <input type="text" id="p-fn" name="first_name" maxlength="60" autocomplete="given-name" value="{{ form.first_name.value|default_if_none:'' }}" required>
+          {% for e in form.first_name.errors %}<div class="pt-err">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="pt-field{% if form.last_name.errors %} has-error{% endif %}">
+          <label for="p-ln">Soyad *</label>
+          <input type="text" id="p-ln" name="last_name" maxlength="60" autocomplete="family-name" value="{{ form.last_name.value|default_if_none:'' }}" required>
+          {% for e in form.last_name.errors %}<div class="pt-err">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="pt-field">
+          <label for="p-em">E-posta</label>
+          <input type="text" id="p-em" inputmode="email" value="{{ profile_user.email }}" readonly aria-describedby="p-em-h">
+          <div class="pt-hint" id="p-em-h">Giriş kimliğiniz olduğu için değiştirilemez.</div>
+        </div>
+        <div class="pt-field{% if form.phone.errors %} has-error{% endif %}">
+          <label for="p-ph">Telefon</label>
+          <input type="tel" id="p-ph" name="phone" maxlength="20" inputmode="tel" autocomplete="tel" placeholder="(5XX) XXX XX XX" value="{{ form.phone.value|default_if_none:'' }}">
+          {% for e in form.phone.errors %}<div class="pt-err">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+
+      <h3 class="pt-sub">Adres bilgileri <span class="pt-optional">İsteğe bağlı</span></h3>
+      <p class="pt-hint pt-hint-block">Kargoyla göndereceğiniz cihaz kayıtlarında teslim adresi bu bilgilerle otomatik doldurulur. Girmek zorunda değilsiniz.</p>
+      <div class="pt-form-grid">
+        <div class="pt-field{% if form.city.errors %} has-error{% endif %}">
+          <label for="p-city">İl</label>
+          <input type="text" id="p-city" name="city" maxlength="60" autocomplete="address-level1" value="{{ form.city.value|default_if_none:'' }}">
+          {% for e in form.city.errors %}<div class="pt-err">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="pt-field{% if form.district.errors %} has-error{% endif %}">
+          <label for="p-dist">İlçe</label>
+          <input type="text" id="p-dist" name="district" maxlength="60" autocomplete="address-level2" value="{{ form.district.value|default_if_none:'' }}">
+          {% for e in form.district.errors %}<div class="pt-err">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="pt-field pt-full{% if form.address.errors %} has-error{% endif %}">
+          <label for="p-addr">Açık adres</label>
+          <textarea id="p-addr" name="address" rows="3" maxlength="500" autocomplete="street-address" placeholder="Mahalle, cadde / sokak, bina ve daire no">{{ form.address.value|default_if_none:'' }}</textarea>
+          {% for e in form.address.errors %}<div class="pt-err">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+      <button type="submit" class="pt-btn pt-btn-primary pt-save">Değişiklikleri Kaydet</button>
+    </form>
+
+    <h3 class="pt-sub">Hesap bilgileri</h3>
+    <dl class="pt-info-grid">
+      <div><dt>Hesap türü</dt><dd>{{ profile_user.get_role_display }}</dd></div>
+      <div><dt>Hesap durumu</dt><dd>{% if profile_user.is_active %}Aktif{% else %}Pasif{% endif %}</dd></div>
+      <div><dt>Üyelik tarihi</dt><dd>{{ member_since|date:"d.m.Y" }}</dd></div>
+      <div><dt>Son giriş</dt><dd>{% if profile_user.last_login %}{{ profile_user.last_login|date:"d.m.Y, H:i" }}{% else %}—{% endif %}</dd></div>
+    </dl>
+    <div class="pt-info"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><span>E-posta adresinizi değiştirmek için destek hattımızla iletişime geçebilirsiniz. Şifrenizi giriş ekranındaki «Şifremi unuttum» adımlarıyla yenileyebilirsiniz.</span></div>
+  </section>
+
+  <aside class="pt-profile-side">
+    <section class="pt-panel">
+      <h2>Servis özeti</h2>
+      <ul class="pt-sum">
+        <li><span>Toplam servis kaydı</span><b>{{ total_count }}</b></li>
+        <li><span>Devam eden kayıt</span><b>{{ active_count }}</b></li>
+        <li><span>Teslim edilen</span><b>{{ delivered_count }}</b></li>
+      </ul>
+      <a class="pt-btn pt-btn-sm" href="{% url 'core:customer_devices' %}">Kayıtlarımı Gör</a>
+    </section>
+    <section class="pt-panel pt-helpcard">
+      <div class="pt-helphead"><span class="pt-helpico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><path d="M21 15a2 2 0 0 1-2 2h-1v-6h1a2 2 0 0 1 2 2z"/><path d="M3 15a2 2 0 0 0 2 2h1v-6H5a2 2 0 0 0-2 2z"/><path d="M18 17v1a3 3 0 0 1-3 3h-2"/></svg></span><b>Yardıma mı ihtiyacınız var?</b></div>
+      <p>{{ SUPPORT_PHONE }} numaralı hattımızdan bize ulaşabilirsiniz.</p>
+      {% if SUPPORT_PHONE_TEL %}<a class="pt-call" href="tel:{{ SUPPORT_PHONE_TEL }}">Hemen Ara<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></a>{% endif %}
+    </section>
+  </aside>
+</div>
+{% endblock %}

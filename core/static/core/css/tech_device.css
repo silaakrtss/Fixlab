@@ -1,0 +1,137 @@
+/* FIXLAB · Teknisyen › Cihaz detayı (yeni yerleşim) — yalnızca .tdx-* sınıfları; technician.css (td-*) ile birlikte yüklenir */
+.tdx .td-top{margin-bottom:16px}
+.tdx .td-back{color:#0b7a75;font-weight:500}
+.tdx-grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:20px;align-items:start}
+.tdx-main{display:grid;gap:16px;min-width:0}
+.tdx-main .td-card,.tdx-side .td-card{margin:0}
+.tdx-side{position:sticky;top:24px}
+body.is-viewas .tdx-side{top:88px}
+
+/* Başlık kartı */
+.tdx-hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.tdx-hero h1{margin:0;font:700 22px/1.25 var(--font);color:#15222d}
+.tdx-sub{margin:4px 0 10px;font-size:12px;color:#667581}
+.tdx-issue{margin:0;font-size:14px;line-height:1.5;color:#15222d}
+.tdx-desc{margin:6px 0 0;font-size:13px;line-height:1.5;color:#4f6470}
+.tdx-meta{display:flex;flex-wrap:wrap;gap:6px 24px;margin:14px 0 0;padding-top:12px;border-top:1px solid #eef1f3}
+.tdx-meta div{display:flex;gap:6px;font-size:12px}
+.tdx-meta dt{color:#8a99a5}
+.tdx-meta dd{margin:0;color:#334155;font-weight:500}
+
+/* Durum listesi */
+.tdx-steps{margin:0 0 14px;padding:0;border:0;min-width:0}
+.tdx-steps legend{margin-bottom:6px;padding:0;font:500 13px/18px var(--font);color:#4f6470}
+.tdx-step{position:relative;display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:#334155}
+.tdx-step+.tdx-step{margin-top:2px}
+.tdx-step:hover{background:#f2f5f7}
+.tdx-step input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.tdx-step-label{flex:1}
+.tdx-step-label small{color:#8a99a5;font-weight:400}
+.tdx-step-no{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;border-radius:99px;background:#eef1f3;color:#667581;font:600 11px/1 var(--font)}
+.tdx-step:has(input:checked){background:#d9efe8;color:#0b7a75;font-weight:600}
+.tdx-step:has(input:checked) .tdx-step-no{background:#0b7a75;color:#fff}
+.tdx-step:has(input:focus-visible){outline:2px solid #0b7a75;outline-offset:1px}
+.tdx-steps:disabled .tdx-step{cursor:default}
+.tdx-steps:disabled .tdx-step:hover{background:none}
+.tdx-steps:disabled .tdx-step:has(input:checked){background:#d9efe8}
+
+.tdx .td-field textarea{display:block;width:100%;min-height:84px;padding:10px 12px;border:1px solid #dfe4e9;border-radius:10px;font:400 14px/1.5 var(--font);color:#15222d;resize:vertical;box-sizing:border-box}
+.tdx .td-field textarea:focus,.tdx .td-field input:focus,.tdx .td-field select:focus{outline:0;border-color:#0b7a75;box-shadow:0 0 0 3px rgba(11,122,117,.15)}
+.tdx-check{display:flex;align-items:center;gap:8px;margin:2px 0 4px;font-size:13px;color:#15222d;cursor:pointer}
+.tdx-check input{width:16px;height:16px;margin:0;accent-color:#0b7a75}
+.tdx-hint{margin:4px 0 12px;font-size:12px;line-height:17px;color:#8a99a5}
+.tdx .td-btn.tdx-save{width:auto;padding:0 22px}
+.tdx-inline{margin-bottom:14px}
+.tdx .td-btn.tdx-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+
+/* İşlem geçmişi */
+.tdx-hist{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.tdx-hist li{display:flex;gap:12px;align-items:flex-start}
+.tdx-dot{flex:none;width:8px;height:8px;margin-top:6px;border-radius:50%;background:#0b7a75}
+.tdx-hist p{margin:0;font-size:14px;line-height:20px;color:#15222d;overflow-wrap:anywhere}
+.tdx-hist time{display:block;font-size:12px;color:#8a99a5}
+.tdx-tag{display:inline-block;margin-left:4px;padding:1px 8px;border-radius:99px;background:#eef1f3;color:#475569;font:600 11px/17px var(--font);vertical-align:1px}
+.tdx-tag-public{background:#dcf5e7;color:#15803d}
+.tdx-tag-part{background:#e4f1ef;color:#0b7a75}
+
+/* Stok kullanımı */
+.tdx-card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.tdx-card-head h2{margin:0}
+.tdx-badge{flex:none;padding:2px 10px;border-radius:99px;background:#fdf0c7;color:#b45309;font:600 11px/18px var(--font)}
+.tdx-badge-ok{background:#e4f1ef;color:#0b7a75}
+.tdx-lead{margin:0 0 14px;font-size:13px;line-height:20px;color:#667581}
+.tdx-usages{list-style:none;margin:0 0 14px;padding:0;border:1px solid #e2e8ec;border-radius:10px}
+.tdx-usages li{display:flex;justify-content:space-between;gap:12px;padding:9px 12px;font-size:13px}
+.tdx-usages li+li{border-top:1px solid #eef1f3}
+.tdx-usages li span:last-child{color:#667581;white-space:nowrap}
+.tdx-after{margin:0;padding:10px 12px;border-radius:8px;background:#f2f5f7;font:500 13px/18px var(--font);color:#15222d}
+.tdx-after.is-bad{background:#fdecea;color:#b42318}
+.tdx .td-btn:disabled{opacity:.55;cursor:not-allowed}
+
+/* AI asistanı (pasif) */
+.tdx-chat{display:grid;gap:10px;padding:14px;border-radius:10px;background:#f6f8f9;margin-bottom:12px}
+.tdx-bubble{max-width:85%;margin:0;padding:10px 12px;border-radius:10px 10px 10px 2px;background:#e4f1ef;color:#15222d;font-size:12.5px;line-height:1.5}
+.tdx-bubble-me{justify-self:end;border-radius:10px 10px 2px 10px;background:#0b7a75;color:#fff}
+.tdx-ai-off{margin:0;font-size:12px;color:#8a99a5;text-align:center}
+.tdx-ai-form{margin:0;padding:0;border:0;min-width:0;opacity:.6}
+.tdx-ai-input{display:flex;align-items:center;gap:6px;padding:4px 6px 4px 12px;border:1px solid #dfe4e9;border-radius:10px;background:#fff}
+.tdx-ai-input input{flex:1;min-width:0;height:34px;border:0;background:none;font:400 13px var(--font)}
+.tdx-ai-input button{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:0;border-radius:8px;background:#e4f1ef;color:#0b7a75;cursor:not-allowed}
+.tdx-ai-chips{display:flex;align-items:center;gap:6px;margin:10px 0}
+.tdx-ai-chips span{padding:3px 10px;border-radius:99px;background:#e4f1ef;color:#0b7a75;font:600 11px/16px var(--font)}
+.tdx-ai-chips small,.tdx-ai-send small{font-size:11px;color:#8a99a5}
+.tdx-ai-links{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:12px;font-size:12px;color:#0b7a75}
+.tdx-ai-send{display:flex;align-items:center;gap:10px}
+.tdx-ai-send .td-btn{cursor:not-allowed}
+.tdx-ai>.tdx-hint{margin:10px 0 0}
+
+/* Koyu tema */
+html[data-theme="dark"] .tdx-hero h1,html[data-theme="dark"] .tdx-issue,html[data-theme="dark"] .tdx-hist p,
+html[data-theme="dark"] .tdx-check,html[data-theme="dark"] .tdx-after{color:#e6edf2}
+html[data-theme="dark"] .tdx-desc,html[data-theme="dark"] .tdx-step,html[data-theme="dark"] .tdx-meta dd{color:#c9d5dd}
+html[data-theme="dark"] .tdx-meta{border-color:#2b3b45}
+html[data-theme="dark"] .tdx-step:hover{background:#1f2f39}
+html[data-theme="dark"] .tdx-step:has(input:checked){background:#173b39;color:#5fc9bf}
+html[data-theme="dark"] .tdx-step-no{background:#22323c;color:#9fb0bb}
+html[data-theme="dark"] .tdx .td-field textarea{background:#121d24;border-color:#2b3b45;color:#e6edf2}
+html[data-theme="dark"] .tdx-tag{background:#22323c;color:#c9d5dd}
+html[data-theme="dark"] .tdx-tag-public{background:#163a28;color:#6fdc9d}
+html[data-theme="dark"] .tdx-tag-part,html[data-theme="dark"] .tdx-badge-ok{background:#173b39;color:#5fc9bf}
+html[data-theme="dark"] .tdx-badge{background:#3a2e14;color:#f0b35a}
+html[data-theme="dark"] .tdx-usages{border-color:#2b3b45}
+html[data-theme="dark"] .tdx-usages li+li{border-color:#2b3b45}
+html[data-theme="dark"] .tdx-after{background:#121d24}
+html[data-theme="dark"] .tdx-after.is-bad{background:#3a1d1b;color:#f4a49c}
+html[data-theme="dark"] .tdx-chat{background:#121d24}
+html[data-theme="dark"] .tdx-bubble{background:#173b39;color:#e6edf2}
+html[data-theme="dark"] .tdx-bubble-me{background:#0b7a75;color:#fff}
+html[data-theme="dark"] .tdx-ai-input{background:#121d24;border-color:#2b3b45}
+html[data-theme="dark"] .tdx-ai-input input{color:#e6edf2}
+
+@media(max-width:1100px){
+  .tdx-grid{grid-template-columns:1fr}
+  .tdx-side{position:static}
+}
+
+/* «Teslime hazır» ücret kutusu */
+.tdx-fee{margin:0 0 14px;padding:14px 16px;border:1px solid #cfe5e1;border-radius:12px;background:#f4faf9}
+.tdx-fee[hidden]{display:none}
+.tdx-fee-head b{display:block;font:600 14px/20px var(--font);color:#0b7a75}
+.tdx-fee-head span{display:block;margin-bottom:10px;font-size:12px;color:#667581}
+.tdx-fee .td-field input,.tdx-fee-row input{display:block;width:100%;height:38px;padding:0 10px;border:1px solid #d6dde2;border-radius:8px;background:#fff;font:400 13px var(--font);color:#15222d;box-sizing:border-box}
+.tdx-fee input:focus{outline:0;border-color:#0b7a75;box-shadow:0 0 0 3px rgba(11,122,117,.15)}
+.tdx-fee-items>label{display:block;margin:4px 0 6px;font:500 13px/18px var(--font);color:#4f6470}
+.tdx-opt{font-weight:400;color:#8a99a5}
+.tdx-fee-row{display:grid;grid-template-columns:minmax(0,1fr) 110px 30px;gap:6px;margin-bottom:6px}
+.tdx-fee-del{border:1px solid #e2e8ec;border-radius:8px;background:#fff;color:#b42318;font:600 16px/1 var(--font);cursor:pointer}
+.tdx-fee-add{padding:0;border:0;background:none;color:#0b7a75;font:600 12.5px/1 var(--font);cursor:pointer}
+.tdx-fee-parts{margin-top:10px;font-size:12px;color:#4f6470}
+.tdx-fee-parts ul{list-style:none;margin:4px 0 0;padding:0;display:grid;gap:4px}
+.tdx-fee-parts li{display:flex;justify-content:space-between;gap:8px}
+.tdx-fee-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;padding-top:10px;border-top:1px solid #cfe5e1}
+.tdx-fee-total span{font:600 13px/18px var(--font);color:#15222d}
+.tdx-fee-total b{font:800 20px/1 var(--font);color:#0b7a75}
+html[data-theme="dark"] .tdx-fee{background:#122a2b;border-color:#1f5546}
+html[data-theme="dark"] .tdx-fee .td-field input,html[data-theme="dark"] .tdx-fee-row input,html[data-theme="dark"] .tdx-fee-del{background:#121d24;border-color:#2b3b45;color:#e6edf2}
+html[data-theme="dark"] .tdx-fee-total span{color:#e6edf2}
+html[data-theme="dark"] .tdx-fee-total b,html[data-theme="dark"] .tdx-fee-head b{color:#5fc9bf}

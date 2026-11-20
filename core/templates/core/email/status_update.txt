@@ -1,0 +1,18 @@
+{% autoescape off %}Merhaba {{ name }},
+
+{{ tracking_id }} kodlu servis kaydınızın durumu güncellendi: {{ title }}
+
+Cihaz: {{ device_label }}
+{% if issue_title %}Arıza: {{ issue_title }}
+{% endif %}{% if old_status_label %}Önceki durum: {{ old_status_label }}
+{% endif %}Yeni durum: {{ status_label }}
+{% for line in lines %}
+- {{ line }}{% endfor %}
+
+{{ action_label }}: {{ action_url }}
+
+Kaydınızı müşteri hesabınızla giriş yaptıktan sonra Cihaz Sorgula bölümünden takip edebilirsiniz.
+Bu e-posta otomatik gönderilmiştir.
+
+FIXLAB Technical Service
+{% endautoescape %}

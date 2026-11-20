@@ -1,0 +1,97 @@
+{% extends "core/base_app.html" %}
+{% load static %}
+{% block title %}Kargolanacak ürünler{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/technician.css' %}?v=5"><link rel="stylesheet" href="{% static 'core/css/newdevices.css' %}?v=4"><link rel="stylesheet" href="{% static 'core/css/cargo_queue.css' %}?v=1"><link rel="stylesheet" href="{% static 'core/css/tech_cargo.css' %}?v=1">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="tech cq tc">
+  <div class="tech-head">
+    <div><h1>Kargolanacak ürünler</h1><p>Onarımı tamamlanan ve ödemesi alınan cihazlar — müşteriye kargolayın</p></div>
+    {% if viewas %}{% include "core/_viewas_tools.html" %}{% else %}{% include "core/_notify_bell.html" %}{% endif %}
+  </div>
+  {% if messages %}<ul class="td-msgs">{% for m in messages %}<li class="td-msg td-msg-{{ m.level_tag }}" role="status">{{ m }}</li>{% endfor %}</ul>{% endif %}
+
+  {% if notice %}
+  <div class="cq-notice" role="status">
+    <span class="cq-pill cq-pill-ok">Ödeme alındı</span>
+    <div class="cq-notice-txt">
+      <strong>{{ notice.device.tracking_id }} · {{ notice.device.title }} için {% if notice.amount %}{{ notice.amount }} {% endif %}ödeme alındı</strong>
+      <p>Cihaz kargolanmayı bekliyor. Bildirim yöneticiye ve size gönderildi. · {{ notice.ago|capfirst }}</p>
+    </div>
+    {% if not viewas %}<a class="tc-btn" href="?cihaz={{ notice.device.tracking_id }}#kargo-form">Kargo bilgisi gir</a>{% endif %}
+  </div>
+  {% endif %}
+
+  <div class="cq-stats">
+    <div class="cq-stat"><span>Kargolanacak</span><b>{{ paid_devices|length }}</b><small>Ödemesi alınmış cihaz</small></div>
+    <div class="cq-stat"><span>Bugün kargolanan</span><b>{{ shipped_today }}</b><small>Müşteriye gönderildi</small></div>
+    <div class="cq-stat"><span>Ödeme bekleyen</span><b>{{ unpaid_devices|length }}</b><small>Ödeme alınana kadar kargolanamaz</small></div>
+  </div>
+
+  <section class="nd-card cq-card" aria-labelledby="tc-list-title">
+    <div class="cq-card-head"><h2 id="tc-list-title">Kargolanacak ürünler</h2><span class="tc-count">{{ paid_devices|length }} ürün</span></div>
+    {% if paid_devices %}
+    <div class="nd-scroll"><table class="nd-table tc-table">
+      <thead><tr><th>Takip kodu</th><th>Cihaz</th><th>Müşteri</th><th>Teslimat adresi</th><th>Ödeme</th><th>Hazır olma</th><th><span class="sr-only">İşlem</span></th></tr></thead>
+      <tbody>
+      {% for d in paid_devices %}
+        <tr{% if selected and d.pk == selected.pk %} class="is-selected"{% endif %}>
+          <td class="nd-code">{{ d.tracking_id }}</td>
+          <td>{{ d.brand }} {{ d.model }}</td>
+          <td>{{ d.customer_name }}</td>
+          <td>{{ d.place_label|default:"Adres belirtilmedi" }}</td>
+          <td><span class="cq-pill cq-pill-ok">Ödeme alındı</span></td>
+          <td class="nd-date">{{ d.ready_label }}</td>
+          <td class="nd-op">{% if viewas %}<a class="tc-btn tc-btn-sm" href="{% url 'core:viewas_device' viewas.pk d.tracking_id %}">Detay</a>{% else %}<a class="tc-btn tc-btn-sm" href="?cihaz={{ d.tracking_id }}#kargo-form">Kargoya ver</a>{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {% else %}
+    <p class="nd-empty">Şu anda kargolanacak ürün yok. Ödemesi alınan, teslime hazır kargolu cihazlarınız burada listelenir.</p>
+    {% endif %}
+  </section>
+
+  <div class="tc-bottom">
+    <section class="nd-card cq-box" aria-labelledby="tc-unpaid-title">
+      <div class="cq-box-head"><h2 id="tc-unpaid-title">Ödeme bekleyen cihazlar — henüz kargolanamaz</h2></div>
+      {% for d in unpaid_devices %}
+      <div class="cq-unpaid">
+        <div class="cq-unpaid-txt"><b>{{ d.brand }} {{ d.model }}</b><small>{{ d.tracking_id }} · Onarım tamamlandı, ödeme bekleniyor</small></div>
+        <span class="cq-pill cq-pill-wait">Ödeme bekleniyor</span>
+        <button type="button" class="tc-btn tc-btn-sm" disabled title="Ödeme alınana kadar kargolanamaz">Kargoya ver</button>
+      </div>
+      {% empty %}
+      <p class="cq-muted">Ödeme bekleyen cihaz yok.</p>
+      {% endfor %}
+      <p class="cq-muted cq-note">Ödeme alındığında cihaz otomatik olarak yukarıdaki listeye taşınır ve size bildirim gelir.</p>
+    </section>
+
+    <section class="nd-card cq-box tc-form" id="kargo-form" aria-labelledby="tc-form-title">
+      {% if selected %}
+      <h2 id="tc-form-title">Kargo bilgisi · {{ selected.tracking_id }}</h2>
+      <p class="tc-sel">{{ selected.brand }} {{ selected.model }} · {{ selected.customer_name }}{% if selected.place_label %} · {{ selected.place_label }}{% endif %}</p>
+      {% if viewas %}
+      <p class="cq-muted">Görüntüleme modu: kargo bilgisi girilemez.</p>
+      {% else %}
+      <form method="post" action="{% url 'core:technician_cargo_ship' selected.tracking_id %}">{% csrf_token %}
+        <div class="td-field"><label for="tc-company">Kargo firması</label>
+          <select id="tc-company" name="cargo_company" required>
+            <option value="">Seçin</option>
+            {% for c in cargo_companies %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+          </select></div>
+        <div class="td-field"><label for="tc-track">Kargo takip numarası <span class="tc-opt">(isteğe bağlı)</span></label>
+          <input type="text" id="tc-track" name="cargo_tracking_code" maxlength="60" autocomplete="off" placeholder="Örn. PTT-2048-5512"></div>
+        <button type="submit" class="tc-btn tc-btn-block">Kargoya verildi olarak işaretle</button>
+        <p class="cq-muted tc-hint">İşaretlediğinizde müşteriye ve yöneticiye bildirim gider; müşteri “Kargoda · Müşteriye gidiyor” aşamasını görür ve «Ürünü teslim aldım» bağlantılı e-posta alır.</p>
+      </form>
+      {% endif %}
+      {% else %}
+      <h2 id="tc-form-title">Kargo bilgisi</h2>
+      <p class="cq-muted">Kargolanacak ürün seçildiğinde kargo firması ve takip numarasını buradan girersiniz.</p>
+      {% endif %}
+    </section>
+  </div>
+  {% if viewas %}{% include "core/_viewas_note.html" %}{% endif %}
+</div>
+{% endblock %}

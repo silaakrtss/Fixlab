@@ -1,0 +1,44 @@
+# FIXLAB geliştirme/yerel ortamı: PostgreSQL + OpenLDAP
+#   Başlat:  docker compose up -d        Durdur:  docker compose stop        Her şeyi sil: docker compose down -v
+# Aşağıdaki kimlik bilgileri YALNIZCA yerel geliştirme içindir; canlıda mutlaka değiştirin
+# (ve .env içindeki DB_PASSWORD / LDAP_BIND_PASSWORD değerlerini de aynı yapın).
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: fixlab-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: fixlab
+      POSTGRES_USER: fixlab
+      POSTGRES_PASSWORD: fixlab_db_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - fixlab_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fixlab -d fixlab"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+  ldap:
+    # Bitnami OpenLDAP (amd64 + arm64). Not: Bitnami eski imajlarını "bitnamilegacy" adı altında tutuyor.
+    image: bitnamilegacy/openldap:latest
+    container_name: fixlab-ldap
+    restart: unless-stopped
+    environment:
+      LDAP_ROOT: "dc=fixlab,dc=local"          # kök (base DN)
+      LDAP_ADMIN_USERNAME: "admin"             # yönetici DN: cn=admin,dc=fixlab,dc=local
+      LDAP_ADMIN_PASSWORD: "fixlab_ldap_admin"
+      LDAP_ENABLE_TLS: "no"
+      # Bitnami örnek bir kullanıcı da oluşturur; uygulama bu kutuyu (ou=users) yok sayar. Şifre rastgele/güçlü.
+      LDAP_USERS: "bootstrap"
+      LDAP_PASSWORDS: "Rastgele-Ornek-Sifre-9137"
+    ports:
+      - "389:1389"                             # bilgisayarınızdan 389, kutunun içinde 1389
+    volumes:
+      - fixlab_ldap_data:/bitnami/openldap
+
+volumes:
+  fixlab_pgdata:
+  fixlab_ldap_data:

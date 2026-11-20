@@ -1,0 +1,77 @@
+{% extends "core/base_app.html" %}
+{% load static %}
+{% block title %}Yeni kayıtlar{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/newdevices.css' %}?v=4">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="nd">
+  <div class="nd-bellrow">{% include "core/_notify_bell.html" %}</div>
+  <div class="nd-head"><h1>Yeni kayıtlar</h1><p>Müşterilerden gelen ve teknisyen atanmayı bekleyen servis kayıtları</p></div>
+
+  {% if total_new %}
+  <div class="nd-banner" role="status">
+    <span class="nd-count" aria-hidden="true">{{ total_new }}</span>
+    <div><strong>{{ total_new }} yeni kayıt teknisyen atanmasını bekliyor</strong>
+      <p>Detaya girerek müşteri ve cihaz bilgilerini inceleyin, ardından kaydı bir teknisyene atayın. Atanan kayıt teknisyenin paneline düşer.</p></div>
+  </div>
+  {% else %}
+  <div class="nd-banner nd-banner-ok" role="status">
+    <span class="nd-count nd-count-ok" aria-hidden="true">0</span>
+    <div><strong>Teknisyen atanmasını bekleyen yeni kayıt yok</strong>
+      <p>Müşterilerin oluşturduğu yeni servis kayıtları burada listelenir.</p></div>
+  </div>
+  {% endif %}
+
+  <form class="nd-filter" method="get" id="nd-filter" role="search">
+    <label class="sr-only" for="nd-q">Ara</label>
+    <input type="search" id="nd-q" name="q" value="{{ q }}" placeholder="Takip kodu, müşteri veya cihaz ara…" maxlength="100" autocomplete="off">
+    <label class="sr-only" for="nd-type">Cihaz türü</label>
+    <select id="nd-type" name="type">
+      <option value="">Tüm cihaz türleri</option>
+      {% for value, label in type_choices %}<option value="{{ value }}" {% if value == dtype %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <label class="sr-only" for="nd-sort">Sıralama</label>
+    <select id="nd-sort" name="sort">
+      <option value="new" {% if sort == 'new' %}selected{% endif %}>En yeni önce</option>
+      <option value="old" {% if sort == 'old' %}selected{% endif %}>En eski önce</option>
+    </select>
+    <noscript><button class="nd-go" type="submit">Filtrele</button></noscript>
+  </form>
+
+  <section class="nd-card" aria-label="Yeni kayıtlar listesi">
+    {% if devices %}
+    <div class="nd-scroll"><table class="nd-table">
+      <thead><tr><th>Takip kodu</th><th>Müşteri</th><th>Cihaz</th><th>Arıza özeti</th><th>Kayıt tarihi</th><th>Durum</th><th><span class="sr-only">İşlem</span></th></tr></thead>
+      <tbody>
+      {% for d in devices %}
+        <tr>
+          <td class="nd-code">{{ d.tracking_id }}</td>
+          <td>{{ d.customer_name }}</td>
+          <td>{{ d.brand }} {{ d.model }}</td>
+          <td class="nd-issue">{% if d.issue_title %}{{ d.issue_title|truncatechars:60 }}{% else %}{{ d.issue_description|truncatechars:60 }}{% endif %}</td>
+          <td class="nd-date">{{ d.registered_label }}</td>
+          <td>{% if d.waiting_assignment %}<span class="nd-pill nd-pill-wait">Atama bekliyor</span>{% else %}<span class="nd-pill nd-pill-other">{{ d.get_status_display }}</span>{% endif %}</td>
+          <td class="nd-op"><a class="nd-assign" href="{% url 'core:admin_new_device_detail' d.pk %}">Detay ve ata</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {% elif filtered %}
+    <p class="nd-empty">Aramanıza uyan yeni kayıt bulunamadı.</p>
+    {% else %}
+    <p class="nd-empty">Şu anda teknisyen atanmasını bekleyen kayıt yok.</p>
+    {% endif %}
+  </section>
+
+  <div class="nd-foot">
+    <span>Toplam {{ shown_count }} yeni kayıt</span>
+    <span>Teknisyen atanan kayıtlar bu listeden çıkar ve “Tüm cihazlar” sayfasında izlenir.</span>
+  </div>
+</div>
+<script>
+(function(){
+  var f=document.getElementById('nd-filter');if(!f)return;
+  ['nd-type','nd-sort'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){f.submit();});});
+})();
+</script>
+{% endblock %}

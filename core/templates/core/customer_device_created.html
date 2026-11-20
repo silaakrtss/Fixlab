@@ -1,0 +1,67 @@
+{% extends "core/base_customer_app.html" %}
+{% block title %}Ön kayıt alındı{% endblock %}
+{% block crumb %}Cihaz Kaydı Oluştur{% endblock %}
+{% block content %}
+<div class="pt-done">
+<section class="pt-card" style="padding:32px">
+  <div class="pt-done-head">
+    <div class="tick"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>
+    <div><h1>Ön kayıt alındı</h1><p>Cihaz bilgileriniz ve arıza açıklamanız kayda eklendi.</p></div>
+  </div>
+
+  <div class="pt-code">
+    <div><small>Cihaz takip kodunuz</small><strong>{{ device.tracking_id }}</strong><small>Servis durumunu sorgularken bu kodu kullanabilirsiniz.</small></div>
+    <button type="button" class="pt-btn pt-btn-sm" id="copy-code" data-code="{{ device.tracking_id }}">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg><span>Kopyala</span></button>
+  </div>
+
+  <div class="pt-grid2">
+    <div><small class="pt-muted">Cihaz</small><b style="display:block;margin-top:2px">{{ device.title }}</b><span class="pt-muted">{{ device.get_device_type_display }}</span></div>
+    <div><small class="pt-muted">Bildirilen arıza</small><b style="display:block;margin-top:2px">{{ device.issue_title|default:"—" }}</b><span class="pt-muted">{{ device.issue_description|truncatechars:160 }}</span></div>
+  </div>
+  <hr class="pt-divider">
+
+  <b>Ekler · {{ attachments|length }} dosya</b>
+  {% if attachments %}
+  <ul class="pt-attach">
+    {% for a in attachments %}<li>{{ a.original_name }} · {{ a.get_kind_display }} · {{ a.extension }} · {{ a.size_label }}</li>{% endfor %}
+  </ul>
+  {% else %}<p class="pt-muted" style="margin:6px 0 0">Ek dosya eklenmedi.</p>{% endif %}
+
+  <div class="pt-info" style="margin-top:20px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg><span>Bu kayıt cihazın fiziksel olarak servise teslim edildiği anlamına gelmez.</span></div>
+
+  {% if device.is_cargo %}
+    <div class="pt-box"><h3>Kargo bekleniyor · Kargo ile gönderim seçildi</h3><p>Cihaz henüz şirkete teslim edilmedi. Sonraki adım cihazınızı hazırlayıp kargolamak.</p></div>
+    <div class="pt-box">
+      <h3>Kargo adımları</h3>
+      <ol class="pt-steps" style="list-style:none">
+        <li><span class="pt-num">1</span><div><b>Cihazı kargo için hazırlayın</b><span>Şarj aleti, adaptör ve varsa aksesuarları ekleyin. Cihazın dışına takip kodunu yazın ve güvenli bir şekilde paketleyin.</span></div></li>
+        <li><span class="pt-num">2</span><div><b>Cihazı şirkete kargolayın</b><span>Kargo firmasını seçin, paketi teslim edin ve kargo takip numarasını not alın. Bu numarayı «Kargo sürecini görüntüle» sayfasından girerek servise bildirebilirsiniz.</span></div></li>
+        <li><span class="pt-num">3</span><div><b>Şirket onarımı tamamlayacak</b><span>Cihaz servise ulaştıktan sonra teknik inceleme ve onarım süreci başlayacak. Onarım tamamlandığında cihaz tekrar size kargolanacaktır.</span></div></li>
+      </ol>
+    </div>
+    <div class="pt-rowbtns">
+      <a class="pt-btn pt-btn-primary" href="{% url 'core:customer_cargo' device.tracking_id %}">Kargo adımlarını görüntüle</a>
+      <a class="pt-btn" href="{% url 'core:customer_home' %}">Ana Sayfaya Dön</a>
+      {% include "core/_cancel_device_form.html" %}
+    </div>
+  {% else %}
+    <div class="pt-box"><h3>Teslim bekleniyor · Kendim teslim edeceğim seçildi</h3><p>Cihaz henüz servise teslim edilmedi. Sonraki adım cihazınızı servise getirmek.</p></div>
+    <div class="pt-box">
+      <h3>Teslim adımları</h3>
+      <ol class="pt-steps" style="list-style:none">
+        <li><span class="pt-num">1</span><div><b>Cihazı servise getirin</b><span>Şarj aleti, adaptör ve varsa aksesuarlarla birlikte getirin.{% if COMPANY_ADDRESS %} Adres: {{ COMPANY_ADDRESS }}.{% endif %} Çalışma saatleri: {{ SERVICE_HOURS }}.</span></div></li>
+        <li><span class="pt-num">2</span><div><b>Takip kodunuzu yanınızda bulundurun</b><span>Teslim sırasında <b style="display:inline" class="pt-mono">{{ device.tracking_id }}</b> kodunu söylemeniz yeterli.</span></div></li>
+        <li><span class="pt-num">3</span><div><b>Şirket onarımı tamamlayacak</b><span>Cihaz teslim alındıktan sonra teknik inceleme ve onarım süreci başlayacak. Durumu «Cihaz Durumu Sorgula» ekranından ve bildirimlerle takip edebilirsiniz.</span></div></li>
+      </ol>
+    </div>
+    <div class="pt-rowbtns">
+      <a class="pt-btn pt-btn-primary" href="{% url 'core:customer_device_lookup' %}?kod={{ device.tracking_id|urlencode }}">Kaydı görüntüle</a>
+      <a class="pt-btn" href="{% url 'core:customer_home' %}">Ana Sayfaya Dön</a>
+      {% include "core/_cancel_device_form.html" %}
+    </div>
+  {% endif %}
+</section>
+{% include "core/_help_box.html" %}
+</div>
+{% endblock %}

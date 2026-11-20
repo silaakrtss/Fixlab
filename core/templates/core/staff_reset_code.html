@@ -1,0 +1,9 @@
+{% extends "core/base_login.html" %}
+{% load static %}
+{% block title %}Doğrulama Kodu · FIXLAB{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/customer.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'core/css/reset.css' %}?v=1">{% endblock %}
+{% block body_class %} lp-scroll{% endblock %}
+{% block head_right %}<a class="lp-switch" href="{% url 'core:customer_login' %}">Müşteri Girişi</a>{% endblock %}
+{% block content %}<div class="lp-reset">{% include "core/_reset_code_body.html" %}</div>{% endblock %}
+{% block scripts %}<script src="{% static 'core/js/reset.js' %}?v=1" defer></script>{% endblock %}

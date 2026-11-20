@@ -1,0 +1,77 @@
+{% extends "core/base_app.html" %}
+{% load static %}
+{% block title %}Tüm cihazlar{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/newdevices.css' %}?v=4"><link rel="stylesheet" href="{% static 'core/css/admin_devices.css' %}?v=1">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="ad nd">
+  <div class="ad-bellrow">{% include "core/_notify_bell.html" %}</div>
+  <div class="ad-head">
+    <div><h1>Tüm cihazlar</h1><p>Tüm servis kayıtları</p></div>
+    <a class="ad-btn ad-btn-primary" href="{% url 'core:admin_device_create' %}">Yeni cihaz kaydı</a>
+  </div>
+
+  <form class="nd-filter" method="get" id="ad-filter" role="search">
+    <label class="sr-only" for="ad-q">Ara</label>
+    <input type="search" id="ad-q" name="q" value="{{ q }}" placeholder="Takip kodu, müşteri veya cihaz ara…" maxlength="100" autocomplete="off">
+    <label class="sr-only" for="ad-status">Durum</label>
+    <select id="ad-status" name="status">
+      <option value="">Tüm durumlar</option>
+      {% for value, label in status_choices %}<option value="{{ value }}" {% if value == status %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <label class="sr-only" for="ad-tech">Teknisyen</label>
+    <select id="ad-tech" name="tech">
+      <option value="">Tüm teknisyenler</option>
+      {% for t in technicians %}<option value="{{ t.pk }}" {% if tech == t.pk|stringformat:"d" %}selected{% endif %}>{{ t.display_name }}{% if not t.is_active %} (pasif){% endif %}</option>{% endfor %}
+      <option value="none" {% if tech == 'none' %}selected{% endif %}>Atanmamış</option>
+    </select>
+    <noscript><button class="nd-go" type="submit">Filtrele</button></noscript>
+  </form>
+
+  <section class="nd-card" aria-label="Tüm cihazlar listesi">
+    {% if devices %}
+    <div class="nd-scroll"><table class="nd-table ad-table">
+      <thead><tr><th>Takip kodu</th><th>Müşteri</th><th>Cihaz</th><th>Teknisyen</th><th>Durum</th><th>Tarih</th><th><span class="sr-only">İşlem</span></th></tr></thead>
+      <tbody>
+      {% for d in devices %}
+        <tr>
+          <td class="nd-code">{{ d.tracking_id }}</td>
+          <td>{{ d.customer_name }}</td>
+          <td>{{ d.brand }} {{ d.model }}</td>
+          {% if d.technician %}<td>{{ d.technician.display_name }}</td>{% else %}<td class="ad-muted">—</td>{% endif %}
+          <td><span class="ad-pill ad-pill-{{ d.pill_tone }}">{{ d.pill_label }}</span></td>
+          <td class="nd-date">{{ d.date_label }}</td>
+          <td class="nd-op"><a class="ad-detail" href="{% url 'core:admin_device_detail' d.pk %}">Detay</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {% elif filtered %}
+    <p class="nd-empty">Aramanıza uyan cihaz kaydı bulunamadı.</p>
+    {% else %}
+    <p class="nd-empty">Henüz cihaz kaydı yok. “Yeni cihaz kaydı” ile ilk kaydı oluşturabilirsiniz.</p>
+    {% endif %}
+  </section>
+
+  <div class="ad-foot">
+    <span>Toplam {{ total }} kayıt</span>
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="ad-pages" aria-label="Sayfalar">
+      {% if page_obj.has_previous %}<a href="?{% if keep_query %}{{ keep_query }}&amp;{% endif %}page={{ page_obj.previous_page_number }}" aria-label="Önceki sayfa">‹</a>{% endif %}
+      {% for n in page_numbers %}
+        {% if n is None %}<span class="is-gap" aria-hidden="true">…</span>
+        {% elif n == page_obj.number %}<span class="is-current" aria-current="page">{{ n }}</span>
+        {% else %}<a href="?{% if keep_query %}{{ keep_query }}&amp;{% endif %}page={{ n }}">{{ n }}</a>{% endif %}
+      {% endfor %}
+      {% if page_obj.has_next %}<a href="?{% if keep_query %}{{ keep_query }}&amp;{% endif %}page={{ page_obj.next_page_number }}" aria-label="Sonraki sayfa">›</a>{% endif %}
+    </nav>
+    {% endif %}
+  </div>
+</div>
+<script>
+(function(){
+  var f=document.getElementById('ad-filter');if(!f)return;
+  ['ad-status','ad-tech'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){f.submit();});});
+})();
+</script>
+{% endblock %}

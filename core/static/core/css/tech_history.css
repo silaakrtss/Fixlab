@@ -1,0 +1,25 @@
+/* FIXLAB · Teknisyen › Geçmiş işlerim (liste + detay) — yalnızca .th-* sınıfları */
+.th .nd-filter input{flex:1}
+.th-table td.th-parts{max-width:260px;white-space:normal;color:#334155}
+.th-table .ad-detail{font-weight:500}
+
+/* Detay: müşteri iletişim kartı */
+.th-grid{grid-template-columns:minmax(0,1fr) 380px}
+.th-contact{padding:18px 18px 20px;border:1px solid #cfe5e1;border-radius:12px;background:#e6f2f1}
+.th-contact h2{margin:0 0 14px;font:600 15px/22px var(--font);color:#15222d}
+.th-contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.th-wide{grid-column:1/-1}
+.th-f span{display:block;margin-bottom:5px;font-size:12px;color:#4f6470}
+.th-f b,.th-f a{display:block;min-height:40px;padding:10px 12px;border:1px solid #dfe4e9;border-radius:9px;background:#fff;font:400 13px/18px var(--font);color:#15222d;overflow-wrap:anywhere;box-sizing:border-box}
+.th-f a{text-decoration:none}
+.th-f a:hover{border-color:#0b7a75;color:#0b7a75}
+.th-f a:focus-visible{outline:3px solid #0b7a75;outline-offset:2px}
+
+html[data-theme="dark"] .th-table td.th-parts{color:#c9d5dd}
+html[data-theme="dark"] .th-contact{background:#173b39;border-color:#1f5546}
+html[data-theme="dark"] .th-contact h2{color:#e6edf2}
+html[data-theme="dark"] .th-f span{color:#9fb0bb}
+html[data-theme="dark"] .th-f b,html[data-theme="dark"] .th-f a{background:#121d24;border-color:#2b3b45;color:#e6edf2}
+
+@media(max-width:1100px){.th-grid{grid-template-columns:1fr}}
+@media(max-width:520px){.th-contact-grid{grid-template-columns:1fr}}

@@ -1,0 +1,33 @@
+{% extends "core/base_app.html" %}
+{% load static %}
+{% block title %}{% if is_edit %}Parçayı düzenle{% else %}Yeni parça{% endif %}{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/stock.css' %}?v=1">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="st">
+  <div class="st-head">
+    <div><h1>{% if is_edit %}Parçayı düzenle{% else %}Yeni parça{% endif %}</h1><p>{% if is_edit %}{{ part.name }} parçasının bilgilerini güncelleyin.{% else %}Depoya yeni bir parça kaydı ekleyin.{% endif %}</p></div>
+    <div class="st-actions">{% include "core/_notify_bell.html" %}</div>
+  </div>
+
+  <section class="st-card st-form">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="st-grid">
+        {% for f in form %}
+        <div class="st-field {% if f.errors %}has-error{% endif %} {% if f.name == 'unit_price' %}st-wide{% endif %}">
+          <label for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}
+          {% for e in f.errors %}<div class="st-err">{{ e }}</div>{% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+      <div class="st-formbar">
+        <button type="submit" class="st-btn st-btn-primary">{% if is_edit %}Değişiklikleri kaydet{% else %}Parçayı kaydet{% endif %}</button>
+        <a class="st-btn st-btn-ghost" href="{% if is_edit %}{% url 'core:stock_detail' part.pk %}{% else %}{% url 'core:stock_list' %}{% endif %}">Vazgeç</a>
+      </div>
+    </form>
+  </section>
+
+  <a class="st-btn st-btn-back" href="{% url 'core:stock_list' %}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>Stok Depoya Dön</a>
+</div>
+{% endblock %}

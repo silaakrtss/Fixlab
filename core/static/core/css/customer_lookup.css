@@ -1,0 +1,141 @@
+/* FIXLAB · Müşteri › Cihaz Durumu Sorgula › Kayıt detayları — yalnızca .cl-* sınıfları (portal.css değişkenleriyle) */
+.cl{margin-top:36px}
+.cl-title h2{margin:0;font:700 26px/1.25 var(--font);color:var(--ink);letter-spacing:-.01em}
+.cl-title p{margin:6px 0 18px;font-size:13px;color:var(--muted)}
+.cl .pt-card{padding:22px 24px}
+.cl h3{margin:0 0 12px;font:600 16px/22px var(--font);color:var(--ink)}
+
+/* Özet kartı */
+.cl-hero{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px 24px;margin-bottom:20px}
+.cl-label{display:block;font-size:12px;color:var(--muted)}
+.cl-code-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:4px 0 12px}
+.cl-code{font:800 38px/1.1 var(--font);letter-spacing:.01em;color:var(--ink)}
+.cl-copy{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border:1px solid var(--line);border-radius:7px;background:transparent;color:var(--ink);font:600 11px/1 var(--font);cursor:pointer}
+.cl-copy:hover{background:var(--bg)}
+.cl-copy:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.cl-state{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.cl-state-note{font-size:13px;color:var(--muted)}
+.cl-pill{display:inline-flex;align-items:center;gap:7px;padding:4px 12px;border-radius:99px;font:600 12px/16px var(--font)}
+.cl-pill i{width:7px;height:7px;border-radius:50%;background:currentColor}
+.cl-pill-info{background:#d9efe8;color:#0b7a75}
+.cl-pill-ok{background:#dcf5e7;color:#15803d}
+.cl-pill-warn{background:#fdf0c7;color:#b45309}
+.cl-pill-bad{background:#fdecea;color:#b42318}
+.cl-dates{display:flex;gap:32px;margin:18px 0 0}
+.cl-dates dt{font-size:11px;color:var(--muted)}
+.cl-dates dd{margin:2px 0 0;font:600 14px/20px var(--font);color:var(--ink)}
+.cl-price{align-self:start;padding:20px 22px;border-radius:14px;background:#15232b;color:#fff}
+.cl-price small{font-size:12px;opacity:.8}
+.cl-price b{display:block;margin:6px 0 14px;font:800 34px/1.1 var(--font)}
+.cl-price p{margin:0;padding-top:12px;border-top:1px solid rgba(255,255,255,.15);font-size:12px;line-height:18px;opacity:.85}
+.cl-paybtn{display:flex;align-items:center;justify-content:center;height:40px;margin:-4px 0 14px;border-radius:10px;background:#35b8ae;color:#0b1418;font:700 14px/1 var(--font);text-decoration:none}
+.cl-paybtn:hover{background:#4fcac0}
+.cl-paybtn:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.cl-sum{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.cl-sum-card{padding:14px 16px;border:1px solid var(--line);border-radius:12px}
+.cl-sum-card small{font-size:11px;color:var(--muted)}
+.cl-sum-card b{display:block;margin:3px 0 6px;font:700 15px/20px var(--font);color:var(--ink)}
+.cl-sum-card p{margin:0;font-size:12px;line-height:18px;color:var(--muted);overflow-wrap:anywhere}
+.cl-alert{margin:0 0 20px}
+
+/* Servis süreci (yatay adımlar) */
+.cl-steps-card{margin-bottom:20px}
+.cl-steps{display:flex;margin:8px 0 0;padding:0;list-style:none}
+.cl-step{position:relative;flex:1;min-width:0;text-align:center;padding:0 6px}
+.cl-step::before{content:"";position:absolute;top:18px;left:-50%;width:100%;height:2px;background:var(--line)}
+.cl-step:first-child::before{display:none}
+.cl-step.is-done::before,.cl-step.is-current::before,.cl-step.is-stopped::before{background:var(--teal)}
+.cl-step-dot{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:2px solid var(--line);border-radius:50%;background:var(--card,#fff);color:var(--muted);font:700 13px/1 var(--font)}
+.cl-step.is-done .cl-step-dot{border-color:var(--teal);background:var(--teal);color:#fff}
+.cl-step.is-current .cl-step-dot{border-color:var(--teal);color:var(--teal);box-shadow:0 0 0 4px rgba(11,122,117,.12)}
+.cl-step.is-stopped .cl-step-dot{border-color:#d92d20;background:#d92d20;color:#fff}
+.cl-step b{display:block;margin-top:10px;font:600 13px/18px var(--font);color:var(--ink)}
+.cl-step.is-todo b{font-weight:500;color:var(--muted)}
+.cl-step small{display:block;margin-top:3px;font-size:11px;color:var(--muted)}
+
+/* Alt ızgara */
+.cl-grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;align-items:start}
+.cl-col{display:grid;gap:20px;min-width:0}
+.cl-lead{margin:-4px 0 14px;font-size:12px;line-height:18px;color:var(--muted)}
+.cl-hist{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.cl-hist li{display:grid;grid-template-columns:130px minmax(0,1fr);gap:14px}
+.cl-hist time{display:block;font-size:11px;color:var(--muted)}
+.cl-hist b{display:block;font:600 13px/18px var(--font);color:var(--ink)}
+.cl-hist p{margin:14px 0 0;font-size:12.5px;line-height:18px;color:var(--muted);overflow-wrap:anywhere}
+.cl-hist li.is-todo b{color:var(--muted)}
+
+.cl-device{display:flex;align-items:center;gap:22px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.cl-art{flex:none;display:grid;place-items:center;width:140px;height:96px;border-radius:12px;background:var(--bg)}
+.cl-dev-fields{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;margin:0}
+.cl-dev-fields dt{font-size:11px;color:var(--muted)}
+.cl-dev-fields dd{margin:2px 0 0;font:600 14px/20px var(--font);color:var(--ink);overflow-wrap:anywhere}
+.cl-issue{margin-top:14px}
+.cl-issue small,.cl-files small{display:block;font-size:11px;color:var(--muted)}
+.cl-issue p{margin:6px 0 0;padding-left:12px;border-left:3px solid var(--teal);font:500 15px/22px var(--font);color:var(--ink)}
+.cl-issue span{display:block;margin-top:6px;padding-left:15px;font-size:12.5px;color:var(--muted)}
+.cl-files{margin-top:14px}
+.cl-files ul{margin:6px 0 0;padding-left:18px;font-size:12.5px}
+.cl-files a{color:var(--teal)}
+
+.cl-tech{padding:20px 22px;border:1px solid #c9daf3;border-radius:14px;background:#e8eff9}
+.cl-tech h3{margin-bottom:2px}
+.cl-tech small{display:block;font-size:11px;color:#4a6285}
+.cl-tech p{margin:10px 0 0;font-size:13.5px;line-height:20px;color:#1f2f45;white-space:pre-line}
+
+.cl-rows{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.cl-rows li{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink)}
+.cl-tag{flex:none;display:inline-block;min-width:84px;padding:3px 10px;border-radius:99px;background:var(--bg);color:var(--muted);font:600 11px/16px var(--font);text-align:center}
+.cl-tag-ok{background:#d9efe8;color:#0b7a75}
+.cl-tag-warn{background:#fdf0c7;color:#b45309}
+.cl-actions{margin-top:20px}
+
+/* Alt bilgi */
+.cl-foot{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;margin-top:36px}
+.cl-foot>div{padding-top:14px;border-top:2px solid var(--ink)}
+.cl-foot b{display:block;font:600 13px/18px var(--font);color:var(--ink)}
+.cl-foot p{margin:6px 0 0;font-size:12px;line-height:18px;color:var(--muted)}
+.cl-foot a{color:var(--teal);font-weight:600}
+.cl-back{margin-top:24px}
+
+/* Koyu tema (değişkenler portal.css'ten gelir; sabit renkli yüzeyler) */
+html[data-theme="dark"] .cl-step-dot{background:#16222a}
+html[data-theme="dark"] .cl-price{background:#0b1418;border:1px solid #2b3b45}
+html[data-theme="dark"] .cl-pill-info,html[data-theme="dark"] .cl-tag-ok{background:#173b39;color:#5fc9bf}
+html[data-theme="dark"] .cl-pill-ok{background:#163a28;color:#6fdc9d}
+html[data-theme="dark"] .cl-pill-warn,html[data-theme="dark"] .cl-tag-warn{background:#3a2e14;color:#f0b35a}
+html[data-theme="dark"] .cl-pill-bad{background:#3a1d1b;color:#f4a49c}
+html[data-theme="dark"] .cl-tech{background:#18243a;border-color:#2c3f5e}
+html[data-theme="dark"] .cl-tech small{color:#9fb3d1}
+html[data-theme="dark"] .cl-tech p{color:#dbe5f3}
+html[data-theme="dark"] .cl-foot>div{border-color:#3a4a55}
+
+@media(max-width:1100px){
+  .cl-hero{grid-template-columns:1fr}
+  .cl-grid{grid-template-columns:1fr}
+  .cl-foot{grid-template-columns:1fr 1fr}
+}
+@media(max-width:760px){
+  .cl-sum{grid-template-columns:1fr}
+  .cl-steps{flex-direction:column;align-items:stretch;gap:14px}
+  .cl-step{display:grid;grid-template-columns:36px 1fr;column-gap:12px;text-align:left;padding:0}
+  .cl-step::before{display:none}
+  .cl-step-dot{grid-row:span 2}
+  .cl-step b{margin-top:0}
+  .cl-code{font-size:30px}
+  .cl-device{flex-direction:column;align-items:flex-start}
+  .cl-hist li{grid-template-columns:1fr;gap:2px}
+  .cl-hist p{margin-top:2px}
+  .cl-foot{grid-template-columns:1fr}
+}
+
+/* Ücret ayrıntıları (teknisyen «Teslime hazır» derken girer) */
+.cl-costs{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.cl-costs small{display:block;margin-bottom:6px;font-size:11px;color:var(--muted)}
+.cl-costs ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.cl-costs li{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--ink)}
+.cl-costs em{font-style:normal;color:var(--muted)}
+.cl-costs li b{white-space:nowrap}
+.cl-costs-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.cl-costs-total span{font:600 12.5px/18px var(--font);color:var(--ink)}
+.cl-costs-total b{font:800 18px/1 var(--font);color:var(--teal)}
+.cl-costs-pay{display:flex;width:100%;margin-top:14px}

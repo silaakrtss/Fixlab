@@ -1,0 +1,244 @@
+{% extends "core/base_app.html" %}
+{% load static %}
+{% block title %}{{ device.tracking_id }}{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/technician.css' %}?v=4"><link rel="stylesheet" href="{% static 'core/css/tech_device.css' %}?v=3">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="tech tdx">
+  <div class="td-top">
+    <a class="td-back" href="{% if viewas %}{% url 'core:viewas_dashboard' viewas.pk %}{% else %}{% url 'core:technician_dashboard' %}{% endif %}">Cihazlarıma dön</a>
+    {% if viewas %}{% include "core/_viewas_tools.html" %}{% else %}{% include "core/_notify_bell.html" %}{% endif %}
+  </div>
+  {% if messages %}<ul class="td-msgs">{% for m in messages %}<li class="td-msg td-msg-{{ m.level_tag }}" role="status">{{ m }}</li>{% endfor %}</ul>{% endif %}
+
+  <div class="tdx-grid">
+    <div class="tdx-main">
+      {# --- Başlık kartı --- #}
+      <section class="td-card tdx-hero">
+        <div class="tdx-hero-top">
+          <h1>{{ device.brand }} {{ device.model }}</h1>
+          <span class="pill pill-{{ device.status }}">{{ device.get_status_display }}</span>
+        </div>
+        <p class="tdx-sub"><span class="td-code">{{ device.tracking_id }}</span> · Müşteri: {{ device.customer_name }}</p>
+        <p class="tdx-issue">{{ device.issue_title|default:device.issue_description }}</p>
+        {% if device.issue_title and device.issue_description %}<p class="tdx-desc">{{ device.issue_description }}</p>{% endif %}
+        <dl class="tdx-meta">
+          <div><dt>Telefon</dt><dd>{{ device.customer_phone|default:"—" }}</dd></div>
+          <div><dt>Kayıt</dt><dd>{{ device.received_at|date:"d.m.Y, H:i" }}</dd></div>
+          <div><dt>Teslim</dt><dd>{{ delivery_label }}</dd></div>
+        </dl>
+      </section>
+
+      {# --- Durumu güncelle --- #}
+      <section class="td-card">
+        <h2>Durumu güncelle</h2>
+        {% if viewas %}<p class="va-lock"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Görüntüleme modu: teknisyenin bu aşamadaki durumu aşağıda gösterilir; işlem yapılamaz.</p>{% endif %}
+
+        {% if awaiting_customer_code %}<p class="td-note">Müşterinin kargo kodunu oluşturması bekleniyor. Kod oluşturulunca size bildirim gelir.</p>{% endif %}
+
+        {% if can_receive %}
+        <p class="td-note">Müşteri kargo kodunu oluşturdu: <b class="td-code">{{ device.cargo_code|default:"—" }}</b>. Kargo servise ulaştığında teslim alındı olarak işaretleyin.</p>
+        {% if not viewas %}<form method="post" action="{% url 'core:technician_device_action' device.tracking_id %}" class="tdx-inline">{% csrf_token %}
+          <input type="hidden" name="action" value="receive"><button type="submit" class="td-btn">Kargo teslim alındı</button>
+        </form>{% endif %}
+        {% endif %}
+
+        {% if can_start %}
+        <p class="td-note">Cihaz teslim alındı. İnceleme ve onarım için işleme başlayabilirsiniz.</p>
+        {% if not viewas %}<form method="post" action="{% url 'core:technician_device_action' device.tracking_id %}" class="tdx-inline">{% csrf_token %}
+          <input type="hidden" name="action" value="start"><button type="submit" class="td-btn">İşleme başla</button>
+        </form>{% endif %}
+        {% endif %}
+
+        {% if returning %}<p class="td-note">Ürün müşteriye geri kargoya verildi{% if device.return_cargo_code %} (kod: <b class="td-code">{{ device.return_cargo_code }}</b>){% endif %}. Müşterinin «Ürünü teslim aldım» onayı bekleniyor; onaylandığında size bildirim gelir.</p>{% endif %}
+
+        {% if can_note %}
+        <form method="post" action="{% if viewas %}#{% else %}{% url 'core:technician_device_action' device.tracking_id %}{% endif %}" id="tdx-update">{% if not viewas %}{% csrf_token %}{% endif %}
+          <input type="hidden" name="action" value="update">
+          {% if status_steps %}
+          <fieldset class="tdx-steps"{% if viewas %} disabled{% endif %}>
+            <legend>Durum</legend>
+            {% for value, label in status_steps %}
+            <label class="tdx-step{% if value == device.status %} is-current{% endif %}">
+              <input type="radio" name="status" value="{{ value }}" {% if value == device.status %}checked{% endif %}>
+              <span class="tdx-step-label">{{ label }}{% if value == device.status %} <small>(şu anki)</small>{% endif %}</span>
+              <span class="tdx-step-no">{{ forloop.counter }}</span>
+            </label>
+            {% endfor %}
+          </fieldset>
+          {% endif %}
+          {% if status_steps and not viewas and not fee_locked %}
+          {# «Teslime hazır» seçilince açılan ücret kutusu: işçilik + ek kalemler (+ stoktan kullanılan parçalar) #}
+          <div class="tdx-fee" id="tdx-fee" {% if device.status != 'ready' %}hidden{% endif %}>
+            <div class="tdx-fee-head"><b>Onarım ücreti</b><span>Müşterinin cihaz sorgulama ekranında görünür; kargolu kayıtlarda ödeme bu tutar üzerinden alınır.</span></div>
+            <div class="td-field"><label for="tdx-labor">İşçilik ücreti (₺)</label>
+              <input type="text" id="tdx-labor" name="labor_cost" inputmode="decimal" value="{% if device.labor_cost %}{{ device.labor_cost|floatformat:'2' }}{% endif %}" placeholder="Örn. 800" data-fee></div>
+            <div class="tdx-fee-items" id="tdx-fee-items">
+              <label>Ek kalemler <span class="tdx-opt">(isteğe bağlı)</span></label>
+              {% for c in charges %}
+              <div class="tdx-fee-row"><input type="text" name="charge_label" maxlength="120" value="{{ c.label }}" placeholder="Açıklama (ör. Temizlik ve bakım)"><input type="text" name="charge_amount" inputmode="decimal" value="{{ c.amount|floatformat:'2' }}" placeholder="Tutar" data-fee><button type="button" class="tdx-fee-del" aria-label="Kalemi sil">×</button></div>
+              {% endfor %}
+              <button type="button" class="tdx-fee-add" id="tdx-fee-add">+ Kalem ekle</button>
+            </div>
+            {% if part_usages %}
+            <div class="tdx-fee-parts"><span>Stoktan kullanılan parçalar</span>
+              <ul>{% for u in part_usages %}<li><span>{{ u.part.name }} × {{ u.quantity }}</span><b>{{ u.line_total|floatformat:"2g" }} ₺</b></li>{% endfor %}</ul></div>
+            {% endif %}
+            <div class="tdx-fee-total" data-parts="{{ parts_total|stringformat:'s' }}"><span>Toplam (KDV dahil)</span><b id="tdx-fee-sum">—</b></div>
+          </div>
+          {% endif %}
+          {% if not viewas %}
+          <div class="td-field"><label for="tdx-note">İşlem notu</label>
+            <textarea id="tdx-note" name="note" rows="3" maxlength="{{ note_max }}" placeholder="Yapılan işlem…"></textarea></div>
+          <label class="tdx-check"><input type="checkbox" name="customer_visible"><span>Müşteri bu notu görebilsin</span></label>
+          <p class="tdx-hint">İşaretlemezseniz not yalnızca servis içinde (yönetici ve siz) görünür.</p>
+          <button type="submit" class="td-btn tdx-save">Kaydet</button>
+          {% endif %}
+        </form>
+        {% elif not awaiting_customer_code and not can_receive and not can_start and not returning %}
+        <p class="td-note" style="margin-bottom:0">Bu kayıt kapandı; yapılacak bir işlem yok.</p>
+        {% endif %}
+
+        {% if can_return %}
+        <div class="td-sep"></div>
+        {% if device.is_paid %}
+        <p class="td-note">Onarım tamamlandı ve ödeme alındı. Cihaz <b>Kargolanacaklar</b> sekmesine taşındı; kargo firması ve takip numarasını oradan girerek müşteriye gönderin.</p>
+        {% else %}
+        <p class="td-note">Onarım tamamlandı. Ödeme alındığında cihaz <b>Kargolanacaklar</b> sekmesinden kargolanabilir; o zamana kadar ödeme bekleyenler listesinde kilitli durur.</p>
+        {% endif %}
+        {% if not viewas %}<a class="td-btn tdx-save tdx-link" href="{% url 'core:technician_cargo' %}?cihaz={{ device.tracking_id }}#kargo-form">Kargolanacaklar'a git</a>{% endif %}
+        {% endif %}
+      </section>
+
+      {# --- İşlem geçmişi --- #}
+      <section class="td-card">
+        <h2>İşlem geçmişi</h2>
+        <ul class="tdx-hist">
+          {% for e in history %}
+          <li><span class="tdx-dot" aria-hidden="true"></span>
+            <div><p>{{ e.text }}{% if e.tag == 'internal' %} <span class="tdx-tag">İç not</span>{% elif e.tag == 'public' %} <span class="tdx-tag tdx-tag-public">Müşteriye açık</span>{% elif e.tag == 'part' %} <span class="tdx-tag tdx-tag-part">Stok</span>{% endif %}</p>
+              <time>{{ e.when }}{% if e.by %} · {{ e.by }}{% endif %}</time></div></li>
+          {% empty %}<li><div><p>Henüz işlem yok.</p></div></li>{% endfor %}
+        </ul>
+      </section>
+
+      {# --- Stok kullanımı --- #}
+      <section class="td-card">
+        <div class="tdx-card-head"><h2>Stok kullanımı</h2>
+          {% if part_usages %}<span class="tdx-badge tdx-badge-ok">{{ part_usages|length }} kullanım</span>{% else %}<span class="tdx-badge">Boş geçmiş</span>{% endif %}</div>
+        {% if part_usages %}
+        <ul class="tdx-usages">{% for u in part_usages %}<li><span><b>{{ u.part.code }}</b> · {{ u.part.name }}</span><span>{{ u.quantity }} adet · {{ u.added_at|date:"d.m.Y H:i" }}</span></li>{% endfor %}</ul>
+        {% else %}
+        <p class="tdx-lead">Henüz parça kullanımı kaydedilmedi. Depodan parça seçin ve kullanılan adedi girin. Stokta olmayan parçalar seçilemez.</p>
+        {% endif %}
+        {% if can_use_parts and not viewas %}
+          {% if stock_parts %}
+          <form method="post" action="{% url 'core:technician_device_action' device.tracking_id %}" id="tdx-part">{% csrf_token %}
+            <input type="hidden" name="action" value="use_part">
+            <div class="td-field"><label for="tdx-part-sel">Depodan parça seç</label>
+              <select id="tdx-part-sel" name="part" required>
+                <option value="">Parça seçin</option>
+                {% for p in stock_parts %}<option value="{{ p.pk }}" data-qty="{{ p.quantity }}">{{ p.code }} · {{ p.name }} ({{ p.quantity }} adet)</option>{% endfor %}
+              </select>
+              <p class="tdx-hint" id="tdx-part-info" hidden></p></div>
+            <div class="td-field"><label for="tdx-qty">Kullanılacak adet</label>
+              <input type="number" id="tdx-qty" name="quantity" min="1" max="999" value="1" required inputmode="numeric"></div>
+            <div class="td-field"><label>Stok sonrası</label><p class="tdx-after" id="tdx-after">Önce parça seçin.</p></div>
+            <button type="submit" class="td-btn tdx-save" id="tdx-part-btn">Kullanıldı</button>
+          </form>
+          {% else %}
+          <p class="td-note" style="margin-bottom:0">Depoda kullanılabilir (stokta olan) parça yok.</p>
+          {% endif %}
+        {% elif not can_use_parts %}
+        <p class="td-note" style="margin-bottom:0">Parça kullanımı, cihaz onarım aşamasındayken (İnceleniyor – Teslime hazır) kaydedilebilir.</p>
+        {% endif %}
+      </section>
+
+      {% if device.is_cargo %}
+      <section class="td-card">
+        <h2>Kargo bilgileri</h2>
+        <dl class="td-info">
+          <div><dt>Kargo kodu (müşteri → servis)</dt><dd class="td-code">{{ device.cargo_code|default:"Henüz oluşturulmadı" }}</dd></div>
+          <div><dt>Kodun oluşturulması</dt><dd>{% if device.cargo_code_created_at %}{{ device.cargo_code_created_at|date:"d.m.Y, H:i" }}{% else %}—{% endif %}</dd></div>
+          {% if device.cargo_company or device.cargo_tracking_code %}
+          <div><dt>Kargo firması</dt><dd>{{ device.cargo_company|default:"—" }}</dd></div>
+          <div><dt>Takip no</dt><dd class="td-code">{{ device.cargo_tracking_code|default:"—" }}</dd></div>
+          {% endif %}
+          {% if device.return_cargo_code %}
+          <div><dt>Geri kargo kodu</dt><dd class="td-code">{{ device.return_cargo_code }}</dd></div>
+          <div><dt>Geri kargo firması / takip</dt><dd>{{ device.return_cargo_company|default:"—" }}{% if device.return_cargo_tracking_code %} · {{ device.return_cargo_tracking_code }}{% endif %}</dd></div>
+          {% endif %}
+          {% if device.return_received_at %}<div class="full"><dt>Müşteri teslim aldığını onayladı</dt><dd>{{ device.return_received_at|date:"d.m.Y, H:i" }}</dd></div>{% endif %}
+          <div class="full"><dt>Teslimat adresi (geri gönderim)</dt><dd>{% if device.return_recipient %}{{ device.return_recipient }}{% if device.return_phone %} · {{ device.return_phone }}{% endif %}<br>{% endif %}{{ return_address|default:"—" }}</dd></div>
+        </dl>
+      </section>
+      {% endif %}
+    </div>
+
+    {# --- AI Çözüm Asistanı (şimdilik yalnızca arayüz) --- #}
+    <aside class="tdx-side">
+      <section class="td-card tdx-ai" aria-labelledby="tdx-ai-title">
+        <div class="tdx-card-head"><h2 id="tdx-ai-title">AI Çözüm Asistanı</h2><span class="tdx-badge">Yakında</span></div>
+        <div class="tdx-chat">
+          <p class="tdx-bubble">Merhaba, {{ device.brand }} {{ device.model }} için arıza belirtilerini yazın, fotoğraf veya video ekleyin; size en olası nedenleri ve kontrol adımlarını önereyim.</p>
+          <p class="tdx-bubble tdx-bubble-me">{{ device.issue_title|default:device.issue_description|truncatechars:90 }}</p>
+          <p class="tdx-ai-off">Asistan henüz etkin değil. Etkinleştirildiğinde öneriler burada görünecek.</p>
+        </div>
+        <fieldset class="tdx-ai-form" disabled aria-describedby="tdx-ai-note">
+          <div class="tdx-ai-input">
+            <label class="sr-only" for="tdx-ai-text">Arıza belirtileri</label>
+            <input type="text" id="tdx-ai-text" placeholder="Arıza belirtilerini yaz…">
+            <button type="button" aria-label="Fotoğraf ekle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></button>
+            <button type="button" aria-label="Video ekle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m22 8-6 4 6 4V8z"/></svg></button>
+          </div>
+          <div class="tdx-ai-chips"><span>Fotoğraf</span><span>Video</span><small>0 medya eklendi</small></div>
+          <div class="tdx-ai-links"><span>Faydalı</span><span>Faydalı değil</span><span>Arıza açıklamasıyla öneri al</span></div>
+          <div class="tdx-ai-send"><button type="button" class="td-btn tdx-save">Gönder</button><small>Medya ile birlikte gönder</small></div>
+        </fieldset>
+        <p class="tdx-hint" id="tdx-ai-note">Öneriler yol göstericidir; uygulamadan önce doğrulayın.</p>
+      </section>
+    </aside>
+  </div>
+  {% if viewas %}{% include "core/_viewas_note.html" %}{% endif %}
+</div>
+{% if not viewas %}
+<script>
+(function(){
+  // Stok kullanımı: seçilen parçanın depodaki adedi ve kaydedilirse kalacak stok
+  var sel=document.getElementById('tdx-part-sel');if(!sel)return;
+  var qty=document.getElementById('tdx-qty'),info=document.getElementById('tdx-part-info'),after=document.getElementById('tdx-after'),btn=document.getElementById('tdx-part-btn');
+  function upd(){
+    var o=sel.options[sel.selectedIndex],have=o&&o.dataset.qty?parseInt(o.dataset.qty,10):null,n=parseInt(qty.value,10)||0;
+    if(have===null){info.hidden=true;after.textContent='Önce parça seçin.';after.classList.remove('is-bad');btn.disabled=false;return;}
+    qty.max=Math.min(have,999);
+    info.hidden=false;info.textContent='Depoda '+have+' adet var. Bu işlemde '+n+' adet düşülecek.';
+    var left=have-n;
+    if(n<1){after.textContent='Adet en az 1 olmalı.';after.classList.add('is-bad');btn.disabled=true;}
+    else if(left<0){after.textContent='Stok yetersiz: depoda yalnızca '+have+' adet var.';after.classList.add('is-bad');btn.disabled=true;}
+    else{after.textContent='Kaydedilirse kalan stok: '+left+' adet';after.classList.remove('is-bad');btn.disabled=false;}
+  }
+  sel.addEventListener('change',upd);qty.addEventListener('input',upd);upd();
+})();
+</script>
+<script>
+(function(){
+  // «Teslime hazır» seçilince ücret kutusu açılır; işçilik + ek kalemler + stok parçaları anlık toplanır.
+  var box=document.getElementById('tdx-fee');if(!box)return;
+  var form=document.getElementById('tdx-update'),items=document.getElementById('tdx-fee-items'),addBtn=document.getElementById('tdx-fee-add'),
+      sum=document.getElementById('tdx-fee-sum'),parts=parseFloat(box.querySelector('.tdx-fee-total').dataset.parts)||0;
+  function num(v){v=(v||'').replace(/\s|₺/g,'');if(v.indexOf(',')>-1)v=v.replace(/\./g,'').replace(',','.');var n=parseFloat(v);return isNaN(n)?0:n;}
+  function fmt(n){return n.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})+' ₺';}
+  function total(){var t=parts;box.querySelectorAll('[data-fee]').forEach(function(i){t+=num(i.value);});sum.textContent=fmt(t);}
+  function toggle(){var r=form.querySelector('input[name="status"]:checked');var on=r&&r.value==='ready';box.hidden=!on;if(on){total();var l=document.getElementById('tdx-labor');if(l&&!l.value)l.focus();}}
+  function row(){var d=document.createElement('div');d.className='tdx-fee-row';
+    d.innerHTML='<input type="text" name="charge_label" maxlength="120" placeholder="Açıklama (ör. Temizlik ve bakım)"><input type="text" name="charge_amount" inputmode="decimal" placeholder="Tutar" data-fee><button type="button" class="tdx-fee-del" aria-label="Kalemi sil">×</button>';
+    items.insertBefore(d,addBtn);d.querySelector('input').focus();}
+  addBtn.addEventListener('click',function(){if(items.querySelectorAll('.tdx-fee-row').length<10)row();});
+  items.addEventListener('click',function(e){if(e.target.classList.contains('tdx-fee-del')){e.target.parentNode.remove();total();}});
+  box.addEventListener('input',total);
+  form.querySelectorAll('input[name="status"]').forEach(function(r){r.addEventListener('change',toggle);});
+  toggle();
+})();
+</script>
+{% endif %}
+{% endblock %}

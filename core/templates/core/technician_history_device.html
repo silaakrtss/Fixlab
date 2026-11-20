@@ -1,0 +1,50 @@
+{% extends "core/base_app.html" %}
+{% load static %}
+{% block title %}{{ device.tracking_id }} · Geçmiş iş{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/technician.css' %}?v=4"><link rel="stylesheet" href="{% static 'core/css/tech_device.css' %}?v=1"><link rel="stylesheet" href="{% static 'core/css/tech_history.css' %}?v=1">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="tech tdx th">
+  <div class="td-top">
+    <a class="td-back" href="{% if viewas %}{% url 'core:viewas_history' viewas.pk %}{% else %}{% url 'core:technician_history' %}{% endif %}">Geçmiş işlerime dön</a>
+    {% if viewas %}{% include "core/_viewas_tools.html" %}{% else %}{% include "core/_notify_bell.html" %}{% endif %}
+  </div>
+
+  <div class="tdx-grid th-grid">
+    <div class="tdx-main">
+      <section class="td-card tdx-hero">
+        <div class="tdx-hero-top">
+          <h1>{{ device.brand }} {{ device.model }}</h1>
+          <span class="pill pill-{{ device.status }}">{{ device.get_status_display }}</span>
+        </div>
+        <p class="tdx-sub"><span class="td-code">{{ device.tracking_id }}</span> · Müşteri: {{ device.customer_name }}</p>
+        <p class="tdx-issue">{{ device.issue_title|default:device.issue_description }}</p>
+        {% if device.issue_title and device.issue_description %}<p class="tdx-desc">{{ device.issue_description }}</p>{% endif %}
+      </section>
+
+      <section class="td-card">
+        <h2>İşlem geçmişi</h2>
+        <ul class="tdx-hist">
+          {% for e in history %}
+          <li><span class="tdx-dot" aria-hidden="true"></span>
+            <div><p>{{ e.text }}{% if e.tag == 'internal' %} <span class="tdx-tag">İç not</span>{% elif e.tag == 'public' %} <span class="tdx-tag tdx-tag-public">Müşteriye açık</span>{% elif e.tag == 'part' %} <span class="tdx-tag tdx-tag-part">Stok</span>{% endif %}</p>
+              <time>{{ e.when }}{% if e.by %} · {{ e.by }}{% endif %}</time></div></li>
+          {% empty %}<li><div><p>Henüz işlem yok.</p></div></li>{% endfor %}
+        </ul>
+      </section>
+    </div>
+
+    <aside class="tdx-side">
+      <section class="th-contact" aria-labelledby="th-contact-title">
+        <h2 id="th-contact-title">Müşteri İletişim Bilgileri</h2>
+        <div class="th-contact-grid">
+          <div class="th-f"><span>Ad soyad</span><b>{{ device.customer_name|default:"—" }}</b></div>
+          <div class="th-f"><span>Telefon</span>{% if device.customer_phone %}<a href="tel:{{ device.customer_phone|cut:' ' }}">{{ device.customer_phone }}</a>{% else %}<b>—</b>{% endif %}</div>
+          <div class="th-f th-wide"><span>E-posta</span>{% if contact_email %}<a href="mailto:{{ contact_email }}">{{ contact_email }}</a>{% else %}<b>—</b>{% endif %}</div>
+        </div>
+      </section>
+    </aside>
+  </div>
+  {% if viewas %}{% include "core/_viewas_note.html" %}{% endif %}
+</div>
+{% endblock %}

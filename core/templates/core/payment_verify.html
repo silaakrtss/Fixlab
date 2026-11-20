@@ -1,0 +1,73 @@
+{% extends "core/base_customer_app.html" %}
+{% load static %}
+{% block title %}Ödeme doğrulama{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'core/css/payment.css' %}?v=2">
+<div class="py">
+  <h1 class="pt-h1">Ödeme doğrulama</h1>
+  <p class="pt-lead">Ödemenin tamamlanabilmesi için tek kullanımlık kod ile banka doğrulaması bekleniyor.</p>
+  {% include "core/_payment_head.html" %}
+
+  <div class="py-grid">
+    <div class="py-main">
+      <section class="pt-card">
+        <div class="py-3d-head">
+          <span class="py-3d-ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></span>
+          <div><h2>3D Secure doğrulaması</h2><p class="py-sub">Banka doğrulama aşaması · simülasyon</p></div>
+        </div>
+        <div class="py-infobox"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>Bu ekran gerçek bir bankaya bağlı değildir. Doğrulama kodu e-posta adresinize gönderildi; gerçek tahsilat yapılmaz.</div>
+        <p class="py-text"><b>{{ masked_email }}</b> adresine gönderilen 6 haneli doğrulama kodunu girin.</p>
+        <form method="post" id="py-otp-form" novalidate>{% csrf_token %}
+          <input type="hidden" name="action" value="verify">
+          <input type="hidden" name="code" id="py-code">
+          <label class="py-otp-label" id="py-otp-label">Tek kullanımlık doğrulama kodu</label>
+          <div class="py-otp" role="group" aria-labelledby="py-otp-label">
+            {% for i in "123456" %}<input type="text" inputmode="numeric" maxlength="1" class="py-otp-box{% if error %} is-bad{% endif %}" aria-label="Kodun {{ forloop.counter }}. hanesi" autocomplete="{% if forloop.first %}one-time-code{% else %}off{% endif %}">{% endfor %}
+          </div>
+          {% if error %}<p class="py-err" role="alert">{{ error }}</p>{% endif %}
+          <div class="py-otp-meta"><span>Kalan süre: <b id="py-timer" data-left="{{ remaining }}">--:--</b></span>
+            {% if sends_left > 0 %}<button type="submit" form="py-resend" class="py-link">Yeniden kod iste</button>{% endif %}</div>
+          <div class="py-actions">
+            <button type="submit" form="py-cancel" class="pt-btn">İptal</button>
+            <button type="submit" class="pt-btn pt-btn-primary" id="py-verify">Ödemeyi doğrula</button>
+          </div>
+        </form>
+        <form method="post" id="py-resend">{% csrf_token %}<input type="hidden" name="action" value="resend"></form>
+        <form method="post" id="py-cancel">{% csrf_token %}<input type="hidden" name="action" value="cancel"></form>
+        <p class="py-hint">Doğrulama henüz tamamlanmadı. Ödemeniz başarılı olarak işaretlenmedi. Kod {{ otp_minutes }} dakika geçerlidir; en fazla 3 kez hatalı girilebilir.</p>
+      </section>
+    </div>
+    <aside class="py-side">
+      <section class="pt-card">
+        <h2>İşlem özeti</h2>
+        <dl class="py-kv py-kv-col">
+          <div><dt>Servis takip kodu</dt><dd>{{ device.tracking_id }}</dd></div>
+          <div><dt>Cihaz</dt><dd>{{ device.brand }} {{ device.model }}</dd></div>
+          <div><dt>Kart</dt><dd>{{ attempt.card_brand }} {{ attempt.masked_card }}</dd></div>
+        </dl>
+        <div class="py-total"><small>Doğrulanacak toplam (KDV dahil)</small><b>{{ attempt.amount|floatformat:"2g" }} ₺</b></div>
+      </section>
+      <div class="py-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div><b>Kodunuzu paylaşmayın</b><p>Doğrulama kodunu servis personeli dahil kimseyle paylaşmayın.</p></div></div>
+    </aside>
+  </div>
+  {% include "core/_payment_help.html" %}
+</div>
+<script>
+(function(){
+  var boxes=[].slice.call(document.querySelectorAll('.py-otp-box')),hidden=document.getElementById('py-code'),form=document.getElementById('py-otp-form');
+  function sync(){hidden.value=boxes.map(function(b){return b.value;}).join('');}
+  boxes.forEach(function(b,i){
+    b.addEventListener('input',function(){b.value=b.value.replace(/\D/g,'').slice(-1);sync();if(b.value&&boxes[i+1])boxes[i+1].focus();});
+    b.addEventListener('keydown',function(e){if(e.key==='Backspace'&&!b.value&&boxes[i-1]){boxes[i-1].focus();boxes[i-1].value='';sync();}});
+    b.addEventListener('paste',function(e){var t=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);if(!t)return;e.preventDefault();
+      boxes.forEach(function(x,j){x.value=t[j]||'';});sync();(boxes[Math.min(t.length,5)]||b).focus();});
+  });
+  if(boxes[0])boxes[0].focus();
+  form.addEventListener('submit',function(){sync();});
+  var timer=document.getElementById('py-timer'),left=parseInt(timer.dataset.left,10)||0;
+  function tick(){var m=Math.floor(left/60),s=left%60;timer.textContent=('0'+m).slice(-2)+':'+('0'+s).slice(-2);
+    if(left<=0){timer.textContent='Süre doldu';return;}left--;setTimeout(tick,1000);}
+  tick();
+})();
+</script>
+{% endblock %}

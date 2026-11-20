@@ -1,0 +1,26 @@
+/* FIXLAB · Teknisyen › Bildirimlerim — admin_notifications.css (.an-*) üzerine yalnızca .tn-* eklemeleri */
+.tn .an-grid{grid-template-columns:minmax(0,1fr) 300px}
+.tn .an-item.unread{background:#f4faf9}
+.tn .an-ico{width:36px;height:36px}
+.tn-title{font-weight:600;color:#15222d}
+.tn-unread{font:600 12px/1 var(--font);color:#0b7a75}
+.tn-readall{margin:16px 0 0}
+.tn-readall .an-btn{height:38px;font-size:13px}
+
+.tn-sum h2,.tn-info h2{margin:0 0 12px;font:600 15px/22px var(--font);color:#15222d}
+.tn-sum dl{display:grid;gap:10px;margin:0}
+.tn-sum dl div{display:flex;justify-content:space-between;font-size:13px}
+.tn-sum dt{color:#4f6470}
+.tn-sum dd{margin:0;font-weight:700;color:#15222d}
+.tn-info{padding:16px 18px;border:1px solid #cfe5e1;border-radius:12px;background:#e6f2f1}
+.tn-info h2{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:14px;color:#0b7a75}
+.tn-info p{margin:0;font-size:12.5px;line-height:19px;color:#0a5f5b}
+
+html[data-theme="dark"] .tn .an-item.unread{background:#14262a}
+html[data-theme="dark"] .tn-title,html[data-theme="dark"] .tn-sum h2,html[data-theme="dark"] .tn-sum dd{color:#e6edf2}
+html[data-theme="dark"] .tn-sum dt{color:#9fb0bb}
+html[data-theme="dark"] .tn-info{background:#173b39;border-color:#1f5546}
+html[data-theme="dark"] .tn-info h2,html[data-theme="dark"] .tn-unread{color:#5fc9bf}
+html[data-theme="dark"] .tn-info p{color:#b7c5ce}
+
+@media(max-width:1100px){.tn .an-grid{grid-template-columns:minmax(0,1fr)}}

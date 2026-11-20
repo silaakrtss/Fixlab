@@ -1,0 +1,25 @@
+/* FIXLAB · Teknisyen › Kargolanacaklar — yalnızca .tc-* sınıfları (cargo_queue.css .cq-* ile birlikte) */
+.tc-btn{display:inline-flex;align-items:center;justify-content:center;height:36px;padding:0 16px;border:0;border-radius:9px;background:#0b7a75;color:#fff;font:600 13px/1 var(--font);text-decoration:none;white-space:nowrap;cursor:pointer}
+.tc-btn:hover{background:#09665f}
+.tc-btn:focus-visible{outline:3px solid #0b7a75;outline-offset:2px}
+.tc-btn:disabled{background:#e2e8ec;color:#8a99a5;cursor:not-allowed}
+.tc-btn-sm{height:30px;padding:0 14px;font-size:12px}
+.tc-btn-block{display:flex;width:100%;height:42px;font-size:14px}
+.tc-count{font-size:13px;color:#667581}
+.tc-table td{height:62px}
+.tc-table th{border-top:1px solid #e2e8ec}
+.tc-table tr.is-selected td{background:#f1f8f7}
+.tc-bottom{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;align-items:start}
+.tc-form h2{margin:0 0 4px;font:600 17px/24px var(--font);color:#15222d}
+.tc-sel{margin:0 0 14px;font-size:12px;color:#667581}
+.tc-form .td-field select,.tc-form .td-field input{width:100%;box-sizing:border-box}
+.tc-opt{font-weight:400;color:#8a99a5}
+.tc-hint{margin-top:10px;font-size:12px;line-height:18px}
+.tc .cq-unpaid{align-items:center}
+
+html[data-theme="dark"] .tc-btn:disabled{background:#22323c;color:#6f8391}
+html[data-theme="dark"] .tc-table tr.is-selected td{background:#173b39}
+html[data-theme="dark"] .tc-form h2{color:#e6edf2}
+html[data-theme="dark"] .tc-sel,html[data-theme="dark"] .tc-count{color:#9fb0bb}
+
+@media(max-width:1100px){.tc-bottom{grid-template-columns:1fr}}

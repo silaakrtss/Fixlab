@@ -1,0 +1,7 @@
+<div class="va-note" role="note">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.4 7.5 9.5 4.3-1.1 7.5-4.9 7.5-9.5V6L12 3z"/><path d="m8.8 12.2 2.2 2.2 4.4-4.6"/></svg>
+  <div>
+    <b>Yönetici kimliğiniz korunur</b>
+    <p>Bu alan {{ viewas.display_name }} adlı {{ viewas.get_role_display|lower }} kullanıcısının görünümünü gösterir; oturumun gerçek sahibi {{ request.user.display_name }} ({{ request.user.get_role_display }}). Bu modda yalnızca görüntüleme yapılabilir, hiçbir kayıt değiştirilemez. Görüntülediğiniz sayfalar denetim kayıtlarına yönetici kimliğinizle yazılır.</p>
+  </div>
+</div>

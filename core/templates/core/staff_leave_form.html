@@ -1,0 +1,161 @@
+{% extends "core/staff_list.html" %}
+{% load static %}
+{% block title %}{% if leave %}İzni düzenle{% else %}İzin ver{% endif %}{% endblock %}
+{% block modal_head %}<link rel="stylesheet" href="{% static 'core/css/leave_modal.css' %}?v=1">{% endblock %}
+{% block modal %}
+<div class="lv-overlay" id="lv-overlay">
+  <div class="lv-modal" role="dialog" aria-modal="true" aria-labelledby="lv-title">
+    <form method="post" novalidate id="leave-form" class="lv-form">
+      {% csrf_token %}
+      <header class="lv-head">
+        <div><h2 id="lv-title">{% if leave %}İzni düzenle{% else %}İzin ver{% endif %}</h2><p>{{ person.display_name }} · {{ person.username }}</p></div>
+        <a class="lv-x" href="{% url 'core:staff_list' %}" aria-label="Kapat" id="lv-close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></a>
+      </header>
+
+      <div class="lv-body">
+        <div class="lv-left">
+          {% if form.non_field_errors %}<div class="pm-formerr" role="alert">{{ form.non_field_errors.0 }}</div>{% endif %}
+          <div class="pm-field">
+            <label for="{{ form.leave_type.id_for_label }}">{{ form.leave_type.label }}</label>
+            {{ form.leave_type }}
+            {% for e in form.leave_type.errors %}<p class="pm-err">{{ e }}</p>{% endfor %}
+          </div>
+          <div class="pm-row lv-dates">
+            <div class="pm-field">
+              <label for="{{ form.start_date.id_for_label }}">{{ form.start_date.label }}</label>
+              {{ form.start_date }}
+              {% for e in form.start_date.errors %}<p class="pm-err">{{ e }}</p>{% endfor %}
+            </div>
+            <div class="pm-field">
+              <label for="{{ form.end_date.id_for_label }}">{{ form.end_date.label }}</label>
+              {{ form.end_date }}
+              {% for e in form.end_date.errors %}<p class="pm-err">{{ e }}</p>{% endfor %}
+            </div>
+          </div>
+          <div class="lv-summary" id="lv-summary" hidden aria-live="polite">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>
+            <div><b id="lv-days"></b><span id="lv-return"></span></div>
+          </div>
+          <div class="pm-field">
+            <label for="{{ form.description.id_for_label }}">{{ form.description.label }} <span class="pm-opt">(isteğe bağlı)</span></label>
+            {{ form.description }}
+            {% for e in form.description.errors %}<p class="pm-err">{{ e }}</p>{% endfor %}
+          </div>
+        </div>
+
+        <div class="lv-right">
+          <div class="lv-cal" id="lv-cal" data-today="{{ today_iso }}">
+            <div class="lv-cal-head">
+              <button type="button" class="lv-nav" id="lv-prev" aria-label="Önceki ay"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
+              <b id="lv-month" aria-live="polite"></b>
+              <button type="button" class="lv-nav" id="lv-next" aria-label="Sonraki ay"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+            </div>
+            <div class="lv-grid lv-dow" aria-hidden="true"><span>Pt</span><span>Sa</span><span>Ça</span><span>Pe</span><span>Cu</span><span>Ct</span><span>Pz</span></div>
+            <div class="lv-grid" id="lv-days-grid" role="grid" aria-label="Tarih aralığı seçin"></div>
+            <p class="lv-cal-hint" id="lv-cal-hint">Başlangıç gününe, ardından bitiş gününe tıklayın.</p>
+          </div>
+
+          {% if open_jobs %}
+          <div class="lv-warn">
+            <p class="lv-warn-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16h.01"/></svg>{{ person.display_name }} adlı teknisyenin {{ open_jobs }} açık işi var</p>
+            <p>İzin süresince yeni iş atanmaz. Açık işleri başka bir teknisyene aktarabilirsiniz.</p>
+            {% if form.transfer_targets %}
+            <label class="lv-check"><input type="checkbox" name="{{ form.transfer_jobs.html_name }}" id="lv-transfer" {% if form.transfer_jobs.value %}checked{% endif %}><span>Açık işleri aktar</span></label>
+            <label class="sr-only" for="{{ form.transfer_to.id_for_label }}">{{ form.transfer_to.label }}</label>
+            <div class="pm-field lv-transfer-to" id="lv-transfer-box">{{ form.transfer_to }}
+              {% for e in form.transfer_to.errors %}<p class="pm-err">{{ e }}</p>{% endfor %}</div>
+            {% else %}
+            <p class="lv-warn-none">Şu anda işleri aktarabileceğiniz uygun (aktif ve izinde olmayan) başka teknisyen yok.</p>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <footer class="lv-foot">
+        <a class="pm-btn" href="{% url 'core:staff_list' %}">Vazgeç</a>
+        <button class="pm-btn pm-btn-primary" type="submit">{% if leave %}Değişiklikleri kaydet{% else %}İzni kaydet{% endif %}</button>
+      </footer>
+    </form>
+  </div>
+</div>
+<script>
+(function(){
+  var MONTHS=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  var DAYS=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+  var startIn=document.getElementById('{{ form.start_date.id_for_label }}'),endIn=document.getElementById('{{ form.end_date.id_for_label }}');
+  var grid=document.getElementById('lv-days-grid'),monthEl=document.getElementById('lv-month'),cal=document.getElementById('lv-cal');
+  var summary=document.getElementById('lv-summary'),daysEl=document.getElementById('lv-days'),retEl=document.getElementById('lv-return');
+  var today=parse(cal.dataset.today);
+
+  function parse(v){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(v||'');return m?new Date(+m[1],+m[2]-1,+m[3]):null;}
+  function iso(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
+  function tr(d){return ('0'+d.getDate()).slice(-2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+d.getFullYear();}
+  function same(a,b){return a&&b&&a.getTime()===b.getTime();}
+  function addDays(d,n){var x=new Date(d);x.setDate(x.getDate()+n);return x;}
+
+  var start=parse(startIn.value),end=parse(endIn.value);
+  var view=new Date((start||today).getFullYear(),(start||today).getMonth(),1);
+
+  function render(){
+    monthEl.textContent=MONTHS[view.getMonth()]+' '+view.getFullYear();
+    var first=new Date(view),offset=(first.getDay()+6)%7,cur=addDays(first,-offset),html='';
+    for(var i=0;i<42;i++){
+      var d=cur,cls=['lv-day'];
+      if(d.getMonth()!==view.getMonth())cls.push('is-out');
+      if(same(d,today))cls.push('is-today');
+      if(start&&end&&d>start&&d<end)cls.push('in-range');
+      if(same(d,start))cls.push('is-start');
+      if(same(d,end))cls.push('is-end');
+      if(start&&end&&!same(start,end)&&(same(d,start)||same(d,end)))cls.push('has-range');
+      var sel=same(d,start)||same(d,end)||(start&&end&&d>start&&d<end);
+      html+='<button type="button" role="gridcell" class="'+cls.join(' ')+'" data-date="'+iso(d)+'" aria-label="'+d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear()+'"'+(sel?' aria-selected="true"':'')+'><span>'+d.getDate()+'</span></button>';
+      cur=addDays(cur,1);
+      if(i===34&&cur.getMonth()!==view.getMonth())break;  // 5 hafta yeterliyse 6. satırı çizme
+    }
+    grid.innerHTML=html;
+    updateSummary();
+  }
+  function updateSummary(){
+    if(!(start&&end&&end>=start)){summary.hidden=true;return;}
+    var n=0;for(var d=new Date(start);d<=end;d=addDays(d,1)){var w=d.getDay();if(w!==0&&w!==6)n++;}
+    var back=addDays(end,1);while(back.getDay()===0||back.getDay()===6)back=addDays(back,1);
+    daysEl.textContent=n+' iş günü';
+    retEl.textContent='İşe dönüş: '+tr(back)+', '+DAYS[back.getDay()];
+    summary.hidden=false;
+  }
+  function sync(){startIn.value=start?iso(start):'';endIn.value=end?iso(end):'';}
+
+  grid.addEventListener('click',function(e){
+    var b=e.target.closest('.lv-day');if(!b)return;
+    var d=parse(b.dataset.date);
+    if(!start||end||d<start){start=d;end=null;}   // yeni seçim başlat
+    else{end=d;}
+    if(d.getMonth()!==view.getMonth())view=new Date(d.getFullYear(),d.getMonth(),1);
+    sync();render();
+    var again=grid.querySelector('[data-date="'+iso(d)+'"]');if(again)again.focus();
+  });
+  document.getElementById('lv-prev').addEventListener('click',function(){view=new Date(view.getFullYear(),view.getMonth()-1,1);render();});
+  document.getElementById('lv-next').addEventListener('click',function(){view=new Date(view.getFullYear(),view.getMonth()+1,1);render();});
+  [startIn,endIn].forEach(function(inp){inp.addEventListener('change',function(){
+    start=parse(startIn.value);end=parse(endIn.value);
+    var focus=inp===startIn?start:end;if(focus)view=new Date(focus.getFullYear(),focus.getMonth(),1);
+    render();
+  });});
+  render();
+
+  // Açık işleri aktar: kutu işaretli değilse teknisyen listesi pasif
+  var chk=document.getElementById('lv-transfer'),box=document.getElementById('lv-transfer-box');
+  if(chk&&box){var sel=box.querySelector('select');
+    function toggle(){sel.disabled=!chk.checked;box.classList.toggle('is-off',!chk.checked);}
+    chk.addEventListener('change',toggle);toggle();}
+
+  // Pencere: sayfa kaydırması kilitlenir, Esc ile kapanır, ilk alana odaklanılır
+  document.body.classList.add('lv-open');
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')location.href=document.getElementById('lv-close').href;});
+  var firstErr=document.querySelector('.lv-modal .pm-err, .lv-modal .pm-formerr');
+  var target=firstErr&&firstErr.closest('.pm-field')?firstErr.closest('.pm-field').querySelector('input,select,textarea'):document.getElementById('{{ form.leave_type.id_for_label }}');
+  if(target)target.focus();
+})();
+</script>
+{% endblock %}

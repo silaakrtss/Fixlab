@@ -1,0 +1,14 @@
+{# Ödeme ekranları ortak üst bölüm: cihaz kartı + 3 adımlı ilerleme. Kullanım: include with step=1|2|3 #}
+<section class="pt-card py-device">
+  <div class="py-ico">{% include "core/_device_icon.html" %}</div>
+  <div class="py-dev-txt"><b>{{ device.brand }} {{ device.model }}</b><span>{{ device.tracking_id }}</span><small>{{ device.issue_title|default:device.issue_description|truncatechars:70 }}</small></div>
+  <div class="py-dev-right">
+    {% if device.is_paid %}<span class="py-pill py-pill-ok"><i></i>{% if device.status == 'ready' %}Geri gönderim hazırlanıyor{% elif device.status == 'return_shipping' %}Kargoda · size geliyor{% elif device.status == 'delivered' %}Teslim edildi{% else %}Ödendi{% endif %}</span>{% else %}<span class="py-pill py-pill-wait"><i></i>Ödeme bekleniyor</span>{% endif %}
+    <small>Teslim yöntemi: {{ device.get_delivery_method_display|default:"" }}</small>
+  </div>
+</section>
+<ol class="py-steps" aria-label="Ödeme adımları">
+  <li class="{% if step == 1 %}is-current{% elif step > 1 %}is-done{% endif %}"><span>1</span>Kart bilgileri</li>
+  <li class="{% if step == 2 %}is-current{% elif step > 2 %}is-done{% endif %}"><span>2</span>Banka doğrulaması</li>
+  <li class="{% if step == 3 %}is-current{% endif %}{% if step == 3 and device.is_paid %} is-success{% endif %}"><span>3</span>Ödeme sonucu</li>
+</ol>

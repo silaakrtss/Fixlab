@@ -1,0 +1,163 @@
+/* FIXLAB · Müşteri › Online ödeme (kart · doğrulama · sonuç) — yalnızca .py-* sınıfları (portal.css değişkenleriyle) */
+.py .pt-card{padding:20px 22px}
+.py h2{margin:0 0 6px;font:600 16px/22px var(--font);color:var(--ink)}
+.py-sub{margin:0;font-size:12px;color:var(--muted)}
+.py-sub b{color:var(--ink)}
+
+/* Cihaz kartı + adımlar */
+.py-device{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.py-ico{flex:none;width:52px;height:52px;border-radius:12px;background:var(--bg);color:var(--teal);display:grid;place-items:center}
+.py-dev-txt{flex:1;min-width:0}
+.py-dev-txt b{display:block;font:700 17px/1.3 var(--font);color:var(--ink)}
+.py-dev-txt span{display:block;font-size:12px;color:var(--muted)}
+.py-dev-txt small{display:block;font-size:12px;color:var(--muted)}
+.py-dev-right{display:grid;justify-items:end;gap:6px;text-align:right}
+.py-dev-right small{font-size:11px;color:var(--muted)}
+.py-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:99px;font:600 11px/16px var(--font)}
+.py-pill i{width:6px;height:6px;border-radius:50%;background:currentColor}
+.py-pill-wait{background:#fdf0c7;color:#b45309}
+.py-pill-ok{background:#dcf5e7;color:#15803d}
+.py-steps{display:flex;margin:0 0 16px;padding:0;list-style:none}
+.py-steps li{flex:1;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.py-steps li span{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border:1.5px solid var(--line);border-radius:50%;font:600 11px/1 var(--font)}
+.py-steps li.is-current{color:var(--ink);font-weight:600}
+.py-steps li.is-current span{border-color:var(--teal);color:var(--teal)}
+.py-steps li.is-done span{border-color:var(--teal);background:var(--teal);color:#fff}
+
+/* Izgara */
+.py-grid{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px;align-items:start}
+.py-main,.py-side{display:grid;gap:16px;min-width:0}
+
+/* Form alanları */
+.py-note{margin:0 0 14px;font-size:12px;color:var(--muted)}
+.py-field{margin-bottom:12px;min-width:0}
+.py-field label{display:block;margin-bottom:5px;font:600 12.5px/18px var(--font);color:var(--ink)}
+.py-field input,.py-field textarea{display:block;width:100%;height:40px;padding:0 12px;border:1px solid var(--line);border-radius:9px;background:var(--card,#fff);font:400 13.5px var(--font);color:var(--ink);box-sizing:border-box}
+.py-field textarea{height:auto;min-height:56px;padding:10px 12px;resize:vertical}
+.py-field input:focus,.py-field textarea:focus{outline:0;border-color:var(--teal);box-shadow:0 0 0 3px rgba(11,122,117,.15)}
+.py-row{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.py-err{margin:5px 0 0;font-size:12px;color:#b42318}
+.py-hint{margin:6px 0 0;font-size:11.5px;line-height:17px;color:var(--muted)}
+.py-hint code{padding:1px 5px;border-radius:5px;background:var(--bg);font-size:11px}
+.py-radio{display:flex;align-items:center;gap:8px;margin:4px 0 14px;font:500 13px/1 var(--font);color:var(--ink)}
+.py-radio-dot{width:16px;height:16px;border:5px solid var(--teal);border-radius:50%;box-sizing:border-box}
+.py-accept{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;line-height:18px;color:var(--ink);cursor:pointer}
+.py-accept input{flex:none;width:16px;height:16px;margin:1px 0 0;accent-color:var(--teal)}
+.py-accept a{color:var(--teal)}
+.py-actions{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px}
+.py .pt-btn{height:42px}
+.py-pay{min-width:170px}
+.py-pay:disabled{opacity:.6;cursor:wait}
+
+/* Tutar kartı */
+.py-lines{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:9px}
+.py-lines li{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--ink)}
+.py-lines small{color:var(--muted)}
+.py-lines b{white-space:nowrap}
+.py-vat{padding-top:9px;border-top:1px dashed var(--line);color:var(--muted)!important}
+.py-total{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.py-total small{display:block;font:600 12px/16px var(--font);color:var(--ink)}
+.py-total b{display:block;margin-top:4px;font:800 30px/1.15 var(--font);color:var(--ink)}
+.py-kv{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin:12px 0 0}
+.py-kv-col{grid-template-columns:1fr}
+.py-kv dt{font-size:11px;color:var(--muted)}
+.py-kv dd{margin:2px 0 0;font:600 13px/18px var(--font);color:var(--ink)}
+.py-text{margin:12px 0 0;font-size:12.5px;line-height:19px;color:var(--muted)}
+.py-total-line{margin:12px 0 0;padding-top:12px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.py-total-line b{color:var(--ink)}
+.py-info{display:flex;gap:10px;padding:14px 16px;border:1px solid #cfe5e1;border-radius:12px;background:#e6f2f1;color:#0a5f5b}
+.py-info svg{flex:none;margin-top:2px}
+.py-info b{display:block;font:600 13px/18px var(--font)}
+.py-info p{margin:3px 0 0;font-size:12px;line-height:18px}
+
+/* Doğrulama */
+.py-3d-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.py-3d-head h2{margin:0}
+.py-3d-ico{flex:none;width:42px;height:42px;border-radius:12px;background:var(--teal-bg);color:var(--teal);display:grid;place-items:center}
+.py-infobox{display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border:1px solid #cfe5e1;border-radius:9px;background:#e6f2f1;color:#0a5f5b;font-size:12px;line-height:18px}
+.py-infobox svg{flex:none;margin-top:1px}
+.py-otp-label{display:block;margin:14px 0 8px;font:600 12.5px/18px var(--font);color:var(--ink)}
+.py-otp{display:flex;gap:10px}
+.py-otp-box{width:44px;height:50px;padding:0;border:1.5px solid var(--line);border-radius:10px;background:var(--card,#fff);text-align:center;font:700 20px/1 var(--font);color:var(--ink)}
+.py-otp-box:focus{outline:0;border-color:var(--teal);box-shadow:0 0 0 3px rgba(11,122,117,.15)}
+.py-otp-box.is-bad{border-color:#d92d20}
+.py-otp-meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:12px;color:var(--muted)}
+.py-link{padding:0;border:0;background:none;color:var(--teal);font:600 12px/1 var(--font);cursor:pointer}
+.py-link:hover{text-decoration:underline}
+
+/* Sonuç */
+.py-res-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.py-res-head h2{margin:0;font-size:18px}
+.py-res-ico{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center}
+.py-res-ico.is-ok{background:#dcf5e7;color:#15803d}
+.py-res-ico.is-bad{background:#fdecea;color:#d92d20}
+.py-badbox,.py-okbox{padding:12px 14px;border-radius:10px;font-size:12.5px;line-height:19px}
+.py-badbox{border:1px solid #f5c2bd;background:#fdecea;color:#912018}
+.py-badbox p{margin:3px 0 0}
+.py-okbox{border:1px solid #bfe6cf;background:#ecf8f1;color:#14532d}
+.py-res-amount{margin-top:14px;padding:14px 16px;border-radius:10px;background:var(--bg)}
+.py-res-amount small{display:block;font-size:11px;color:var(--muted)}
+.py-res-amount b{display:block;margin:4px 0;font:800 28px/1.15 var(--font);color:var(--ink)}
+.py-res-amount span{font-size:12px;color:var(--muted)}
+
+/* Yardım + alt not */
+.py-help{display:flex;gap:12px;align-items:flex-start;margin-top:18px}
+.py-help svg{flex:none;color:var(--teal);margin-top:2px}
+.py-help b{display:block;font:600 13px/18px var(--font);color:var(--ink)}
+.py-help p{margin:2px 0 0;font-size:12px;color:var(--muted)}
+.py-help a{color:var(--teal);font-weight:600}
+.py-foot{margin:12px 0 0;font-size:11.5px;color:var(--muted)}
+
+/* Koyu tema */
+html[data-theme="dark"] .py-field input,html[data-theme="dark"] .py-field textarea,html[data-theme="dark"] .py-otp-box{background:#121d24}
+html[data-theme="dark"] .py-pill-wait{background:#3a2e14;color:#f0b35a}
+html[data-theme="dark"] .py-pill-ok,html[data-theme="dark"] .py-res-ico.is-ok{background:#163a28;color:#6fdc9d}
+html[data-theme="dark"] .py-info,html[data-theme="dark"] .py-infobox{background:#173b39;border-color:#1f5546;color:#9fd8d1}
+html[data-theme="dark"] .py-badbox{background:#3a1d1b;border-color:#5c2a26;color:#f4a49c}
+html[data-theme="dark"] .py-okbox{background:#163a28;border-color:#1f5a3d;color:#a7e9c2}
+html[data-theme="dark"] .py-res-ico.is-bad{background:#3a1d1b;color:#f4a49c}
+
+@media(max-width:1000px){.py-grid{grid-template-columns:1fr}}
+@media(max-width:600px){
+  .py-row,.py-kv{grid-template-columns:1fr}
+  .py-device{flex-wrap:wrap}.py-dev-right{justify-items:start;text-align:left}
+  .py-steps li{font-size:11px}
+  .py-otp{gap:6px}.py-otp-box{width:40px}
+  .py-actions .pt-btn{flex:1}
+}
+
+/* Başarılı ödeme ekranı (v2) */
+.py-steps li.is-success span{border-color:var(--teal);background:var(--teal);color:#fff}
+.py-res-ico-lg{width:52px;height:52px;border-radius:14px}
+.py-res-title{font:700 22px/1.25 var(--font)!important}
+.py-kv-res{margin-top:16px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.py-mono{font-family:Consolas,"SFMono-Regular",monospace;letter-spacing:.02em}
+.py-actions-start{justify-content:flex-start}
+.py-address b{display:block;font:600 13.5px/20px var(--font);color:var(--ink)}
+.py-address span{display:block;margin-top:2px;font-size:12.5px;color:var(--muted)}
+.py-address p{margin:10px 0 0;font-size:12.5px;line-height:19px;color:var(--muted)}
+.py-text-sep{padding-top:12px;border-top:1px solid var(--line)}
+
+/* Ödeme belgesi (yazdırılabilir) */
+.py-doc-wrap{max-width:760px}
+.py-doc-bar{display:flex;justify-content:space-between;gap:10px;margin-bottom:16px}
+.py-doc{padding:28px 30px!important}
+.py-doc-head{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-bottom:16px;border-bottom:2px solid var(--ink)}
+.py-doc-head img{height:auto;width:120px}
+.py-doc-head h1{margin:0;font:700 20px/1.2 var(--font);color:var(--ink);text-align:right}
+.py-doc-head p{margin:2px 0 0;font-size:12px;color:var(--muted);text-align:right}
+.py-doc-kv{margin-top:18px}
+.py-doc-table{width:100%;margin-top:20px;border-collapse:collapse;font-size:13px}
+.py-doc-table th{padding:9px 10px;border-bottom:1px solid var(--line);background:var(--bg);text-align:left;font-weight:600;color:var(--ink)}
+.py-doc-table th:last-child,.py-doc-table td:last-child{text-align:right;white-space:nowrap}
+.py-doc-table td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--ink)}
+.py-doc-table small{color:var(--muted)}
+.py-doc-vat td{color:var(--muted)}
+.py-doc-table tfoot td{padding:12px 10px;border-bottom:0;font-weight:800;font-size:15px;color:var(--teal)}
+.py-doc-note{margin:18px 0 0;font-size:11.5px;line-height:17px;color:var(--muted)}
+@media print{
+  .pt-side,.pt-top,.no-print,.pt-msgs{display:none!important}
+  .pt-shell,.pt-main,.pt-content{display:block!important;padding:0!important;margin:0!important;background:#fff!important}
+  body.pt{background:#fff!important}
+  .py-doc{border:0!important;box-shadow:none!important;padding:0!important}
+}

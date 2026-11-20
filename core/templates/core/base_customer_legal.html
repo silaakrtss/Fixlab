@@ -1,0 +1,39 @@
+{% load static %}<!doctype html>
+<html lang="tr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}Gizlilik{% endblock %} · FIXLAB</title>
+{% include "core/_favicon.html" %}
+{% include "core/_fonts.html" %}
+<link rel="stylesheet" href="{% static 'core/css/app.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/legal.css' %}">
+</head><body class="lg">
+<header class="lg-head">
+  <a class="lg-logo-link" href="{% url 'core:landing' %}" aria-label="FIXLAB ana sayfa"><img class="lg-logo" src="{% static 'core/images/logo.png' %}" width="126" height="49" alt="FIXLAB Technical Service"></a>
+  <a class="lg-back-top" href="{% url 'core:customer_login' %}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>Müşteri Girişine Dön</a>
+</header>
+<main class="lg-main">
+  <nav class="lg-crumbs" aria-label="Sayfa yolu">
+    <a href="{% url 'core:customer_login' %}">Müşteri girişi</a><span>/</span><strong>{% block crumb %}{% endblock %}</strong>
+  </nav>
+  <div class="lg-layout">
+    <aside class="lg-side">
+      <div class="lg-docnav">
+        <p class="lg-side-title">Müşteri belgeleri</p>
+        <a class="lg-docnav-link{% if request.resolver_match.url_name == 'customer_privacy' %} is-active{% endif %}" href="{% url 'core:customer_privacy' %}"{% if request.resolver_match.url_name == 'customer_privacy' %} aria-current="page"{% endif %}>Gizlilik ve KVKK</a>
+        <a class="lg-docnav-link{% if request.resolver_match.url_name == 'customer_terms' %} is-active{% endif %}" href="{% url 'core:customer_terms' %}"{% if request.resolver_match.url_name == 'customer_terms' %} aria-current="page"{% endif %}>Kullanım Şartları</a>
+      </div>
+      <nav class="lg-toc" aria-label="Bu belgede">
+        <p class="lg-side-title">Bu belgede</p>
+        {% block toc %}{% endblock %}
+      </nav>
+    </aside>
+    <article class="lg-card">
+      {% block content %}{% endblock %}
+      <footer class="lg-foot">
+        <span>FIXLAB • Müşteri belgeleri</span>
+        <a class="lg-btn-outline" href="{% url 'core:customer_login' %}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>Müşteri Girişine Dön</a>
+      </footer>
+    </article>
+  </div>
+</main>
+</body></html>

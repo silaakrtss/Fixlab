@@ -1,0 +1,62 @@
+/* FIXLAB · Admin › Personel Yönetimi › Yeni Kullanıcı — yalnızca .sf-* sınıfları */
+.sf{color:#15222d;font-family:var(--font)}
+.sf-head{margin-bottom:22px}
+.sf-head h1{margin:0;font:700 28px/1.2 var(--font);letter-spacing:-.01em}
+.sf-head p{margin:6px 0 0;font-size:14px;color:#5b6b78}
+
+.sf-card{max-width:640px;padding:24px 24px 26px;background:#fff;border:1px solid #e2e8ec;border-radius:14px}
+.sf-card form{margin:0}
+.sf-formerr{margin-bottom:16px;padding:10px 14px;border-radius:8px;background:#fdecea;color:#b42318;font-size:14px}
+
+.sf-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.sf-field{min-width:0;margin-bottom:16px}
+.sf-field[hidden]{display:none}
+.sf-wide{grid-column:1/-1}
+.sf-field label,.sf-role legend{display:block;margin-bottom:6px;padding:0;font:500 13px/18px var(--font);color:#334155}
+.sf-opt{font-weight:400;color:#8a99a5}
+.sf-field input{display:block;width:100%;height:42px;padding:0 14px;border:1px solid #dfe4e9;border-radius:10px;background:#fff;font:400 14px var(--font);color:#15222d;box-sizing:border-box}
+.sf-field input::placeholder{color:#8a99a5}
+.sf-field input:focus{outline:0;border-color:#0b7a75;box-shadow:0 0 0 3px rgba(11,122,117,.15)}
+.sf-hint{margin:6px 0 0;font-size:12px;line-height:17px;color:#8a99a5}
+.sf-err{margin:6px 0 0;font-size:13px;line-height:18px;color:#b42318}
+.sf-field:has(.sf-err) input{border-color:#d92d20}
+
+/* Rol: iki seçenekli düğme grubu */
+.sf-role{margin:2px 0 0;padding:0;border:0;min-width:0}
+.sf-seg{display:flex;gap:8px;flex-wrap:wrap}
+.sf-seg-opt{position:relative;cursor:pointer}
+.sf-seg-opt input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.sf-seg-opt span{display:inline-flex;align-items:center;justify-content:center;height:36px;min-width:76px;padding:0 16px;border:1px solid #dfe4e9;border-radius:8px;background:#fff;color:#15222d;font:600 13px/1 var(--font);transition:background .15s,border-color .15s,color .15s}
+.sf-seg-opt:hover span{background:#f2f5f7}
+.sf-seg-opt input:checked+span{background:#0b7a75;border-color:#0b7a75;color:#fff}
+.sf-seg-opt input:focus-visible+span{outline:3px solid #0b7a75;outline-offset:2px}
+
+.sf-note{margin:18px 0 18px;font-size:13px;line-height:19px;color:#667581}
+.sf-actions{display:flex;gap:10px;flex-wrap:wrap}
+.sf-btn{display:inline-flex;align-items:center;justify-content:center;height:40px;padding:0 18px;border:1px solid #dfe4e9;border-radius:10px;background:#fff;color:#15222d;font:600 14px/1 var(--font);text-decoration:none;cursor:pointer;transition:background .15s}
+.sf-btn:hover{background:#f2f5f7}
+.sf-btn:focus-visible{outline:3px solid #0b7a75;outline-offset:2px}
+/* Personel Yönetimi'ndeki «Yeni teknisyen» düğmesiyle aynı yeşil */
+.sf-btn-primary{background:#0b7a75;border-color:#0b7a75;color:#fff}
+.sf-btn-primary:hover{background:#09665f;border-color:#09665f}
+
+/* Koyu tema */
+html[data-theme="dark"] .sf{color:#e6edf2}
+html[data-theme="dark"] .sf-card{background:#16222a;border-color:#2b3b45}
+html[data-theme="dark"] .sf-head p,html[data-theme="dark"] .sf-note{color:#9fb0bb}
+html[data-theme="dark"] .sf-field label,html[data-theme="dark"] .sf-role legend{color:#c9d5dd}
+html[data-theme="dark"] .sf-hint,html[data-theme="dark"] .sf-opt{color:#7d909b}
+html[data-theme="dark"] .sf-field input{background:#121d24;border-color:#2b3b45;color:#e6edf2}
+html[data-theme="dark"] .sf-field input::placeholder{color:#6f8391}
+html[data-theme="dark"] .sf-seg-opt span,html[data-theme="dark"] .sf-btn{background:#16222a;border-color:#2b3b45;color:#e6edf2}
+html[data-theme="dark"] .sf-seg-opt:hover span,html[data-theme="dark"] .sf-btn:hover{background:#1f2f39}
+html[data-theme="dark"] .sf-seg-opt input:checked+span,html[data-theme="dark"] .sf-btn-primary{background:#0b7a75;border-color:#0b7a75;color:#fff}
+html[data-theme="dark"] .sf-btn-primary:hover{background:#09665f}
+html[data-theme="dark"] .sf-formerr{background:#3a1d1b;color:#f4a49c}
+html[data-theme="dark"] .sf-err{color:#f4a49c}
+
+@media(max-width:640px){
+  .sf-grid{grid-template-columns:1fr}
+  .sf-card{padding:18px}
+  .sf-head h1{font-size:24px}
+}

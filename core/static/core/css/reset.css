@@ -1,0 +1,16 @@
+/* FIXLAB · Personel şifre sıfırlama sayfaları (login.css + customer.css'in .cp-* bileşenleriyle).
+   Giriş sayfası sabit ve kaydırmasızdır; sıfırlama sayfaları ise gerektiğinde kayabilir. */
+.lp-reset{--teal:#0b7a75;--teal-d:#09665f;margin:0 4.583% 0 9.861%;max-width:640px}
+
+html:has(body.lp-scroll),body.lp-scroll{height:auto;min-height:100%;overflow:auto!important}
+.lp-scroll{height:auto;min-height:100vh;overflow:visible!important}
+.lp-scroll .lp-grid{height:auto;min-height:calc(100vh - 60px);overflow:visible}
+.lp-scroll .lp-left{height:auto}
+.lp-scroll .lp-right{height:auto;overflow:visible;padding:32px 0}
+
+.cp-info-ok{background:#e4f3ec;color:#14513c}
+.cp-info-ok svg{color:#1f8a5b}
+
+@media (max-width:900px){
+  .lp-reset{margin:0 auto;padding:0 20px;max-width:560px}
+}

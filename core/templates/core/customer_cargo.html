@@ -1,0 +1,116 @@
+{% extends "core/base_customer_app.html" %}
+{% block title %}Kargo Süreci{% endblock %}
+{% block crumb %}Kargo Süreci{% endblock %}
+{% block content %}
+<h1 class="pt-h1">Kargo süreci</h1>
+<p class="pt-lead">{{ device.title }} · <span class="pt-mono">{{ device.tracking_id }}</span> cihazınızın kargoda hangi aşamada olduğunu buradan takip edebilirsiniz.</p>
+
+<div class="pt-cargo-grid">
+  <section class="pt-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <h2>Şu anki aşama</h2>
+      <span class="pt-pill pt-pill-{{ device.tone }}">{{ device.get_status_display }}</span>
+    </div>
+    <p class="pt-aside-text" style="margin-bottom:0">{{ device.note }}</p>
+    <div class="pt-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ timeline.percent }}" style="margin-top:16px"><i style="width:{{ timeline.percent }}%"></i></div>
+    <ol class="pt-tl" style="margin-top:8px">
+      {% for s in timeline.stages %}
+      <li class="{{ s.state }}">
+        <span class="pt-dot">{% if s.state == 'done' %}✓{% else %}{{ forloop.counter }}{% endif %}</span>
+        <div><b>{{ s.title }}</b><p>{{ s.desc }}</p>{% if s.extra %}<span class="extra">{{ s.extra }}</span>{% endif %}{% if s.when %}<time>{{ s.when|date:"d.m.Y, H:i" }}</time>{% endif %}</div>
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  <aside class="pt-stack">
+    {% if can_create_code %}
+    <section class="pt-card">
+      <h2 class="sm">Kargo kodu</h2>
+      <p class="pt-aside-text">Cihazınızı kargo şirketine teslim edeceğiniz an kodunuzu oluşturun. Kod oluşturulunca servis ekibine «kargoya verildi» bildirimi gider.</p>
+      <form method="post" action="{% url 'core:customer_cargo_code' device.tracking_id %}">{% csrf_token %}
+        <button type="submit" class="pt-btn pt-btn-primary pt-btn-block">Kod oluştur</button>
+      </form>
+      <p class="pt-warn" role="note">Kargo şirketine verileceği zaman oluşturulmalıdır.</p>
+    </section>
+    {% endif %}
+
+    {% if device.cargo_code %}
+    <section class="pt-card">
+      <h2 class="sm">Kargo kodunuz</h2>
+      <p class="pt-code-big pt-mono" aria-label="Kargo kodu">{{ device.cargo_code }}</p>
+      {% if device.cargo_code_created_at %}<p class="pt-aside-text" style="margin:0 0 4px">Oluşturulma: {{ device.cargo_code_created_at|date:"d.m.Y, H:i" }}</p>{% endif %}
+      {% if can_dispute %}
+      <p class="pt-aside-text" style="margin-top:12px">Kodu yanlışlıkla oluşturduysanız ya da ürünü kargo şirketine teslim edemediyseniz aşağıdaki düğmeye tıklayın; servis ekibi haberdar edilir.</p>
+      <form method="post" action="{% url 'core:customer_cargo_handover_failed' device.tracking_id %}" onsubmit="return confirm('Kod oluşturuldu ancak ürün kargo şirketine teslim edilmedi. Servis ekibine bildirilsin mi?');">{% csrf_token %}
+        <button type="submit" class="pt-btn pt-btn-danger pt-btn-block">Kod oluştu, teslim sağlanmadı</button>
+      </form>
+      {% endif %}
+    </section>
+    {% endif %}
+
+    {% if can_report and device.status == 'in_transit' %}
+    <section class="pt-card">
+      <h2 class="sm">Kargo takip bilgisi</h2>
+      <p class="pt-aside-text">İsterseniz kargo şirketinden aldığınız takip numarasını da ekleyebilirsiniz.</p>
+      <form method="post" class="pt-inline" novalidate>{% csrf_token %}
+        <div class="pt-field {% if form.cargo_company.errors %}has-error{% endif %}" style="margin:0">
+          <label for="c-company">Kargo firması</label>
+          <select id="c-company" name="cargo_company" required>
+            <option value="">Seçin</option>
+            {% for value, label in form.cargo_company.field.choices %}<option value="{{ value }}" {% if form.cargo_company.value == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+          </select>
+          {% if form.cargo_company.errors %}<div class="pt-err">{{ form.cargo_company.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="pt-field {% if form.cargo_tracking_code.errors %}has-error{% endif %}" style="margin:0">
+          <label for="c-code">Kargo takip numarası</label>
+          <input type="text" id="c-code" name="cargo_tracking_code" maxlength="60" required value="{{ form.cargo_tracking_code.value|default_if_none:'' }}" autocomplete="off">
+          {% if form.cargo_tracking_code.errors %}<div class="pt-err">{{ form.cargo_tracking_code.errors.0 }}</div>{% endif %}
+        </div>
+        <button type="submit" class="pt-btn pt-btn-primary">Bilgiyi kaydet</button>
+      </form>
+    </section>
+    {% endif %}
+
+    {% if device.cargo_tracking_code %}
+    <section class="pt-card">
+      <h2 class="sm">Servise gönderim</h2>
+      <p class="pt-aside-text" style="margin-bottom:0">{{ device.cargo_company|default:"Kargo firması belirtilmedi" }}<br>Takip no: <b class="pt-mono">{{ device.cargo_tracking_code }}</b>{% if device.cargo_sent_at %}<br>Kargoya verilme: {{ device.cargo_sent_at|date:"d.m.Y, H:i" }}{% endif %}</p>
+    </section>
+    {% endif %}
+
+    {% if device.return_cargo_tracking_code %}
+    <section class="pt-card">
+      <h2 class="sm">Geri gönderim</h2>
+      <p class="pt-aside-text" style="margin-bottom:0">{{ device.return_cargo_company|default:"Kargo firması belirtilmedi" }}<br>Takip no: <b class="pt-mono">{{ device.return_cargo_tracking_code }}</b></p>
+    </section>
+    {% endif %}
+
+    {% if device.return_cargo_code or can_confirm_receipt %}
+    <section class="pt-card">
+      <h2 class="sm">Geri gönderim kodu</h2>
+      {% if device.return_cargo_code %}<p class="pt-code-big pt-mono" aria-label="Geri kargo kodu">{{ device.return_cargo_code }}</p>{% endif %}
+      {% if can_confirm_receipt %}
+      <p class="pt-aside-text">Ürününüz kargoya verildi. Teslim aldığınızda aşağıdaki düğmeye tıklayın; servis ekibine bildirim gider.</p>
+      <form method="post" action="{% url 'core:customer_receipt_confirm' device.tracking_id %}">{% csrf_token %}
+        <button type="submit" class="pt-btn pt-btn-primary pt-btn-block">Ürünü teslim aldım</button>
+      </form>
+      {% elif device.return_received_at %}
+      <p class="pt-aside-text" style="margin-bottom:0">Teslim alındı: {{ device.return_received_at|date:"d.m.Y, H:i" }}</p>
+      {% endif %}
+    </section>
+    {% endif %}
+
+    <section class="pt-card">
+      <h2 class="sm">Geri gönderim adresi</h2>
+      <p class="pt-addr" style="margin-top:8px">{{ device.return_recipient }}{% if device.return_phone %} · {{ device.return_phone }}{% endif %}
+{{ device.return_address }}
+{{ device.return_district }} / {{ device.return_city }}</p>
+    </section>
+
+    <a class="pt-btn" href="{% url 'core:customer_device_lookup' %}?kod={{ device.tracking_id|urlencode }}">Kayıt ayrıntılarını görüntüle</a>
+    {% include "core/_cancel_device_form.html" %}
+  </aside>
+</div>
+{% include "core/_help_box.html" %}
+{% endblock %}

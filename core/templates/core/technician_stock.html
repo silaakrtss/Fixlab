@@ -1,0 +1,108 @@
+{% extends "core/base_app.html" %}
+{% load static %}
+{% block title %}Stok Depo{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/technician.css' %}?v=5"><link rel="stylesheet" href="{% static 'core/css/newdevices.css' %}?v=4"><link rel="stylesheet" href="{% static 'core/css/cargo_queue.css' %}?v=1"><link rel="stylesheet" href="{% static 'core/css/tech_cargo.css' %}?v=1"><link rel="stylesheet" href="{% static 'core/css/tech_stock.css' %}?v=1">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="tech cq ts">
+  <div class="tech-head">
+    <div><h1>Stok Depo</h1><p>Depodaki parçaları görüntüleyin, ihtiyaçlarınız için talep oluşturun.</p></div>
+    {% if viewas %}{% include "core/_viewas_tools.html" %}{% else %}{% include "core/_notify_bell.html" %}{% endif %}
+  </div>
+  {% if messages %}<ul class="td-msgs">{% for m in messages %}<li class="td-msg td-msg-{{ m.level_tag }}" role="status">{{ m }}</li>{% endfor %}</ul>{% endif %}
+
+  <div class="cq-stats">
+    <div class="cq-stat"><span>Parça çeşidi</span><b>{{ part_total }}</b><small>Depoda kayıtlı toplam</small></div>
+    <div class="cq-stat"><span>Kritik stok</span><b>{{ critical_total }}</b><small>Minimum seviyenin altında</small></div>
+    <div class="cq-stat"><span>Bekleyen talebim</span><b>{{ pending_total }}</b><small>Yönetici değerlendirmesinde</small></div>
+  </div>
+
+  <div class="ts-grid">
+    <section class="ts-parts" aria-labelledby="ts-parts-title">
+      <div class="ts-head"><h2 id="ts-parts-title">Depodaki parçalar</h2><span>Salt okunur</span></div>
+      <form class="ts-filter" method="get" id="ts-filter" role="search">
+        <label class="sr-only" for="ts-q">Ara</label>
+        <span class="cq-search ts-search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input type="search" id="ts-q" name="q" value="{{ q }}" placeholder="Stok kodu veya parça adı ara…" maxlength="100" autocomplete="off">
+        </span>
+        <label class="ts-crit"><input type="checkbox" name="kritik" value="1" id="ts-crit" {% if critical_only %}checked{% endif %}><span>Sadece kritik olanlar</span></label>
+        <noscript><button class="nd-go" type="submit">Filtrele</button></noscript>
+      </form>
+      <div class="nd-card">
+        {% if parts %}
+        <div class="nd-scroll"><table class="nd-table ts-table">
+          <thead><tr><th>Stok kodu</th><th>Parça</th><th>Stok</th><th>Min. seviye</th><th>Durum</th></tr></thead>
+          <tbody>
+          {% for p in parts %}
+            <tr>
+              <td class="nd-code">{{ p.code }}</td>
+              <td class="ts-name">{{ p.name }}</td>
+              <td class="ts-qty{% if p.is_critical %} is-crit{% endif %}">{{ p.quantity }} adet</td>
+              <td class="ts-min">{{ p.critical_level }} adet</td>
+              <td>{% if p.is_critical %}<span class="ts-pill ts-pill-crit">Kritik</span>{% else %}<span class="ts-pill ts-pill-ok">Yeterli</span>{% endif %}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table></div>
+        {% elif filtered %}
+        <p class="nd-empty">Aramanıza uyan parça bulunamadı.</p>
+        {% else %}
+        <p class="nd-empty">Depoda kayıtlı parça yok.</p>
+        {% endif %}
+        <div class="cq-card-foot"><span>{% if filtered %}{{ parts|length }} / {{ part_total }} parça gösteriliyor{% else %}{{ part_total }} parçanın tümü gösteriliyor{% endif %}</span><span>Kritik: minimum seviyenin altında</span></div>
+      </div>
+    </section>
+
+    <aside class="nd-card cq-box ts-form" aria-labelledby="ts-form-title">
+      <h2 id="ts-form-title">Yeni parça talebi</h2>
+      <p class="cq-muted">Depoda olmayan veya tedarik edilmesini istediğiniz parçayı talep edin.</p>
+      {% if viewas %}
+      <p class="cq-muted ts-lock">Görüntüleme modu: talep oluşturulamaz.</p>
+      {% else %}
+      <form method="post" novalidate>{% csrf_token %}
+        <div class="td-field"><label for="{{ form.part_name.id_for_label }}">Parça adı *</label>{{ form.part_name }}
+          {% for e in form.part_name.errors %}<p class="ts-err">{{ e }}</p>{% endfor %}</div>
+        <div class="td-field"><label for="{{ form.quantity.id_for_label }}">Talep edilen miktar (adet) *</label>{{ form.quantity }}
+          <p class="ts-hint">En az 1 adet, pozitif tam sayı girin.</p>
+          {% for e in form.quantity.errors %}<p class="ts-err">{{ e }}</p>{% endfor %}</div>
+        <div class="td-field"><label for="{{ form.note.id_for_label }}">Not (isteğe bağlı)</label>{{ form.note }}
+          {% for e in form.note.errors %}<p class="ts-err">{{ e }}</p>{% endfor %}</div>
+        <button type="submit" class="tc-btn ts-send"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4 20-7z"/><path d="M22 2 11 13"/></svg>Talep Gönder</button>
+        <p class="ts-info"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>Talebiniz yöneticiye iletilir. Bu işlem depoya stok girişi yapmaz.</p>
+      </form>
+      {% endif %}
+    </aside>
+  </div>
+
+  <section class="ts-reqs" aria-labelledby="ts-req-title">
+    <div class="ts-head"><h2 id="ts-req-title">Taleplerim <span class="tc-count ts-badge">{{ request_total }}</span></h2><span>{{ person.display_name }} adına oluşturulan talepler</span></div>
+    <div class="nd-card">
+      {% if requests %}
+      <div class="nd-scroll"><table class="nd-table ts-table">
+        <thead><tr><th>Talep no</th><th>Talep eden</th><th>Parça</th><th>Miktar</th><th>Not</th><th>Durum</th></tr></thead>
+        <tbody>
+        {% for r in requests %}
+          <tr>
+            <td class="nd-code">{{ r.code }}</td>
+            <td>{{ person.display_name }}</td>
+            <td class="ts-name">{{ r.part_name }}</td>
+            <td><b>{{ r.quantity }} adet</b></td>
+            <td class="ts-note">{{ r.note|default:"—" }}</td>
+            <td><span class="ts-pill ts-pill-{{ r.status }}">{{ r.get_status_display }}</span></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table></div>
+      {% else %}
+      <p class="nd-empty">Henüz parça talebi oluşturulmadı.</p>
+      {% endif %}
+    </div>
+    <p class="cq-muted ts-foot">{% if request_total > request_limit %}En yeni {{ request_limit }} talep gösteriliyor (toplam {{ request_total }}). {% endif %}Talepler yönetici tarafından değerlendirilir; güncel durumlarını bu alandan takip edebilirsiniz.</p>
+  </section>
+  {% if viewas %}{% include "core/_viewas_note.html" %}{% endif %}
+</div>
+<script>
+(function(){var f=document.getElementById('ts-filter'),c=document.getElementById('ts-crit');if(f&&c)c.addEventListener('change',function(){f.submit();});})();
+</script>
+{% endblock %}

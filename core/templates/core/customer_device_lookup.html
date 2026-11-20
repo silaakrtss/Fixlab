@@ -1,0 +1,207 @@
+{% extends "core/base_customer_app.html" %}
+{% load static %}
+{% block title %}Cihaz Durumu Sorgula{% endblock %}
+{% block crumb %}Cihaz Durumu Sorgula{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'core/css/customer_lookup.css' %}?v=3">
+<h1 class="pt-h1">Cihaz Durumu Sorgula</h1>
+<p class="pt-lead">Servis kodunuzla hesabınıza ait kayıt detaylarını görüntüleyebilirsiniz.</p>
+
+<div class="pt-lookup">
+  <section class="pt-card">
+    <h2>Servis kaydınızı bulun</h2>
+    <form method="get" action="{% url 'core:customer_device_lookup' %}" style="margin-top:18px">
+      <div class="pt-field">
+        <label for="f-kod">Cihaz takip kodu</label>
+        <input type="text" id="f-kod" name="kod" value="{{ code }}" placeholder="Örn. TS-2025-1024" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="30" required>
+        <div class="pt-hint">Kodunuzu servis kaydı bilgilendirmesinde bulabilirsiniz.</div>
+      </div>
+      <button type="submit" class="pt-btn pt-btn-primary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>Sorgula</button>
+    </form>
+  </section>
+  <aside class="pt-stack" style="gap:20px">
+    <div class="pt-info"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg><span>Yalnızca kendi müşteri hesabınıza ait servis kayıtlarını görüntüleyebilirsiniz.</span></div>
+    <section class="pt-card pt-code-help">
+      <h2 class="sm">Takip kodu nedir?</h2>
+      <p class="pt-aside-text" style="margin-bottom:0">Her servis kaydına özel oluşturulan koddur. Kayıt bilgilendirmenizde ve Ana Sayfa'daki mevcut servis kaydınızda yer alır.</p>
+      <span class="pt-mono">Örnek biçim: TS-2025-1024</span>
+    </section>
+  </aside>
+</div>
+
+{% if searched and not device %}
+<div class="pt-card pt-result" role="alert">
+  <div class="pt-alert pt-alert-bad" style="margin:0">«{{ code }}» takip koduyla hesabınıza ait bir servis kaydı bulunamadı. Kodu kontrol edip tekrar deneyin.</div>
+</div>
+{% endif %}
+
+{% if device %}
+<div class="cl" id="kayit">
+  <div class="cl-title">
+    <h2>{{ device.tracking_id }} kayıt detayları</h2>
+    <p>{{ device.title }} cihazınızın güncel durumu, işlem geçmişi, teknik değerlendirme ve ödeme bilgileri tek sayfada toplanmıştır.</p>
+  </div>
+
+  {# --- Özet --- #}
+  <section class="pt-card cl-hero" aria-label="Servis kaydı {{ device.tracking_id }}">
+    <div class="cl-hero-main">
+      <small class="cl-label">Servis kaydınız</small>
+      <div class="cl-code-row">
+        <b class="cl-code" id="cl-code">{{ device.tracking_id }}</b>
+        <button type="button" class="cl-copy" id="cl-copy" data-code="{{ device.tracking_id }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Kopyala</span></button>
+      </div>
+      <div class="cl-state"><span class="cl-pill cl-pill-{{ device.tone }}"><i aria-hidden="true"></i>{{ device.get_status_display }}</span><span class="cl-state-note">{{ device.note }}</span></div>
+      <dl class="cl-dates">
+        <div><dt>Kayıt tarihi</dt><dd>{{ device.received_at|date:"d.m.Y, H:i" }}</dd></div>
+        <div><dt>Tahmini teslim</dt><dd>{% if device.estimated_delivery %}{{ device.estimated_delivery|date:"d.m.Y" }}{% else %}Belirlenmedi{% endif %}</dd></div>
+      </dl>
+    </div>
+    <div class="cl-price">
+      <small>{% if exact_cost %}Onarım tutarı{% else %}Tahmini ücret{% endif %}</small>
+      <b>{% if exact_cost %}{{ exact_cost|floatformat:"0g" }} ₺{% elif device.estimated_cost %}{{ device.estimated_cost|floatformat:"0g" }} ₺{% else %}—{% endif %}</b>
+      {% if can_pay %}<a class="cl-paybtn" href="{% url 'core:customer_payment' device.tracking_id %}">Ödeme yap</a>{% endif %}
+      <p>{% if device.is_paid %}Ödemeniz alındı. Teşekkür ederiz.{% elif exact_cost %}Onarım tutarı belirlendi; ödeme alındığında cihazınız gönderilir.{% else %}İnceleme tamamlanınca kesin tutarı size bildireceğiz. Onayınız olmadan işlem yapılmaz.{% endif %}</p>
+    </div>
+    <div class="cl-sum">
+      <div class="cl-sum-card"><small>Kargo durumu</small><b>{{ summary_cargo.0 }}</b><p>{{ summary_cargo.1 }}</p></div>
+      <div class="cl-sum-card"><small>Teknik değerlendirme</small><b>{{ summary_tech.0 }}</b><p>{{ summary_tech.1|truncatechars:140 }}</p></div>
+      <div class="cl-sum-card"><small>Ödeme durumu</small><b>{{ summary_payment.0 }}</b><p>{{ summary_payment.1 }}</p></div>
+    </div>
+  </section>
+
+  {% if timeline.failed %}<div class="pt-alert pt-alert-bad cl-alert">{{ device.note }}</div>{% endif %}
+
+  {# --- Servis süreci --- #}
+  <section class="pt-card cl-steps-card" aria-labelledby="cl-steps-title">
+    <h3 id="cl-steps-title">Servis süreci</h3>
+    <ol class="cl-steps">
+      {% for s in timeline.stages %}
+      <li class="cl-step is-{{ s.state }}">
+        <span class="cl-step-dot" aria-hidden="true">{% if s.state == 'done' %}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>{% elif s.state == 'stopped' %}<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>{% else %}{{ forloop.counter }}{% endif %}</span>
+        <b>{{ s.title }}</b>
+        <small>{% if s.when %}{{ s.when|date:"d.m.Y, H:i" }}{% elif s.state == 'todo' %}Henüz gerçekleşmedi{% endif %}</small>
+        <span class="sr-only">{% if s.state == 'done' %}tamamlandı{% elif s.state == 'current' %}şu anki aşama{% elif s.state == 'stopped' %}durduruldu{% else %}bekliyor{% endif %}</span>
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  <div class="cl-grid">
+    <div class="cl-col">
+      {# --- İşlem geçmişi --- #}
+      <section class="pt-card" aria-labelledby="cl-hist-title">
+        <h3 id="cl-hist-title">İşlem geçmişi</h3>
+        <p class="cl-lead">Bu sayfa yalnızca sizinle paylaşılan servis koduna ait bilgileri gösterir. Onayınız olmadan ödeme veya kargo işlemleri başlatılmaz.</p>
+        <ul class="cl-hist">
+          {% for e in public_events %}
+          <li><div class="cl-hist-when"><time>{{ e.when|date:"d.m.Y, H:i" }}</time><b>{{ e.title }}</b></div><p>{{ e.text }}</p></li>
+          {% endfor %}
+          {% if next_stage %}<li class="is-todo"><div class="cl-hist-when"><time>Henüz gerçekleşmedi</time><b>{{ next_stage.title }}</b></div><p>{{ next_stage.desc }}</p></li>{% endif %}
+        </ul>
+      </section>
+
+      {# --- Cihaz bilgileri --- #}
+      <section class="pt-card" aria-labelledby="cl-dev-title">
+        <h3 id="cl-dev-title">Cihaz bilgileri</h3>
+        <div class="cl-device">
+          <div class="cl-art">{% include "core/_device_art.html" %}</div>
+          <dl class="cl-dev-fields">
+            <div><dt>Cihaz türü</dt><dd>{{ device.get_device_type_display }}</dd></div>
+            <div><dt>Marka</dt><dd>{{ device.brand }}</dd></div>
+            <div><dt>Model</dt><dd>{{ device.model }}</dd></div>
+            <div><dt>Seri no</dt><dd>{{ device.serial_number|default:"—" }}</dd></div>
+          </dl>
+        </div>
+        <div class="cl-issue"><small>Bildirdiğiniz arıza</small>
+          <p>{{ device.issue_title|default:device.issue_description }}</p>
+          {% if device.issue_title and device.issue_description %}<span>{{ device.issue_description|truncatechars:240 }}</span>{% endif %}</div>
+        {% if attachments %}
+        <div class="cl-files"><small>Ekler · {{ attachments|length }} dosya</small>
+          <ul>{% for a in attachments %}<li><a href="{% url 'core:attachment' a.pk %}" target="_blank" rel="noopener">{{ a.original_name }}</a> · {{ a.get_kind_display }} · {{ a.size_label }}</li>{% endfor %}</ul></div>
+        {% endif %}
+      </section>
+
+      {# --- Teknik değerlendirme (teknisyenin müşteriyle paylaştığı not) --- #}
+      {% if last_note %}
+      <section class="cl-tech" aria-labelledby="cl-tech-title">
+        <h3 id="cl-tech-title">Teknik değerlendirme</h3>
+        <small>Teknisyenimizin sizinle paylaştığı son not · {{ last_note.created_at|date:"d.m.Y, H:i" }}</small>
+        <p>{{ last_note.text }}</p>
+      </section>
+      {% endif %}
+    </div>
+
+    <div class="cl-col">
+      {# --- Değişen parçalar / işlemler --- #}
+      <section class="pt-card" aria-labelledby="cl-parts-title">
+        <h3 id="cl-parts-title">Değişen parçalar / işlemler</h3>
+        {% if part_usages %}
+        <ul class="cl-rows">{% for u in part_usages %}<li><span class="cl-tag cl-tag-ok">Değiştirildi</span>{{ u.part.name }}{% if u.quantity > 1 %} ({{ u.quantity }} adet){% endif %}</li>{% endfor %}</ul>
+        {% else %}
+        <ul class="cl-rows"><li><span class="cl-tag">Beklemede</span>Henüz parça değişimi kaydedilmedi</li></ul>
+        {% endif %}
+      </section>
+
+      {# --- Ücret ve ödeme --- #}
+      <section class="pt-card" aria-labelledby="cl-pay-title">
+        <h3 id="cl-pay-title">Ücret ve ödeme</h3>
+        <ul class="cl-rows">
+          <li>{% if device.estimated_cost %}<span class="cl-tag cl-tag-ok">Tahmini</span>{{ device.estimated_cost|floatformat:"0g" }} ₺{% else %}<span class="cl-tag">Beklemede</span>Tahmini ücret{% endif %}</li>
+          <li>{% if exact_cost %}<span class="cl-tag cl-tag-ok">Belirlendi</span>Kesin tutar: {{ exact_cost|floatformat:"0g" }} ₺{% else %}<span class="cl-tag">Beklemede</span>Kesin tutar{% endif %}</li>
+          <li>{% if approval_pending %}<span class="cl-tag cl-tag-warn">Bekleniyor</span>Onay talebi · servisle iletişime geçin{% elif exact_cost or device.is_paid %}<span class="cl-tag cl-tag-ok">Tamamlandı</span>Onay talebi{% else %}<span class="cl-tag">Beklemede</span>Onay talebi{% endif %}</li>
+          <li>{% if device.is_paid %}<span class="cl-tag cl-tag-ok">Ödendi</span>Ödeme{% else %}<span class="cl-tag">Beklemede</span>Ödeme{% endif %}</li>
+        </ul>
+        {% if cost_lines %}
+        <div class="cl-costs">
+          <small>Ücret ayrıntıları</small>
+          <ul>{% for l in cost_lines %}<li><span>{{ l.label }}{% if l.detail %} <em>({{ l.detail }})</em>{% endif %}</span><b>{{ l.amount|floatformat:"2g" }} ₺</b></li>{% endfor %}</ul>
+          <div class="cl-costs-total"><span>Toplam (KDV dahil)</span><b>{{ exact_cost|floatformat:"2g" }} ₺</b></div>
+        </div>
+        {% endif %}
+        {% if can_pay %}<a class="pt-btn pt-btn-primary cl-costs-pay" href="{% url 'core:customer_payment' device.tracking_id %}">Ödeme yap</a>{% endif %}
+      </section>
+
+      {# --- Teslim ve kargo --- #}
+      <section class="pt-card" aria-labelledby="cl-ship-title">
+        <h3 id="cl-ship-title">Teslim ve kargo</h3>
+        <ul class="cl-rows">
+          <li>{% if arrived_at %}<span class="cl-tag cl-tag-ok">Servise ulaştı</span>{{ arrived_at|date:"d.m.Y, H:i" }}{% else %}<span class="cl-tag">Beklemede</span>Servise ulaşma{% endif %}</li>
+          {% if device.is_cargo %}
+          <li>{% if device.return_cargo_company %}<span class="cl-tag cl-tag-ok">Kargo firması</span>{{ device.return_cargo_company }}{% else %}<span class="cl-tag">Beklemede</span>Kargo firması{% endif %}</li>
+          <li>{% if device.return_cargo_tracking_code %}<span class="cl-tag cl-tag-ok">Takip numarası</span>{{ device.return_cargo_tracking_code }}{% else %}<span class="cl-tag">Beklemede</span>Takip numarası{% endif %}</li>
+          {% endif %}
+          <li>{% if delivered_at %}<span class="cl-tag cl-tag-ok">Teslim edildi</span>{{ delivered_at|date:"d.m.Y, H:i" }}{% else %}<span class="cl-tag">Beklemede</span>Teslim tarihi{% endif %}</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+
+  <div class="pt-rowbtns cl-actions">
+    {% if can_pay %}<a class="pt-btn pt-btn-primary" href="{% url 'core:customer_payment' device.tracking_id %}">Ödeme yap</a>{% endif %}
+    {% if device.is_cargo and device.awaiting_arrival or device.status == 'return_shipping' %}<a class="pt-btn pt-btn-primary" href="{% url 'core:customer_cargo' device.tracking_id %}">Kargo sürecini görüntüle</a>{% endif %}
+    {% include "core/_cancel_device_form.html" %}
+  </div>
+</div>
+{% endif %}
+
+<div class="cl-foot">
+  <div><b>Güvenli sorgulama</b><p>Servis kodunuz yalnızca size ait bilgilere erişmenizi sağlar.</p></div>
+  <div><b>Bilgilendirme</b><p>Servis sürecinizde önemli gelişmelerde e-posta ile bilgilendirme yapılır.</p></div>
+  <div><b>Destek</b><p>Sorularınız için {% if SUPPORT_PHONE_TEL %}<a href="tel:{{ SUPPORT_PHONE_TEL }}">{{ SUPPORT_PHONE }}</a>{% else %}{{ SUPPORT_PHONE }}{% endif %} numaralı hattımızdan bize ulaşabilirsiniz.</p></div>
+  <div><b>Servis sözleşmesi</b><p>Servis koşullarını incelemek için <a href="{% url 'core:customer_terms' %}">buraya tıklayabilirsiniz</a>.</p></div>
+</div>
+{% if device %}<a class="pt-btn cl-back" href="{% url 'core:customer_device_lookup' %}">Sorgulama ekranına dön</a>{% endif %}
+
+<script>
+(function(){
+  var b=document.getElementById('cl-copy');if(!b)return;
+  b.addEventListener('click',function(){
+    var code=b.dataset.code,label=b.querySelector('span');
+    function done(){label.textContent='Kopyalandı';setTimeout(function(){label.textContent='Kopyala';},1600);}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(code).then(done,function(){});}
+    else{var t=document.createElement('textarea');t.value=code;document.body.appendChild(t);t.select();try{document.execCommand('copy');done();}catch(e){}t.remove();}
+  });
+  {% if device %}if(location.search.indexOf('kod=')>-1){var k=document.getElementById('kayit');if(k&&k.scrollIntoView)k.scrollIntoView({block:'start'});}{% endif %}
+})();
+</script>
+{% endblock %}

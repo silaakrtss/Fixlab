@@ -1,0 +1,60 @@
+/* FIXLAB · Personel olarak görüntüle (yönetici, salt-okunur) — yalnızca .va-* sınıfları ve body.is-viewas */
+.va-bar{position:sticky;top:0;z-index:70;display:flex;align-items:center;gap:14px;min-height:64px;padding:10px 24px;background:#0b7a75;color:#fff;font-family:var(--font);box-sizing:border-box}
+.va-eye{flex:none}
+.va-bar-txt{flex:1;min-width:0}
+.va-bar-txt b{display:block;font:700 16px/22px var(--font)}
+.va-bar-txt span{display:block;font-size:12px;line-height:17px;opacity:.85}
+.va-back{flex:none;display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 16px;border-radius:9px;background:#fff;color:#0b7a75;font:600 13px/1 var(--font);text-decoration:none;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.va-back:hover{background:#eef7f6}
+.va-back:focus-visible{outline:3px solid #fff;outline-offset:2px}
+
+/* Bant sabit kaldığı için sol menü bandın altından başlar */
+body.is-viewas .sidebar{top:64px;height:calc(100vh - 64px)}
+
+/* Sol alt: görüntülenen teknisyen kartı (menü açılmaz) */
+.va-card{padding:12px 16px;border:1px solid #dfe4e9;border-radius:14px;background:#f9fbfb}
+.va-card b{display:block;font:700 14px/1.3 var(--font);color:#15222d}
+.va-role{display:block;font:600 12px/1.4 var(--font);color:#0b7a75}
+.va-card small{display:block;margin-top:2px;font-size:11px;color:#667581}
+
+/* Bilgi kutusu */
+.va-note{display:flex;gap:12px;margin-top:20px;padding:16px 18px;border:1px solid #cfe5e1;border-radius:12px;background:#e6f2f1;color:#334155}
+.va-note svg{flex:none;color:#0b7a75;margin-top:1px}
+.va-note b{display:block;margin-bottom:4px;font:600 14px/20px var(--font);color:#0b7a75}
+.va-note p{margin:0;font-size:13px;line-height:20px}
+
+/* Cihaz detayı: işlem kilidi */
+.va-lock{display:flex;align-items:flex-start;gap:8px;margin:0 0 12px;padding:10px 12px;border-radius:8px;background:#f2f5f7;color:#475569;font-size:13px;line-height:19px}
+.va-lock svg{flex:none;margin-top:2px;color:#667581}
+
+/* Sağ üst zil bağlantısı */
+.nt a.nt-btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:inherit}
+
+/* Bildirim listesi (salt-okunur) */
+.va-list{max-width:none;background:#fff;border:1px solid #e2e8ec;border-radius:14px;overflow:hidden}
+.va-item{flex:1;min-width:0;padding:14px 18px}
+.va-item b{display:block;font-size:14px}
+.va-item span{display:block;color:#5b6b78;font-size:13px}
+.va-item time{display:block;color:#8794a0;font-size:12px;margin-top:4px}
+.va-unread{display:inline-flex;font:600 12px/1 var(--font);color:#0b7a75;white-space:nowrap}
+
+/* Koyu tema */
+html[data-theme="dark"] .va-bar{background:#0a5f5b}
+html[data-theme="dark"] .va-back{background:#16222a;color:#5fc9bf}
+html[data-theme="dark"] .va-card{background:#121d24;border-color:#2b3b45}
+html[data-theme="dark"] .va-card b{color:#e6edf2}
+html[data-theme="dark"] .va-role{color:#5fc9bf}
+html[data-theme="dark"] .va-card small{color:#8597a3}
+html[data-theme="dark"] .va-note{background:#173b39;border-color:#1f5546;color:#c9d5dd}
+html[data-theme="dark"] .va-note b,html[data-theme="dark"] .va-note svg{color:#5fc9bf}
+html[data-theme="dark"] .va-lock{background:#121d24;color:#b7c5ce}
+html[data-theme="dark"] .va-list{background:#16222a;border-color:#2b3b45}
+html[data-theme="dark"] .va-item b{color:#e6edf2}
+html[data-theme="dark"] .va-item span{color:#9fb0bb}
+html[data-theme="dark"] .va-unread{color:#5fc9bf}
+
+@media(max-width:860px){
+  .va-bar{position:static;flex-wrap:wrap;padding:12px 16px}
+  .va-back{width:100%;justify-content:center}
+  body.is-viewas .sidebar{top:0;height:auto}
+}

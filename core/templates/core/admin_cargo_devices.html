@@ -1,0 +1,111 @@
+{% extends "core/base_app.html" %}
+{% load static %}
+{% block title %}Kargolanacak ürünler{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/newdevices.css' %}?v=4"><link rel="stylesheet" href="{% static 'core/css/admin_devices.css' %}?v=1"><link rel="stylesheet" href="{% static 'core/css/cargo_queue.css' %}?v=1">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="ad nd cq">
+  <div class="cq-top">
+    <div class="ad-head cq-head"><div><h1>Kargolanacak ürünler</h1><p>Onarımı tamamlanan ve ödemesi alınan cihazların kargo takibi</p></div></div>
+    {% include "core/_notify_bell.html" %}
+  </div>
+
+  {% if notice %}
+  <div class="cq-notice" role="status">
+    <span class="cq-pill cq-pill-ok">Ödeme alındı</span>
+    <div class="cq-notice-txt">
+      <strong>{{ notice.device.tracking_id }} · {{ notice.device.title }} için {% if notice.amount %}{{ notice.amount }} {% endif %}ödeme alındı</strong>
+      <p>Bildirim yöneticiye{% if notice.tech_notified %} ve sorumlu teknisyene ({{ notice.device.technician.display_name }}){% endif %} iletildi. · {{ notice.ago|capfirst }}</p>
+    </div>
+    {% if notice.tech_notified %}
+    <span class="cq-notice-ok"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12.5 6.5 17 15 8.5"/><path d="m12 15 2 2 8-8.5"/></svg>Teknisyene iletildi</span>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="cq-stats">
+    <div class="cq-stat"><span>Kargolanacak</span><b>{{ paid_total }}</b><small>Ödemesi alınmış, gönderim bekleyen cihaz</small></div>
+    <div class="cq-stat"><span>Sorumlu teknisyen</span><b>{{ responsible_count }}</b><small>Gönderimi ilgili teknisyen gerçekleştirir</small></div>
+    <div class="cq-stat"><span>Ödeme bekleyen</span><b>{{ unpaid_devices|length }}</b><small>Ödeme alınana kadar kargolanamaz</small></div>
+  </div>
+
+  <section class="nd-card cq-card" aria-labelledby="cq-list-title">
+    <div class="cq-card-head">
+      <h2 id="cq-list-title">Kargolanacak ürünler <span class="cq-count">{{ paid_total }} ürün</span></h2>
+      <form class="cq-filter" method="get" id="cq-filter" role="search">
+        <label class="sr-only" for="cq-q">Ara</label>
+        <span class="cq-search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input type="search" id="cq-q" name="q" value="{{ q }}" placeholder="Takip kodu, müşteri veya cihaz ara…" maxlength="100" autocomplete="off">
+        </span>
+        <label class="sr-only" for="cq-tech">Teknisyen</label>
+        <select id="cq-tech" name="tech">
+          <option value="">Tüm teknisyenler</option>
+          {% for t in technicians %}<option value="{{ t.pk }}" {% if tech == t.pk|stringformat:"d" %}selected{% endif %}>{{ t.display_name }}</option>{% endfor %}
+          <option value="none" {% if tech == 'none' %}selected{% endif %}>Atanmamış</option>
+        </select>
+        <noscript><button class="nd-go" type="submit">Filtrele</button></noscript>
+      </form>
+    </div>
+
+    {% if devices %}
+    <div class="nd-scroll"><table class="nd-table cq-table">
+      <thead><tr><th>Cihaz / Takip kodu</th><th>Müşteri</th><th>Sorumlu teknisyen</th><th>Ödeme</th><th>Teslimat özeti</th><th class="cq-op">İşlem</th></tr></thead>
+      <tbody>
+      {% for d in devices %}
+        <tr>
+          <td><b class="cq-main">{{ d.title }}</b><small class="cq-sub">{{ d.tracking_id }}</small></td>
+          <td>{{ d.customer_name }}</td>
+          <td>{% if d.technician %}<span class="cq-main cq-norm">{{ d.technician.display_name }}</span><small class="cq-sub">Gönderim sorumlusu</small>{% else %}<span class="ad-muted">Atanmamış</span>{% endif %}</td>
+          <td><span class="cq-pill cq-pill-ok">Ödeme alındı</span><small class="cq-sub">{{ d.amount_label|default:"Tutar belirtilmedi" }}</small></td>
+          <td><span class="cq-main cq-norm">{{ d.place_label|default:"Adres belirtilmedi" }}</span><small class="cq-sub">{{ d.shipping_label }}</small></td>
+          <td class="cq-op"><a class="cq-detail" href="{% url 'core:admin_device_detail' d.pk %}">Detay<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {% elif filtered %}
+    <p class="nd-empty">Aramanıza uyan kargolanacak ürün bulunamadı.</p>
+    {% else %}
+    <p class="nd-empty">Şu anda kargolanacak ürün yok. Ödemesi alınan, onarımı tamamlanmış kargolu cihazlar burada listelenir.</p>
+    {% endif %}
+    <div class="cq-card-foot"><span>Toplam {{ devices|length }} kayıt · Onarım tamamlandı</span><span>Gönderim, sorumlu teknisyen tarafından yapılacak</span></div>
+  </section>
+
+  <div class="cq-bottom">
+    <section class="nd-card cq-box" aria-labelledby="cq-unpaid-title">
+      <div class="cq-box-head"><h2 id="cq-unpaid-title">Ödeme bekleyen cihazlar</h2><span class="cq-pill cq-pill-wait">{{ unpaid_devices|length }} cihaz</span></div>
+      {% for d in unpaid_devices %}
+      <div class="cq-unpaid">
+        <div class="cq-unpaid-txt">
+          <b>{{ d.title }}</b>
+          <small>{{ d.tracking_id }} · {{ d.customer_name }}</small>
+          <small>{% if d.technician %}{{ d.technician.display_name }} · {% endif %}Onarım tamamlandı{% if d.amount_label %} · {{ d.amount_label }}{% endif %}</small>
+        </div>
+        <div class="cq-unpaid-state">
+          <span class="cq-pill cq-pill-wait">Ödeme bekleniyor</span>
+          <small><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Kargolanamaz</small>
+        </div>
+        <a class="cq-detail" href="{% url 'core:admin_device_detail' d.pk %}">Detay<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></a>
+      </div>
+      {% empty %}
+      <p class="cq-muted">Ödeme bekleyen cihaz yok.</p>
+      {% endfor %}
+      <p class="cq-muted cq-note">Ödeme alındığında kargo kuyruğuna geçer; yönetici ve sorumlu teknisyene bildirim iletilir.</p>
+    </section>
+
+    <section class="nd-card cq-box" aria-labelledby="cq-track-title">
+      <div class="cq-box-head"><h2 id="cq-track-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 4h13v12H1z"/><path d="M14 9h4l3 3v4h-7z"/><circle cx="5.5" cy="18" r="2"/><circle cx="17.5" cy="18" r="2"/></svg>Gönderim takibi</h2></div>
+      <p class="cq-muted">Cihazı sorumlu teknisyen kargoya verir ve kargo bilgilerini girer. Yönetici bu sayfadan takip eder.</p>
+      <p class="cq-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+        {% if not paid_total %}Kuyrukta gönderilecek cihaz yok.{% elif shipping_entered == paid_total %}Tüm cihazların kargo bilgileri girildi.{% elif shipping_entered %}{{ shipping_entered }} / {{ paid_total }} cihazın kargo bilgisi girildi.{% else %}Firma ve takip numarası henüz belirtilmedi.{% endif %}</p>
+    </section>
+  </div>
+</div>
+<script>
+(function(){
+  var f=document.getElementById('cq-filter');if(!f)return;
+  document.getElementById('cq-tech').addEventListener('change',function(){f.submit();});
+})();
+</script>
+{% endblock %}

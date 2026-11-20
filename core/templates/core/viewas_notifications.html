@@ -1,0 +1,24 @@
+{% extends "core/base_app.html" %}
+{% load static %}
+{% block title %}{{ viewas.display_name }} · Bildirimler{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/technician.css' %}?v=4">{% endblock %}
+{% block bell %}{% endblock %}
+{% block content %}
+<div class="tech">
+  <div class="tech-head">
+    <div><h1>Bildirimlerim</h1><p>{{ viewas.display_name }} adlı teknisyenin son {{ panel_limit }} bildirimi</p></div>
+    {% include "core/_viewas_tools.html" %}
+  </div>
+  <div class="nt-page va-list">
+    {% if items %}
+    <ul>{% for n in items %}
+      <li class="nt-row {% if n.is_read %}is-read{% else %}unread{% endif %}">
+        <div class="va-item"><b>{{ n.title }}</b>{% if n.body %}<span>{{ n.body }}</span>{% endif %}<time>{{ n.created_at|date:"d.m.Y H:i" }}</time></div>
+        <div class="nt-row-act">{% if n.is_read %}<span class="nt-read-done">Okundu</span>{% else %}<span class="va-unread">Okunmadı</span>{% endif %}</div>
+      </li>
+    {% endfor %}</ul>
+    {% else %}<div class="nt-empty" style="padding:40px">Bu teknisyenin bildirimi yok.</div>{% endif %}
+  </div>
+  {% include "core/_viewas_note.html" %}
+</div>
+{% endblock %}
