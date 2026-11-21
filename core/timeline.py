@@ -105,7 +105,7 @@ def status_note(device):
         S.IN_TRANSIT: "Cihaz kargoda ve servise ulaştığında inceleme başlayacak. Kargo adımlarını aşağıdaki ekrandan takip edebilirsiniz.",
         S.RECEIVED: "Cihazınız servise ulaştı ve teslim alındı. Teknik inceleme kısa süre içinde başlayacak.",
         S.DIAGNOSING: f"Teknisyenimiz cihazınızı kontrol ediyor. Bu kayıt {when:%d.%m.%Y} tarihinde oluşturulmuştur.",
-        S.WAITING_APPROVAL: "Onarım için onayınız bekleniyor. Lütfen servisle iletişime geçin.",
+        S.WAITING_APPROVAL: "Onarım için onayınız bekleniyor. Kayıt detayındaki onay talebini yanıtlayın.",
         S.WAITING_PART: "Onarım için gereken parça bekleniyor.",
         S.REPAIRING: "Cihazınız onarım aşamasında.",
         S.TESTING: "Onarım tamamlandı, cihazınız son testlerden geçiyor.",

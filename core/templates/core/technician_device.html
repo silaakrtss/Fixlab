@@ -1,7 +1,7 @@
 {% extends "core/base_app.html" %}
 {% load static %}
 {% block title %}{{ device.tracking_id }}{% endblock %}
-{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/technician.css' %}?v=4"><link rel="stylesheet" href="{% static 'core/css/tech_device.css' %}?v=4">{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/technician.css' %}?v=4"><link rel="stylesheet" href="{% static 'core/css/tech_device.css' %}?v=5">{% endblock %}
 {% block bell %}{% endblock %}
 {% block content %}
 <div class="tech tdx">
@@ -34,6 +34,25 @@
         <h2>Durumu güncelle</h2>
         {% if viewas %}<p class="va-lock"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Görüntüleme modu: teknisyenin bu aşamadaki durumu aşağıda gösterilir; işlem yapılamaz.</p>{% endif %}
 
+        {% if approval %}
+        {# --- Müşteri onayı: bekleyen talep ya da müşterinin kararı --- #}
+        <div class="tdx-appr tdx-appr-{{ approval.status }}" role="status">
+          {% if approval.status == 'pending' %}
+          <b>Müşteri onayı bekleniyor</b>
+          <p>{{ approval.requested_at|date:"d.m.Y, H:i" }} tarihinde istendi. Müşteri onaylayınca ya da reddedince size bildirim gelir; o zamana kadar onarıma başlamayın.</p>
+          {% elif approval.status == 'approved' %}
+          <b>Müşteri onarımı onayladı</b>
+          <p>{{ approval.decided_at|date:"d.m.Y, H:i" }} · {{ approval.decided_via }}{% if approval.customer_note %}<br>Müşterinin notu: “{{ approval.customer_note }}”{% endif %}</p>
+          <p class="tdx-appr-next">Onarıma devam edin: <b>Tamirde</b> aşamasını, parça gerekiyorsa <b>Parça bekliyor</b> aşamasını seçip kaydedin.</p>
+          {% elif approval.status == 'rejected' %}
+          <b>Müşteri onarımı onaylamadı</b>
+          <p>{{ approval.decided_at|date:"d.m.Y, H:i" }} · {{ approval.decided_via }}{% if approval.customer_note %}<br>Müşterinin notu: “{{ approval.customer_note }}”{% endif %}</p>
+          <p class="tdx-appr-next">Onarım yapmayın. Cihazı <b>Onarılamaz</b> olarak kapatın ya da yeni bir teklif için aşağıdan <b>müşteriden yeniden onay isteyin</b>.</p>
+          {% endif %}
+          <details><summary>Müşteriye iletilen açıklama</summary><p>{{ approval.message }}</p></details>
+        </div>
+        {% endif %}
+
         {% if awaiting_customer_code %}<p class="td-note">Müşterinin kargo kodunu oluşturması bekleniyor. Kod oluşturulunca size bildirim gelir.</p>{% endif %}
 
         {% if can_receive %}
@@ -53,7 +72,7 @@
         {% if returning %}<p class="td-note">Ürün müşteriye geri kargoya verildi{% if device.return_cargo_code %} (kod: <b class="td-code">{{ device.return_cargo_code }}</b>){% endif %}. Müşterinin «Ürünü teslim aldım» onayı bekleniyor; onaylandığında size bildirim gelir.</p>{% endif %}
 
         {% if can_note %}
-        <form method="post" action="{% if viewas %}#{% else %}{% url 'core:technician_device_action' device.tracking_id %}{% endif %}" id="tdx-update">{% if not viewas %}{% csrf_token %}{% endif %}
+        <form method="post" action="{% if viewas %}#{% else %}{% url 'core:technician_device_action' device.tracking_id %}{% endif %}" id="tdx-update" data-current="{{ device.status }}" data-min="{{ approval_min }}">{% if not viewas %}{% csrf_token %}{% endif %}
           <input type="hidden" name="action" value="update">
           {% if status_steps %}
           <fieldset class="tdx-steps"{% if viewas %} disabled{% endif %}>
@@ -88,10 +107,14 @@
           </div>
           {% endif %}
           {% if not viewas %}
-          <div class="td-field"><label for="tdx-note">İşlem notu</label>
+          {% if device.status == 'waiting_approval' and not approval.is_pending %}
+          <label class="tdx-check"><input type="checkbox" name="reapprove" id="tdx-reapprove"><span>Müşteriden yeniden onay iste (ör. yeni teklif)</span></label>
+          {% endif %}
+          <div class="tdx-appr-hint" id="tdx-appr-hint" hidden>Bu not <b>müşteriye iletilir</b> ve onayı istenir: yapılacak işlemi, tahmini ücreti ve süreyi yazın. Müşteri kararı size bildirim olarak gelir.</div>
+          <div class="td-field"><label for="tdx-note" id="tdx-note-label">İşlem notu</label>
             <textarea id="tdx-note" name="note" rows="3" maxlength="{{ note_max }}" placeholder="Yapılan işlem…"></textarea></div>
-          <label class="tdx-check"><input type="checkbox" name="customer_visible"><span>Müşteri bu notu görebilsin</span></label>
-          <p class="tdx-hint">İşaretlemezseniz not yalnızca servis içinde (yönetici ve siz) görünür.</p>
+          <label class="tdx-check" id="tdx-visible-wrap"><input type="checkbox" name="customer_visible" id="tdx-visible"><span>Müşteri bu notu görebilsin</span></label>
+          <p class="tdx-hint" id="tdx-visible-hint">İşaretlemezseniz not yalnızca servis içinde (yönetici ve siz) görünür.</p>
           <button type="submit" class="td-btn tdx-save">Kaydet</button>
           {% endif %}
         </form>
@@ -116,7 +139,7 @@
         <ul class="tdx-hist">
           {% for e in history %}
           <li><span class="tdx-dot" aria-hidden="true"></span>
-            <div><p>{{ e.text }}{% if e.tag == 'internal' %} <span class="tdx-tag">İç not</span>{% elif e.tag == 'public' %} <span class="tdx-tag tdx-tag-public">Müşteriye açık</span>{% elif e.tag == 'part' %} <span class="tdx-tag tdx-tag-part">Stok</span>{% endif %}</p>
+            <div><p>{{ e.text }}{% if e.tag == 'internal' %} <span class="tdx-tag">İç not</span>{% elif e.tag == 'public' %} <span class="tdx-tag tdx-tag-public">Müşteriye açık</span>{% elif e.tag == 'part' %} <span class="tdx-tag tdx-tag-part">Stok</span>{% elif e.tag == 'ok' %} <span class="tdx-tag tdx-tag-public">Müşteri onayı</span>{% elif e.tag == 'no' %} <span class="tdx-tag tdx-tag-no">Müşteri reddi</span>{% endif %}</p>
               <time>{{ e.when }}{% if e.by %} · {{ e.by }}{% endif %}</time></div></li>
           {% empty %}<li><div><p>Henüz işlem yok.</p></div></li>{% endfor %}
         </ul>
@@ -243,6 +266,27 @@
     else{after.textContent='Kaydedilirse kalan stok: '+left+' adet';after.classList.remove('is-bad');btn.disabled=false;}
   }
   sel.addEventListener('change',upd);qty.addEventListener('input',upd);upd();
+})();
+</script>
+<script>
+(function(){
+  // «Müşteri onayı bekliyor» seçilince (ya da yeniden onay istenince) işlem notu zorunlu olur ve müşteriye iletilir.
+  var form=document.getElementById('tdx-update');if(!form)return;
+  var note=document.getElementById('tdx-note'),label=document.getElementById('tdx-note-label'),hint=document.getElementById('tdx-appr-hint'),
+      vis=document.getElementById('tdx-visible'),visWrap=document.getElementById('tdx-visible-wrap'),visHint=document.getElementById('tdx-visible-hint'),
+      again=document.getElementById('tdx-reapprove'),cur=form.dataset.current,min=parseInt(form.dataset.min,10)||10;
+  if(!note)return;
+  function sync(){
+    var r=form.querySelector('input[name="status"]:checked');
+    var on=(r&&r.value==='waiting_approval'&&cur!=='waiting_approval')||(again&&again.checked);
+    note.required=on;note.minLength=on?min:0;hint.hidden=!on;visWrap.hidden=on;visHint.hidden=on;
+    label.textContent=on?'Müşteriye iletilecek açıklama (zorunlu)':'İşlem notu';
+    note.placeholder=on?'Örn. Klavye sıvı teması nedeniyle değişmeli. Parça + işçilik tahmini 1.800 ₺, süre 2 iş günü.':'Yapılan işlem…';
+    if(on&&vis)vis.checked=true;
+  }
+  form.querySelectorAll('input[name="status"]').forEach(function(r){r.addEventListener('change',sync);});
+  if(again)again.addEventListener('change',function(){if(again.checked){var w=form.querySelector('input[value="waiting_approval"]');if(w)w.checked=true;}sync();});
+  sync();
 })();
 </script>
 <script>

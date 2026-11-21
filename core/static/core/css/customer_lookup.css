@@ -139,3 +139,25 @@ html[data-theme="dark"] .cl-foot>div{border-color:#3a4a55}
 .cl-costs-total span{font:600 12.5px/18px var(--font);color:var(--ink)}
 .cl-costs-total b{font:800 18px/1 var(--font);color:var(--teal)}
 .cl-costs-pay{display:flex;width:100%;margin-top:14px}
+
+/* Müşteri onayı */
+.cl-appr{border:1px solid #f3d38a;background:#fffaf0;scroll-margin-top:16px}
+.cl-appr h3{margin:0 0 4px;font-size:17px;color:#7a5410}
+.cl-appr p{margin:0 0 8px;color:#475569}
+.cl-appr-from{font-size:13px}
+.cl-appr blockquote{margin:0 0 14px;padding:12px 14px;border-left:3px solid #e3a33a;border-radius:6px;background:#fff;color:#1b2421;line-height:1.55}
+.cl-appr-form label{display:block;margin-bottom:6px;font:600 13px var(--font);color:#1b2421}
+.cl-appr-form label span{font-weight:400;color:#6b7773}
+.cl-appr-form textarea{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #dfe4e9;border-radius:10px;font:400 14px var(--font);resize:vertical}
+.cl-appr-btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.cl-appr-btns .pt-btn{flex:1 1 220px}
+.cl-appr-no{color:#b42318;border-color:#f3b8b2}
+.cl-appr-no:hover{background:#fdecea}
+.cl-appr-approved{border-color:#b7e1c6;background:#ecf8f0}.cl-appr-approved h3{color:#14532d}
+.cl-appr-rejected{border-color:#f3b8b2;background:#fdecea}.cl-appr-rejected h3{color:#7a1d14}
+html[data-theme="dark"] .cl-appr{background:#2b2314;border-color:#6b5320}
+html[data-theme="dark"] .cl-appr h3{color:#f0c06a}
+html[data-theme="dark"] .cl-appr p,html[data-theme="dark"] .cl-appr-form label{color:#c9d5dd}
+html[data-theme="dark"] .cl-appr blockquote,html[data-theme="dark"] .cl-appr-form textarea{background:#121d24;color:#e6edf2;border-color:#2b3b45}
+html[data-theme="dark"] .cl-appr-approved{background:#163a28;border-color:#24603f}
+html[data-theme="dark"] .cl-appr-rejected{background:#3a1d1b;border-color:#6e2c26}

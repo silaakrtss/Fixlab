@@ -202,6 +202,8 @@ def device_saved(sender, instance, created, **kwargs):
 
     if not (status_changed or lines):
         return
+    if getattr(instance, "_approval", None) is not None:
+        return  # onay talebi: açıklamalı bildirim + onay bağlantılı e-posta cargo.request_customer_approval'dan gider
 
     if by_customer:
         # Müşterinin kendi işlemi (örn. «kargoya verdim», «teslim aldım»): yöneticilere haber ver;

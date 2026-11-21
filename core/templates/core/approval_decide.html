@@ -1,0 +1,55 @@
+{% load static %}<!doctype html>
+<html lang="tr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Onarım onayı · FIXLAB</title>
+{% include "core/_favicon.html" %}
+{% include "core/_fonts.html" %}
+<style>
+  body{margin:0;background:#f4f8f7;font:400 15px/1.6 var(--font,Inter,system-ui,sans-serif);color:#1b2421;display:grid;min-height:100vh;place-items:center;padding:20px;box-sizing:border-box}
+  .rc{width:min(520px,100%);background:#fff;border:1px solid #e1e6e4;border-radius:16px;padding:32px 28px;box-shadow:0 10px 30px rgba(15,34,45,.08)}
+  .rc img{display:block;height:40px;width:auto;margin:0 auto 18px}
+  h1{margin:0 0 10px;font-size:22px;line-height:1.3;color:#0a5c57;text-align:center}
+  p{margin:0 0 14px;color:#475569}
+  .meta{background:#f4f8f7;border-radius:10px;padding:12px 14px;margin:0 0 14px;font-size:14px}
+  .meta b{display:block;color:#1b2421}.meta span{color:#6b7773;font-size:13px}
+  .mono{font-family:ui-monospace,Consolas,monospace;letter-spacing:.04em}
+  blockquote{margin:0 0 16px;padding:12px 14px;border-left:3px solid #e3a33a;border-radius:6px;background:#fffaf0;line-height:1.55}
+  label{display:block;margin-bottom:6px;font-weight:600;font-size:13px}
+  textarea{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #dfe4e9;border-radius:10px;font:inherit;font-size:14px;resize:vertical;margin-bottom:14px}
+  button,.btn{display:inline-flex;align-items:center;justify-content:center;width:100%;height:46px;border:0;border-radius:10px;background:#0b7a75;color:#fff;font:600 15px var(--font,inherit);cursor:pointer;text-decoration:none;margin-bottom:10px}
+  button:hover,.btn:hover{background:#08625e} button:focus-visible,.btn:focus-visible{outline:3px solid #0b7a75;outline-offset:2px}
+  button.no{background:#fff;color:#b42318;border:1px solid #f3b8b2} button.no:hover{background:#fdecea}
+  .ok{color:#1b8a4d}.warn{color:#b42318}.center{text-align:center}
+  .err{padding:10px 12px;border-radius:8px;background:#fdecea;color:#b42318;margin-bottom:14px;font-size:14px}
+</style>
+</head><body>
+<main class="rc">
+  <img src="{% static 'core/images/logo.png' %}" alt="FIXLAB Technical Service" width="105" height="40">
+  <div class="meta"><b>{{ label }}</b><span class="mono">{{ device.tracking_id }}</span></div>
+  {% if error %}<div class="err" role="alert">{{ error }}</div>{% endif %}
+  {% if state == "pending" %}
+    <h1>Onarım için onayınız bekleniyor</h1>
+    <p class="center">Servisimizin açıklamasını okuyup kararınızı bildirin. Bu sayfayı açmak tek başına işlem yapmaz.</p>
+    <blockquote>{{ approval.message|linebreaksbr }}</blockquote>
+    <form method="post">{% csrf_token %}
+      <label for="note">Notunuz (isteğe bağlı)</label>
+      <textarea id="note" name="note" maxlength="500" rows="2" placeholder="Örn. Onarımdan önce beni arayın."></textarea>
+      <button type="submit" name="decision" value="approve">Onaylıyorum, onarıma devam edilsin</button>
+      <button type="submit" name="decision" value="reject" class="no" onclick="return confirm('Onarımı onaylamadığınızı servise bildirmek istediğinize emin misiniz?')">Onaylamıyorum</button>
+    </form>
+  {% elif state == "approved" %}
+    <h1 class="ok">Onayınız alındı</h1>
+    <p class="center">Teşekkürler! Kararınızı servis ekibine ilettik; teknisyenimiz onarıma devam edecek.</p>
+    <a class="btn" href="{{ login_url }}">Müşteri girişi</a>
+  {% elif state == "rejected" %}
+    <h1>Kararınız iletildi</h1>
+    <p class="center">Onarımı onaylamadığınızı servis ekibine bildirdik. Onarım yapılmayacak; servisimiz sizinle iletişime geçecek.</p>
+    <a class="btn" href="{{ login_url }}">Müşteri girişi</a>
+  {% else %}
+    <h1 class="warn">Bu onay talebi artık geçerli değil</h1>
+    <p class="center">Kaydınız bu talep için onay beklemiyor. Güncel durumu müşteri panelinden görebilir ya da destek hattımızla iletişime geçebilirsiniz.</p>
+    <a class="btn" href="{{ login_url }}">Müşteri girişi</a>
+  {% endif %}
+</main>
+</body></html>

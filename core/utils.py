@@ -189,7 +189,7 @@ def send_payment_receipt_email(device):
         return False
 
 
-def send_status_update_email(device, title, old_status, lines=(), url=""):
+def send_status_update_email(device, title, old_status, lines=(), url="", action_label=""):
     """Cihazın her durum değişikliğinde müşteriye bilgilendirme e-postası (yeni/önceki durum + ayrıntılar + bağlantı).
 
     Alıcı: müşteri hesabının e-postası, yoksa kayıttaki müşteri e-postası. Adres yoksa sessizce atlanır;
@@ -207,7 +207,7 @@ def send_status_update_email(device, title, old_status, lines=(), url=""):
         "old_status_label": dict(Device.Status.choices).get(old_status, "") if old_status else "",
         "lines": [x for x in lines if x],
         "action_url": f"{settings.SITE_URL}{url}" if url else f"{settings.SITE_URL}{reverse('core:customer_login')}",
-        "action_label": "Ödeme yap" if is_payment else "Kaydımı görüntüle",
+        "action_label": action_label or ("Ödeme yap" if is_payment else "Kaydımı görüntüle"),
     }
     subject = f"FIXLAB · {title} · {device.tracking_id}"
     text = render_to_string("core/email/status_update.txt", context)

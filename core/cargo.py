@@ -17,6 +17,9 @@ S = Device.Status
 _ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
 RECEIPT_SALT = "fixlab.receipt-confirm"
 RECEIPT_MAX_AGE = 60 * 24 * 3600  # teslim onay bağlantısı 60 gün geçerli
+APPROVAL_SALT = "fixlab.repair-approval"
+APPROVAL_MAX_AGE = 30 * 24 * 3600  # e-postadaki onarım onayı bağlantısı 30 gün geçerli
+APPROVAL_MIN = 10  # müşteriye iletilecek açıklama en az bu kadar karakter
 
 # Teknisyenin cihaz sayfasından seçebildiği onarım aşamaları (kargo adımları ayrı düğmelerle yönetilir).
 PIPELINE = (S.DIAGNOSING, S.WAITING_APPROVAL, S.WAITING_PART, S.REPAIRING, S.TESTING, S.READY)
@@ -161,6 +164,11 @@ def technician_set_status(device, user, new_status, request=None):
             raise CargoError("Bu aşamada durum bu ekrandan değiştirilemez.")
         if device.status == new_status:
             raise CargoError("Kayıt zaten bu durumda.")
+        if new_status == S.WAITING_APPROVAL:
+            raise CargoError("Müşteri onayı, müşteriye iletilecek açıklamayla birlikte istenir.")
+        # Müşteri karar vermeden onay aşamasından çıkıldıysa bekleyen talep geçersiz olur (müşteri artık yanıtlayamaz)
+        device.approvals.filter(status="pending").update(status="cancelled", decided_at=timezone.now(),
+                                                         decided_via="teknisyen durumu değiştirdi")
         device.status = new_status
         device._actor = user
         device._history_note = "Teknisyen güncelledi"
@@ -280,6 +288,96 @@ def create_return_cargo_code(device, user, company="", tracking="", request=None
     log_action(AuditLog.Action.UPDATE, user=user, request=request, target=device,
                description=f"Geri kargo kodu oluşturuldu: {device.tracking_id} ({device.return_cargo_code})")
     return device
+
+
+# --- Müşteri onarım onayı ---------------------------------------------------------------
+def request_customer_approval(device, user, message, request=None):
+    """Teknisyen «Müşteri onayı bekliyor»: açıklama müşteriye iletilir (uygulama bildirimi + e-posta, e-postada
+    hesap gerektirmeyen onay bağlantısı). Kayıt «Müşteri onayı bekliyor» olur; karar teknisyene bildirilir.
+    Müşteri önceki talebi reddettiyse aynı aşamada yeni bir talep (ör. yeni teklif) gönderilebilir."""
+    from .models import DeviceApproval, DeviceNote
+    from .notifications import notify_admins
+    text = " ".join((message or "").split())[:NOTE_MAX]
+    if len(text) < APPROVAL_MIN:
+        raise CargoError("Müşteri onayı istemek için «İşlem notu» alanına müşteriye iletilecek açıklamayı yazın "
+                         "(yapılacak işlem, tahmini ücret ve süre gibi).")
+    with transaction.atomic():
+        device = _lock(device)
+        if device.status not in PIPELINE:
+            raise CargoError("Bu aşamada müşteri onayı istenemez.")
+        if device.approvals.filter(status=DeviceApproval.Status.PENDING).exists():
+            raise CargoError("Bu kayıt için müşteriden zaten onay bekleniyor.")
+        old_status = device.status
+        approval = DeviceApproval.objects.create(device=device, message=text, requested_by=user)
+        DeviceNote.objects.create(device=device, author=user, text=f"Onay talebi: {text}", customer_visible=True)
+        if old_status != S.WAITING_APPROVAL:
+            device.status = S.WAITING_APPROVAL
+            device._actor = user
+            device._history_note = "Müşteri onayı istendi"
+            device._approval = approval  # sinyal genel durum bildirimini atlar; müşteriye aşağıdaki özel bildirim gider
+            device.save()
+        transaction.on_commit(lambda: _inform_customer_of_approval(device, approval, old_status))
+    notify_admins("Müşteri onayı istendi", f"{device.tracking_id} · {_label(device)} — {_short(text)}",
+                  url=reverse("core:admin_device_detail", args=[device.pk]), device=device, actor=user)
+    log_action(AuditLog.Action.STATUS_CHANGE, user=user, request=request, target=device,
+               description=f"Müşteri onayı istendi: {device.tracking_id}")
+    return approval
+
+
+def _short(text, n=160):
+    return text if len(text) <= n else text[:n - 1].rstrip() + "…"
+
+
+def approval_url(approval):
+    """E-postadaki onay sayfası (oturum gerektirmez; imzalı, süreli)."""
+    return reverse("core:approval_decide", args=[signing.dumps({"a": approval.pk}, salt=APPROVAL_SALT)])
+
+
+def approval_from_token(token):
+    from .models import DeviceApproval
+    try:
+        data = signing.loads(token, salt=APPROVAL_SALT, max_age=APPROVAL_MAX_AGE)
+        return DeviceApproval.objects.select_related("device", "device__customer", "device__technician").get(pk=data["a"])
+    except (signing.BadSignature, DeviceApproval.DoesNotExist, KeyError, TypeError):
+        return None
+
+
+def _inform_customer_of_approval(device, approval, old_status):
+    from .notifications import customer_device_url
+    from .utils import send_status_update_email
+    title = "Onarım için onayınız bekleniyor"
+    if device.customer_id:
+        notify(device.customer, title, f"{device.tracking_id} · {_label(device)} · {_short(approval.message)}",
+               url=customer_device_url(device) + "#onay", device=device)
+    send_status_update_email(device, title, old_status if old_status != S.WAITING_APPROVAL else "",
+                             [f"Servisin açıklaması: {approval.message}",
+                              "Onarıma devam edilmesi için aşağıdaki bağlantıdan onay verin ya da reddedin."],
+                             approval_url(approval), action_label="Onayla / Reddet")
+
+
+def decide_customer_approval(approval, approve, note="", actor=None, via="uygulama", request=None):
+    """Müşteri onay talebini onaylar ya da reddeder; teknisyene (ve yöneticilere) bildirim gider.
+    Kayıt «Müşteri onayı bekliyor» durumunda kalır; teknisyen karara göre bir sonraki aşamayı seçer."""
+    from .models import DeviceApproval
+    note = " ".join((note or "").split())[:500]
+    with transaction.atomic():
+        approval = DeviceApproval.objects.select_for_update().get(pk=approval.pk)
+        device = Device.objects.select_related("technician").get(pk=approval.device_id)
+        if approval.status != DeviceApproval.Status.PENDING:
+            raise CargoError("Bu onay talebi için daha önce karar verilmiş ya da talep artık geçerli değil.")
+        if device.status != S.WAITING_APPROVAL:
+            raise CargoError("Bu kayıt şu an onay beklemiyor.")
+        approval.status = DeviceApproval.Status.APPROVED if approve else DeviceApproval.Status.REJECTED
+        approval.customer_note = note
+        approval.decided_at = timezone.now()
+        approval.decided_via = via
+        approval.save(update_fields=["status", "customer_note", "decided_at", "decided_via"])
+        title = "Müşteri onarımı onayladı" if approve else "Müşteri onarımı onaylamadı"
+        body = f"{device.tracking_id} · {_label(device)}" + (f" — Not: {_short(note)}" if note else "")
+        notify_device_staff(device, title, body, actor=actor if actor is not None and actor.pk else None)
+    log_action(AuditLog.Action.STATUS_CHANGE, user=actor, request=request, target=device,
+               description=f"Müşteri onay talebini {'onayladı' if approve else 'reddetti'} ({via}): {device.tracking_id}")
+    return approval
 
 
 # --- Müşteri teslim onayı --------------------------------------------------------------

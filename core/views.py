@@ -593,6 +593,14 @@ def _technician_history(device):
     for note in device.notes.select_related("author"):
         rows.append({"moment": note.created_at, "text": note.text, "by": note.author.display_name if note.author_id else "",
                      "tag": "public" if note.customer_visible else "internal"})
+    for ap in device.approvals.exclude(decided_at=None):
+        if ap.status == ap.Status.CANCELLED:
+            text = "Onay talebi yanıtlanmadan geçersiz oldu (durum değiştirildi)"
+        else:
+            text = f"Müşteri onarımı {'onayladı' if ap.status == ap.Status.APPROVED else 'onaylamadı'}" + \
+                   (f" — Not: {ap.customer_note}" if ap.customer_note else "")
+        rows.append({"moment": ap.decided_at, "text": text,
+                     "tag": {"approved": "ok", "rejected": "no"}.get(ap.status, "")})
     for usage in device.part_usages.select_related("part", "added_by"):
         rows.append({"moment": usage.added_at, "tag": "part",
                      "text": f"Depodan parça kullanıldı: {usage.part.name} ({usage.quantity} adet)"})
@@ -1409,7 +1417,7 @@ def _customer_record_details(device, timeline):
     if device.is_paid:
         payment = ("Ödendi", "Ödemeniz alındı; ödeme dökümü e-posta adresinize gönderildi.")
     elif status == S.WAITING_APPROVAL:
-        payment = ("Onayınız bekleniyor", "Onarım için onayınız bekleniyor; lütfen servisle iletişime geçin.")
+        payment = ("Onayınız bekleniyor", "Onarım için onayınız bekleniyor; aşağıdaki talebi onaylayın ya da reddedin.")
     elif exact:
         payment = ("Ödeme bekleniyor", "Onarım tutarı belirlendi; ödeme alındığında cihazınız gönderilecek.")
     else:
@@ -1426,6 +1434,7 @@ def _customer_record_details(device, timeline):
         "public_events": events, "next_stage": upcoming,
         "part_usages": list(device.part_usages.select_related("part").order_by("added_at")),
         "exact_cost": exact, "approval_pending": status == S.WAITING_APPROVAL,
+        "approval": device.approvals.first() if status == S.WAITING_APPROVAL else None,
         "arrived_at": arrived, "delivered_at": device.return_received_at or device.delivered_at,
         "last_note": last_note,
         "can_pay": not payments.payment_block_reason(device),
@@ -1505,6 +1514,51 @@ def customer_receipt_confirm(request, tracking_id):
     else:
         messages.success(request, "Teşekkürler, ürünü teslim aldığınızı servis ekibine bildirdik.")
     return redirect("core:customer_cargo", tracking_id=device.tracking_id)
+
+
+@require_POST
+@role_required(User.Role.CUSTOMER)
+def customer_approval_decide(request, tracking_id):
+    """Müşteri kayıt detayındaki onay kartı: «Onaylıyorum» / «Onaylamıyorum» (+ isteğe bağlı not)."""
+    device = _own_device(request, tracking_id)
+    approval = device.approvals.filter(status="pending").first()
+    decision = request.POST.get("decision")
+    if approval is None or decision not in ("approve", "reject"):
+        messages.error(request, "Bu kayıt için yanıt bekleyen bir onay talebi yok.")
+    else:
+        try:
+            cargo_flow.decide_customer_approval(approval, decision == "approve", request.POST.get("note", ""),
+                                                actor=request.user, via="uygulama", request=request)
+        except CargoError as exc:
+            messages.error(request, str(exc))
+        else:
+            messages.success(request, "Onayınız servise iletildi; onarıma devam edilecek." if decision == "approve"
+                             else "Kararınız servise iletildi; onarım yapılmayacak. Servis sizinle iletişime geçecek.")
+    return redirect(reverse("core:customer_device_lookup") + f"?kod={device.tracking_id}#onay")
+
+
+def approval_decide(request, token):
+    """E-postadaki «Onayla / Reddet» bağlantısı: oturum gerektirmez. Bağlantıyı açmak işlem yapmaz (e-posta
+    tarayıcıları bağlantıları otomatik açabilir); karar sayfadaki düğmeye basılınca kaydedilir."""
+    approval = cargo_flow.approval_from_token(token)
+    if approval is None:
+        raise Http404
+    state, error = ("pending" if approval.is_pending else approval.status), ""
+    if request.method == "POST" and approval.is_pending and request.POST.get("decision") in ("approve", "reject"):
+        try:
+            approval = cargo_flow.decide_customer_approval(
+                approval, request.POST["decision"] == "approve", request.POST.get("note", ""),
+                actor=approval.device.customer, via="e-posta bağlantısı", request=request)
+            state = approval.status
+        except CargoError as exc:
+            error = str(exc)
+    if state == "pending" and approval.device.status != Device.Status.WAITING_APPROVAL:
+        state = "cancelled"
+    device = approval.device
+    return render(request, "core/approval_decide.html", {
+        "approval": approval, "device": device, "state": state, "error": error,
+        "label": f"{device.brand} {device.model}".strip(), "login_url": reverse("core:customer_login"),
+    })
 
 
 def receipt_confirm(request, token):
@@ -1621,6 +1675,9 @@ def _technician_device_context(device):
         "delivery_label": "Kargo ile gönderim" if device.is_cargo else "Elden teslim",
         "attachments": list(device.attachments.all()),
         "ai_enabled": settings.AI_ENABLED,
+        # Son onay talebi (bekleyen ya da müşterinin kararı): «Durumu güncelle» kartında gösterilir
+        "approval": device.approvals.first() if device.status == S.WAITING_APPROVAL else None,
+        "approval_min": cargo_flow.APPROVAL_MIN,
     }
 
 
@@ -1962,6 +2019,14 @@ def technician_device_action(request, tracking_id):
                 raise CargoError("Yeni bir durum seçin ya da işlem notu yazın.")
             if device.status in DONE_STATUSES:
                 raise CargoError("Kapanmış kayda not eklenemez.")
+            # «Müşteri onayı bekliyor»: not zorunlu ve müşteriye iletilir. Müşteri önceki talebi yanıtladıysa aynı
+            # aşamada «Müşteriden yeniden onay iste» işaretlenerek yeni talep (ör. yeni teklif) gönderilebilir.
+            reapprove = request.POST.get("reapprove") == "on" and device.status == Device.Status.WAITING_APPROVAL
+            if new_status == Device.Status.WAITING_APPROVAL and (change or reapprove):
+                cargo_flow.request_customer_approval(device, user, note, request=request)
+                messages.success(request, "Müşteri onayı istendi. Açıklamanız müşteriye bildirim ve e-postayla iletildi; "
+                                          "müşteri yanıt verdiğinde size bildirim gelecek.")
+                return redirect("core:technician_device", tracking_id=device.tracking_id)
             with transaction.atomic():
                 if fee is not None:
                     cargo_flow.set_repair_charges(device, user, fee[0], fee[1], request=request)

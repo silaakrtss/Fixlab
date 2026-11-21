@@ -151,6 +151,22 @@ html[data-theme="dark"] .tdx-bubble-err{background:#3a1d1b;color:#f4a49c}
 html[data-theme="dark"] .tai-rec-label{color:#e6edf2}
 html[data-theme="dark"] .tai-rec-item,html[data-theme="dark"] .tai-chip,html[data-theme="dark"] .tdx-ai-input button{background:#173b39;color:#5fc9bf}
 
+/* Müşteri onayı kartı */
+.tdx-appr{margin:0 0 16px;padding:12px 14px;border-radius:10px;border:1px solid #f3d38a;background:#fff8e6;font-size:13px;line-height:1.5;color:#5b4210}
+.tdx-appr>b{display:block;font-size:14px;margin-bottom:2px}
+.tdx-appr p{margin:2px 0}
+.tdx-appr-next{margin-top:8px!important;font-weight:500}
+.tdx-appr details{margin-top:8px;font-size:12.5px}
+.tdx-appr summary{cursor:pointer;font-weight:600}
+.tdx-appr-approved{border-color:#b7e1c6;background:#ecf8f0;color:#14532d}
+.tdx-appr-rejected{border-color:#f3b8b2;background:#fdecea;color:#7a1d14}
+.tdx-appr-hint{margin:0 0 10px;padding:10px 12px;border-radius:8px;background:#fff8e6;border:1px solid #f3d38a;font-size:12.5px;line-height:1.5;color:#5b4210}
+.tdx-tag-no{background:#fdecea;color:#b42318}
+html[data-theme="dark"] .tdx-appr,html[data-theme="dark"] .tdx-appr-hint{background:#3a2e14;border-color:#6b5320;color:#f5deb0}
+html[data-theme="dark"] .tdx-appr-approved{background:#163a28;border-color:#24603f;color:#b8efcf}
+html[data-theme="dark"] .tdx-appr-rejected{background:#3a1d1b;border-color:#6e2c26;color:#f4c0ba}
+html[data-theme="dark"] .tdx-tag-no{background:#3a1d1b;color:#f4a49c}
+
 @media(max-width:1100px){
   .tdx-grid{grid-template-columns:1fr}
   .tdx-side{position:static}

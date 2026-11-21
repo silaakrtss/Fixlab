@@ -389,6 +389,38 @@ class DeviceNote(models.Model):
         return f"{self.device.tracking_id}: {self.text[:40]}"
 
 
+class DeviceApproval(models.Model):
+    """Teknisyenin «Müşteri onayı bekliyor» ile müşteriye ilettiği onay talebi ve müşterinin kararı.
+    Bir cihazda birden çok tur olabilir (ör. yeni teklif); aynı anda en fazla bir talep «Bekliyor» durumundadır."""
+
+    class Status(models.TextChoices):
+        PENDING = "pending", "Bekliyor"
+        APPROVED = "approved", "Onaylandı"
+        REJECTED = "rejected", "Onaylanmadı"
+        CANCELLED = "cancelled", "Geçersiz"  # müşteri karar vermeden teknisyen durumu değiştirdi
+
+    device = models.ForeignKey(Device, on_delete=models.CASCADE, related_name="approvals")
+    message = models.TextField("Müşteriye iletilen açıklama", max_length=1000)
+    requested_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="+")
+    requested_at = models.DateTimeField("Talep zamanı", default=timezone.now)
+    status = models.CharField("Durum", max_length=10, choices=Status.choices, default=Status.PENDING, db_index=True)
+    customer_note = models.CharField("Müşteri notu", max_length=500, blank=True)
+    decided_at = models.DateTimeField("Karar zamanı", null=True, blank=True)
+    decided_via = models.CharField("Karar kanalı", max_length=30, blank=True)
+
+    class Meta:
+        verbose_name = "Müşteri onay talebi"
+        verbose_name_plural = "Müşteri onay talepleri"
+        ordering = ["-requested_at", "-id"]
+
+    @property
+    def is_pending(self):
+        return self.status == self.Status.PENDING
+
+    def __str__(self):
+        return f"{self.device.tracking_id}: {self.get_status_display()}"
+
+
 class DeviceStatusHistory(models.Model):
     device = models.ForeignKey(Device, on_delete=models.CASCADE, related_name="status_history")
     old_status = models.CharField(max_length=20, choices=Device.Status.choices, blank=True)

@@ -3,7 +3,7 @@
 {% block title %}Cihaz Durumu Sorgula{% endblock %}
 {% block crumb %}Cihaz Durumu Sorgula{% endblock %}
 {% block content %}
-<link rel="stylesheet" href="{% static 'core/css/customer_lookup.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'core/css/customer_lookup.css' %}?v=4">
 <h1 class="pt-h1">Cihaz Durumu Sorgula</h1>
 <p class="pt-lead">Servis kodunuzla hesabınıza ait kayıt detaylarını görüntüleyebilirsiniz.</p>
 
@@ -68,6 +68,31 @@
       <div class="cl-sum-card"><small>Ödeme durumu</small><b>{{ summary_payment.0 }}</b><p>{{ summary_payment.1 }}</p></div>
     </div>
   </section>
+
+  {# --- Müşteri onayı: teknisyenin açıklaması + Onaylıyorum / Onaylamıyorum --- #}
+  {% if approval %}
+  <section class="pt-card cl-appr cl-appr-{{ approval.status }}" id="onay" aria-labelledby="cl-appr-title">
+    {% if approval.is_pending %}
+    <h3 id="cl-appr-title">Onarım için onayınız bekleniyor</h3>
+    <p class="cl-appr-from">Servisimizin açıklaması · {{ approval.requested_at|date:"d.m.Y, H:i" }}</p>
+    <blockquote>{{ approval.message|linebreaksbr }}</blockquote>
+    <form method="post" action="{% url 'core:customer_approval_decide' device.tracking_id %}" class="cl-appr-form">{% csrf_token %}
+      <label for="cl-appr-note">Notunuz <span>(isteğe bağlı)</span></label>
+      <textarea id="cl-appr-note" name="note" maxlength="500" rows="2" placeholder="Örn. Onarımdan önce beni arayın."></textarea>
+      <div class="cl-appr-btns">
+        <button type="submit" name="decision" value="approve" class="pt-btn pt-btn-primary">Onaylıyorum, onarıma devam edilsin</button>
+        <button type="submit" name="decision" value="reject" class="pt-btn cl-appr-no" onclick="return confirm('Onarımı onaylamadığınızı servise bildirmek istediğinize emin misiniz?')">Onaylamıyorum</button>
+      </div>
+    </form>
+    {% elif approval.status == 'approved' %}
+    <h3 id="cl-appr-title">Onayınız alındı</h3>
+    <p>{{ approval.decided_at|date:"d.m.Y, H:i" }} tarihinde onarımı onayladınız. Teknisyenimiz onarıma devam edecek.</p>
+    {% elif approval.status == 'rejected' %}
+    <h3 id="cl-appr-title">Onarımı onaylamadınız</h3>
+    <p>{{ approval.decided_at|date:"d.m.Y, H:i" }} tarihinde kararınızı ilettiniz. Onarım yapılmayacak; servisimiz sizinle iletişime geçecek.</p>
+    {% endif %}
+  </section>
+  {% endif %}
 
   {% if timeline.failed %}<div class="pt-alert pt-alert-bad cl-alert">{{ device.note }}</div>{% endif %}
 
@@ -148,7 +173,7 @@
         <ul class="cl-rows">
           <li>{% if device.estimated_cost %}<span class="cl-tag cl-tag-ok">Tahmini</span>{{ device.estimated_cost|floatformat:"0g" }} ₺{% else %}<span class="cl-tag">Beklemede</span>Tahmini ücret{% endif %}</li>
           <li>{% if exact_cost %}<span class="cl-tag cl-tag-ok">Belirlendi</span>Kesin tutar: {{ exact_cost|floatformat:"0g" }} ₺{% else %}<span class="cl-tag">Beklemede</span>Kesin tutar{% endif %}</li>
-          <li>{% if approval_pending %}<span class="cl-tag cl-tag-warn">Bekleniyor</span>Onay talebi · servisle iletişime geçin{% elif exact_cost or device.is_paid %}<span class="cl-tag cl-tag-ok">Tamamlandı</span>Onay talebi{% else %}<span class="cl-tag">Beklemede</span>Onay talebi{% endif %}</li>
+          <li>{% if approval_pending %}<span class="cl-tag cl-tag-warn">Bekleniyor</span>Onay talebi · <a href="#onay">yanıtlayın</a>{% elif exact_cost or device.is_paid %}<span class="cl-tag cl-tag-ok">Tamamlandı</span>Onay talebi{% else %}<span class="cl-tag">Beklemede</span>Onay talebi{% endif %}</li>
           <li>{% if device.is_paid %}<span class="cl-tag cl-tag-ok">Ödendi</span>Ödeme{% else %}<span class="cl-tag">Beklemede</span>Ödeme{% endif %}</li>
         </ul>
         {% if cost_lines %}
