@@ -82,10 +82,22 @@
   var sel = document.getElementById('ad-tech'), out = document.getElementById('ad-selected'),
       form = document.getElementById('ad-form'), note = document.getElementById('ad-note');
   if (sel && out) {
+    var oneri = null;      // son AI önerisi: {id, ad, uzmanlik, is, gerekce, ariza_turu}
+    var elle = false;      // yönetici listeden kendisi seçtiyse AI önerisi seçimi değiştirmez
     var show = function () {
       var o = sel.options[sel.selectedIndex];
       out.textContent = '';
       if (note) note.disabled = !(o && o.value);  // teknisyen seçilmediyse not yazılamaz
+      if (oneri && o && o.value === String(oneri.id)) {
+        var b0 = document.createElement('b'); b0.textContent = oneri.ad;
+        out.appendChild(document.createTextNode('🤖 Yapay zekâ önerisi: ')); out.appendChild(b0);
+        out.appendChild(document.createTextNode(oneri.uzmanlik
+          ? ' — uzmanlık «' + oneri.uzmanlik + '», ' + oneri.is + ' açık iş' + (oneri.gerekce ? '. ' + oneri.gerekce : '')
+          : ' — arızaya uygun uzman bulunamadı, iş yükü en az olan seçildi (' + oneri.is + ' açık iş).'));
+        if (oneri.ariza_turu) out.appendChild(document.createTextNode(' Arıza türü: ' + oneri.ariza_turu + '.'));
+        out.appendChild(document.createTextNode(' İsterseniz listeden değiştirebilirsiniz.'));
+        return;
+      }
       if (!o || !o.value) {
         out.appendChild(document.createTextNode('Teknisyen seçilmedi — kayıt “Teslim alındı” durumunda atama bekler.'));
         return;
@@ -96,8 +108,49 @@
       out.appendChild(b);
       out.appendChild(document.createTextNode(' — atama sonrası teknisyene bildirim gider.'));
     };
-    sel.addEventListener('change', show);
+    // Sunucuya seçimin kaynağı bildirilir: default (iş yükü) → kayıtta sunucu uzmanlığa göre seçer; ai / manual → dokunmaz
+    var kaynak = document.getElementById('ad-tech-source');
+    sel.addEventListener('change', function () { elle = true; if (kaynak) kaynak.value = 'manual'; show(); });
     show();
+
+    // ---- Arıza yazılınca: AI uygun uzmanlığı seçer, o uzmanlıkta en az işi olan teknisyen listede seçili gelir ----
+    var issue = document.getElementById('ad-issue');
+    if (sel.dataset.aiUrl && issue) {
+      var son = '', zaman = null, deger = function (id) { var e = document.getElementById(id); return e ? e.value.trim() : ''; };
+      var iste = function () {
+        var metin = issue.value.trim(), tur = document.getElementById('ad-type'),
+            anahtar = [metin, deger('ad-type'), deger('ad-brand'), deger('ad-model')].join('|');
+        if (metin.length < 8 || anahtar === son || elle) return;
+        son = anahtar;
+        out.textContent = '🤖 Yapay zekâ arızaya uygun teknisyeni seçiyor…';
+        var fd = new FormData();
+        fd.append('aciklama', metin);
+        fd.append('tur', tur && tur.selectedIndex >= 0 ? tur.options[tur.selectedIndex].text : '');
+        fd.append('marka', deger('ad-brand')); fd.append('model', deger('ad-model'));
+        // Yalnızca anonimleştirme için: bu bilgiler metinde geçerse sunucuda maskelenir, yapay zekâya gitmez
+        fd.append('ad', deger('ad-name')); fd.append('telefon', deger('ad-phone')); fd.append('eposta', deger('ad-email'));
+        var csrf = form && form.querySelector('[name=csrfmiddlewaretoken]');
+        fetch(sel.dataset.aiUrl, { method: 'POST', body: fd, credentials: 'same-origin',
+                                   headers: { 'X-CSRFToken': csrf ? csrf.value : '' } })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (elle || anahtar !== son) return;  // bu arada yönetici seçtiyse / metin değiştiyse dokunma
+            var opt = d.ok && sel.querySelector('option[value="' + d.id + '"]:not([disabled])');
+            if (opt) { oneri = d; sel.value = String(d.id); if (kaynak) kaynak.value = 'ai'; }
+            show();
+            if (!opt && d.hata) out.insertBefore(document.createTextNode(d.hata + ' '), out.firstChild);
+          })
+          .catch(function () { show(); });
+      };
+      var planla = function () { clearTimeout(zaman); zaman = setTimeout(iste, 900); };
+      issue.addEventListener('input', planla);
+      issue.addEventListener('blur', iste);
+      ['ad-type', 'ad-brand', 'ad-model'].forEach(function (id) {
+        var e = document.getElementById(id); if (e) e.addEventListener('change', planla);
+      });
+      // Form hatayla geri döndüyse yöneticinin gönderdiği seçim korunur: metin değişmedikçe öneri istenmez
+      if (issue.value.trim()) son = [issue.value.trim(), deger('ad-type'), deger('ad-brand'), deger('ad-model')].join('|');
+    }
   }
   if (form) {
     form.addEventListener('submit', function () {

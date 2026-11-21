@@ -634,6 +634,8 @@ class AdminDeviceRegistrationForm(forms.Form):
             device.technician = technician
             device._assign_note = (d.get("technician_note") or "").strip()  # teknisyenin bildirimine ve işlem kaydına eklenir
             device.clean()  # pasif / izinli teknisyen denetimi (Device.clean)
+        else:
+            device._no_auto_assign = True  # yönetici «Şimdilik atama yapma» dedi: otomatik atama yapılmaz
         device._actor = admin
         device._skip_email = True
         device._history_note = f"Kayıt yönetici tarafından servis kabulünde oluşturuldu ({admin.display_name})"

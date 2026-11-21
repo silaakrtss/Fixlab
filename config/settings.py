@@ -210,7 +210,10 @@ DEFAULT_ADMIN_PASSWORD = os.environ.get("FIXLAB_ADMIN_PASSWORD", "FixLab#Admin20
 DEFAULT_ADMIN_EMAIL = os.environ.get("FIXLAB_ADMIN_EMAIL", "admin@fixlab.local")
 
 # --- Yapay zekâ (Ollama) ---------------------------------------------------
-AI_ENABLED = os.environ.get("AI_ENABLED", "0") == "1"
+AI_ENABLED = os.environ.get("AI_ENABLED", "0") == "1" and not _TESTING  # testler dış sunucuya istek atmasın
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434").rstrip("/")
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "gemma3:12b")
 OLLAMA_TIMEOUT = int(os.environ.get("OLLAMA_TIMEOUT", "120"))
+# Otomatik teknisyen ataması: cihaz atanabilir olunca (servise ulaşınca / kargoya verilince) AI arızaya uygun
+# uzmanlık alanını seçer; o uzmanlıktaki teknisyenlerden açık işi en az olana atanır. Testlerde kapalı.
+AUTO_ASSIGN = os.environ.get("AUTO_ASSIGN", "1") == "1" and not _TESTING

@@ -4089,7 +4089,7 @@ class TechnicianDeviceDetailV2Tests(TestCase):
         for text in ("Cihazlarıma dön", "Dell Latitude 5420", "Müşteri: Mehmet", "Durumu güncelle", "İşlem notu",
                      "Müşteri bu notu görebilsin", "Kaydet", "İşlem geçmişi", "Stok kullanımı", "Boş geçmiş",
                      "Depodan parça seç", "FLX-D5420 · Ekran flex kablosu (8 adet)", "Kullanıldı",
-                     "AI Çözüm Asistanı", "Yakında"):
+                     "AI Çözüm Asistanı", "Arıza açıklamasıyla öneri al"):
             self.assertContains(page, text)
         self.assertContains(page, 'value="repairing" checked')
 

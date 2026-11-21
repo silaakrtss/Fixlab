@@ -877,7 +877,7 @@ def admin_device_create(request):
     technicians = assignable_technicians()
     default_id = next((r["tech"].pk for r in technicians if r["is_default"]), None)
     file_errors = []
-    selected_id = default_id  # açılışta en az işi olan teknisyen seçili gelir
+    selected_id = default_id  # açılışta en az işi olan; arıza yazılınca AI önerisi seçilir (admin_ai_suggest)
     if request.method == "POST":
         form = AdminDeviceRegistrationForm(request.POST)
         uploads = request.FILES.getlist("attachments")
@@ -885,6 +885,12 @@ def admin_device_create(request):
         raw = request.POST.get("technician", "")
         selected_id = int(raw) if raw.isdigit() and len(raw) < 10 else None  # «atama yapma» seçiliyse boş kalır
         if form.is_valid() and not file_errors:
+            # Liste hâlâ varsayılan (yalnızca iş yüküne göre) seçimdeyse — AI önerisi tarayıcıda gelmeden kaydedildi
+            # ya da JS çalışmadı — uzmanlık seçimini burada yap. Yönetici elle seçtiyse dokunulmaz.
+            chosen = form.cleaned_data.get("technician")
+            if (settings.AI_ENABLED and chosen is not None and chosen.pk == default_id
+                    and request.POST.get("tech_source", "default") == "default"):
+                form.cleaned_data["technician"] = _ai_suggested_technician(form.cleaned_data) or chosen
             try:
                 with transaction.atomic():
                     device = form.save(request.user, uploads)
@@ -901,11 +907,45 @@ def admin_device_create(request):
         form = AdminDeviceRegistrationForm(initial={"device_type": Device.DeviceType.LAPTOP})
     return render(request, "core/admin_device_create.html", {
         "form": form, "file_errors": file_errors, "technicians": technicians, "selected_id": selected_id,
+        "ai_enabled": settings.AI_ENABLED,
         "available_count": sum(1 for r in technicians if r["available"]),
         "max_files": settings.ATTACHMENT_MAX_FILES,
         "max_photo_mb": settings.ATTACHMENT_MAX_PHOTO_MB, "max_video_mb": settings.ATTACHMENT_MAX_VIDEO_MB,
         "type_choices": Device.DeviceType.choices,
     })
+
+
+def _ai_suggested_technician(data):
+    """Servis kabulü kaydı anında: arızaya uygun uzmanlıktaki en az işi olan teknisyen (AI yanıt vermezse None)."""
+    from . import auto_assign
+    adaylar = [r for r in assignable_technicians() if r["available"]]
+    if not adaylar:
+        return None
+    cihaz = f"{Device.DeviceType(data['device_type']).label} · {data['brand']} {data['model']}"
+    bilinen = [data.get("customer_name"), data.get("customer_phone"), data.get("customer_email")]
+    secilen, _, _, sonuc = auto_assign.sec(data["issue_description"], cihaz, adaylar, bilinen, zaman_asimi=25)
+    return secilen["tech"] if sonuc is not None else None
+
+
+@require_POST
+@role_required(User.Role.ADMIN)
+def admin_ai_suggest(request):
+    """Servis kabulü formu: yazılan arızaya göre AI uygun uzmanlığı seçer; o uzmanlıkta açık işi en az olan
+    teknisyen önerilir (listede seçili gelir). Yönetici listeden başka birini seçebilir."""
+    from . import auto_assign
+    aciklama = request.POST.get("aciklama", "").strip()[:1500]
+    adaylar = [r for r in assignable_technicians() if r["available"]]
+    if not adaylar or len(aciklama) < 8:
+        return JsonResponse({"ok": False})
+    cihaz = " · ".join(x for x in (request.POST.get("tur", "").strip()[:40],
+                                     f"{request.POST.get('marka', '')[:60]} {request.POST.get('model', '')[:80]}".strip()) if x)
+    bilinen = [request.POST.get(k, "").strip()[:150] for k in ("ad", "telefon", "eposta")]
+    secilen, uzmanlik, gerekce, sonuc = auto_assign.sec(aciklama, cihaz, adaylar, bilinen)
+    if sonuc is None:
+        return JsonResponse({"ok": False, "hata": "Yapay zekâ şu an yanıt veremiyor; en az işi olan teknisyen seçili."})
+    return JsonResponse({"ok": True, "id": secilen["tech"].pk, "ad": secilen["tech"].display_name,
+                         "uzmanlik": uzmanlik, "is": secilen["open_jobs"], "gerekce": gerekce,
+                         "ariza_turu": Device.FaultCategory(sonuc["ariza_turu"]).label if sonuc.get("ariza_turu") else ""})
 
 
 @role_required(User.Role.ADMIN)
@@ -1502,6 +1542,56 @@ def technician_device(request, tracking_id):
     return render(request, "core/technician_device.html", _technician_device_context(device))
 
 
+TECH_AI_MAX_IMAGES = 6  # Kaggle'daki model için istek başına en fazla görüntü (kayıt fotoğrafı + yüklenen + video karesi)
+
+
+@require_POST
+@role_required(User.Role.TECHNICIAN)
+def technician_ai_chat(request, tracking_id):
+    """Teknisyen AI Çözüm Asistanı: cihaz kaydı bağlamı + sohbet + fotoğraf / video kareleri."""
+    import json
+    device = _tech_device(request, tracking_id)
+    if request.POST.get("action") == "feedback":
+        faydali = request.POST.get("value") == "1"
+        log_action(AuditLog.Action.OTHER, user=request.user, request=request, target=device,
+                   description=f"AI önerisi {'faydalı' if faydali else 'faydalı değil'} olarak işaretlendi: {device.tracking_id}")
+        return JsonResponse({"ok": True})
+    try:
+        gecmis = json.loads(request.POST.get("mesajlar", "[]"))
+    except ValueError:
+        gecmis = []
+    gecmis = [{"role": m.get("role"), "content": str(m.get("content", ""))[:2000]}
+              for m in (gecmis if isinstance(gecmis, list) else [])[-12:]
+              if isinstance(m, dict) and m.get("role") in ("user", "assistant")]
+    if not gecmis or gecmis[-1]["role"] != "user" or not gecmis[-1]["content"].strip():
+        return JsonResponse({"ok": False, "hata": "Lütfen arıza belirtisini yazın."})
+
+    resimler = []
+    # 1) Müşterinin kayda eklediği fotoğraflar (teknisyen seçtiyse)
+    secili = [int(x) for x in request.POST.getlist("kayit_foto") if x.isdigit()]
+    for a in device.attachments.filter(pk__in=secili, kind=DeviceAttachment.Kind.PHOTO)[:TECH_AI_MAX_IMAGES]:
+        try:
+            with a.file.open("rb") as fh:
+                resimler.append(ai.resim_base64(fh))
+        except Exception:
+            pass
+    # 2) Teknisyenin yüklediği fotoğraflar, 3) videolardan tarayıcıda çıkarılan kareler (en sonda)
+    for alan in ("resimler", "video_kareleri"):
+        for f in request.FILES.getlist(alan):
+            if len(resimler) >= TECH_AI_MAX_IMAGES:
+                break
+            if f.content_type in ("image/jpeg", "image/png", "image/webp") and f.size <= 10 * 1024 * 1024:
+                try:
+                    resimler.append(ai.resim_base64(f))
+                except Exception:
+                    pass
+    kare = min(len(request.FILES.getlist("video_kareleri")), len(resimler))
+    cevap = ai.teknisyen_cevap(device, gecmis, resimler, kare)
+    if not cevap:
+        return JsonResponse({"ok": False, "hata": "Yapay zekâ şu an yanıt veremiyor (Kaggle sunucusu kapalı olabilir). Biraz sonra tekrar deneyin."})
+    return JsonResponse({"ok": True, "cevap": cevap.strip(), "resim": len(resimler)})
+
+
 def _technician_device_context(device):
     """Teknisyen cihaz detayı verileri (teknisyen paneli + yöneticinin salt-okunur görüntüleme modu)."""
     S = Device.Status
@@ -1529,6 +1619,8 @@ def _technician_device_context(device):
         "returning": device.status == S.RETURN_SHIPPING,
         "cargo_companies": CARGO_COMPANIES,
         "delivery_label": "Kargo ile gönderim" if device.is_cargo else "Elden teslim",
+        "attachments": list(device.attachments.all()),
+        "ai_enabled": settings.AI_ENABLED,
     }
 
 

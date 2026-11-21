@@ -119,6 +119,17 @@ def device_assignment_changed(sender, instance, created, **kwargs):
             notify(old_tech, "Bir iş sizden alındı", label, url=url, device=instance, actor=actor)
 
 
+@receiver(post_save, sender=Device)
+@_skip_raw
+def device_auto_assign(sender, instance, created, **kwargs):
+    """Kayıt atanabilir hale geldiyse (servis kabulü / kargoya verildi / elden teslim) ve teknisyeni yoksa
+    AI + iş yüküne göre otomatik atama planlanır (arka planda, kayıt işlendikten sonra)."""
+    from . import auto_assign  # döngüsel içe aktarmayı önlemek için burada
+    old = getattr(instance, "_old_values", None) or {}
+    if auto_assign.atanabilir_hale_geldi(instance, created, old.get("status")):
+        auto_assign.planla(instance.pk)
+
+
 def _changes(instance, old):
     """(başlık, [ek satırlar]) döndürür; değişiklik yoksa (None, [])."""
     title, lines = None, []

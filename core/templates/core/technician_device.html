@@ -1,7 +1,7 @@
 {% extends "core/base_app.html" %}
 {% load static %}
 {% block title %}{{ device.tracking_id }}{% endblock %}
-{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/technician.css' %}?v=4"><link rel="stylesheet" href="{% static 'core/css/tech_device.css' %}?v=3">{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'core/css/technician.css' %}?v=4"><link rel="stylesheet" href="{% static 'core/css/tech_device.css' %}?v=4">{% endblock %}
 {% block bell %}{% endblock %}
 {% block content %}
 <div class="tech tdx">
@@ -175,32 +175,57 @@
       {% endif %}
     </div>
 
-    {# --- AI Çözüm Asistanı (şimdilik yalnızca arayüz) --- #}
+    {# --- AI Çözüm Asistanı (Ollama / Kaggle). Kayıt bilgileri sunucuda otomatik eklenir. --- #}
     <aside class="tdx-side">
-      <section class="td-card tdx-ai" aria-labelledby="tdx-ai-title">
-        <div class="tdx-card-head"><h2 id="tdx-ai-title">AI Çözüm Asistanı</h2><span class="tdx-badge">Yakında</span></div>
-        <div class="tdx-chat">
-          <p class="tdx-bubble">Merhaba, {{ device.brand }} {{ device.model }} için arıza belirtilerini yazın, fotoğraf veya video ekleyin; size en olası nedenleri ve kontrol adımlarını önereyim.</p>
-          <p class="tdx-bubble tdx-bubble-me">{{ device.issue_title|default:device.issue_description|truncatechars:90 }}</p>
-          <p class="tdx-ai-off">Asistan henüz etkin değil. Etkinleştirildiğinde öneriler burada görünecek.</p>
+      <section class="td-card tdx-ai" aria-labelledby="tdx-ai-title" id="tai"
+               {% if not viewas and ai_enabled %}data-url="{% url 'core:technician_ai_chat' device.tracking_id %}"{% endif %}
+               data-key="tai-{{ device.tracking_id }}"
+               data-issue="{{ device.issue_title|default:'' }}{% if device.issue_title and device.issue_description %} – {% endif %}{{ device.issue_description|truncatechars:400 }}">
+        <div class="tdx-card-head"><h2 id="tdx-ai-title">AI Çözüm Asistanı</h2>
+          {% if viewas %}<span class="tdx-badge">Görüntüleme</span>{% elif ai_enabled %}<span class="tdx-badge tdx-badge-ok">Etkin</span>{% else %}<span class="tdx-badge">Kapalı</span>{% endif %}
+          <button type="button" class="tai-clear" id="tai-clear" hidden>Sohbeti temizle</button></div>
+        <div class="tdx-chat" id="tai-msgs" aria-live="polite">
+          <p class="tdx-bubble">Merhaba, <b>{{ device.brand }} {{ device.model }}</b> kaydını okudum (arıza açıklaması, notlar, kullanılan parçalar, müşterinin önceki kayıtları). Belirtileri yazın ya da fotoğraf/video ekleyin; olası nedenleri ve kontrol adımlarını önereyim.</p>
+          {% if not ai_enabled and not viewas %}<p class="tdx-ai-off">Asistan kapalı. .env dosyasında AI_ENABLED=1 ve OLLAMA_URL ayarlanmalı.</p>{% endif %}
         </div>
-        <fieldset class="tdx-ai-form" disabled aria-describedby="tdx-ai-note">
-          <div class="tdx-ai-input">
-            <label class="sr-only" for="tdx-ai-text">Arıza belirtileri</label>
-            <input type="text" id="tdx-ai-text" placeholder="Arıza belirtilerini yaz…">
-            <button type="button" aria-label="Fotoğraf ekle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></button>
-            <button type="button" aria-label="Video ekle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m22 8-6 4 6 4V8z"/></svg></button>
+        <fieldset class="tdx-ai-form" id="tai-form"{% if viewas or not ai_enabled %} disabled{% endif %} aria-describedby="tdx-ai-note">
+          {% if attachments %}
+          <div class="tai-rec">
+            <span class="tai-rec-label">Kayıttaki medya <small>(seçilenler gönderilir)</small></span>
+            <div class="tai-rec-list">
+              {% for a in attachments %}
+              <label class="tai-rec-item" title="{{ a.original_name }}">
+                <input type="checkbox" {% if a.kind == 'photo' %}name="kayit_foto" value="{{ a.pk }}" checked{% else %}data-video-url="{% url 'core:attachment' a.pk %}"{% endif %}>
+                {% if a.kind == 'photo' %}<img src="{% url 'core:attachment' a.pk %}" alt="{{ a.original_name }}" loading="lazy">
+                {% else %}<span class="tai-rec-vid" aria-label="Video: {{ a.original_name }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m22 8-6 4 6 4V8z"/></svg></span>{% endif %}
+              </label>
+              {% endfor %}
+            </div>
           </div>
-          <div class="tdx-ai-chips"><span>Fotoğraf</span><span>Video</span><small>0 medya eklendi</small></div>
-          <div class="tdx-ai-links"><span>Faydalı</span><span>Faydalı değil</span><span>Arıza açıklamasıyla öneri al</span></div>
-          <div class="tdx-ai-send"><button type="button" class="td-btn tdx-save">Gönder</button><small>Medya ile birlikte gönder</small></div>
+          {% endif %}
+          <form class="tdx-ai-input" id="tai-input" autocomplete="off">
+            <label class="sr-only" for="tdx-ai-text">Arıza belirtileri</label>
+            <input type="text" id="tdx-ai-text" maxlength="1000" placeholder="Arıza belirtilerini yaz…">
+            <button type="button" id="tai-add-photo" aria-label="Fotoğraf ekle" title="Fotoğraf ekle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></button>
+            <button type="button" id="tai-add-video" aria-label="Video ekle" title="Video ekle (karelere ayrılıp incelenir)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m22 8-6 4 6 4V8z"/></svg></button>
+            <input type="file" id="tai-photo" accept="image/jpeg,image/png,image/webp" multiple hidden>
+            <input type="file" id="tai-video" accept="video/*" hidden>
+          </form>
+          <div class="tdx-ai-chips" id="tai-chips"><small id="tai-count">0 medya eklendi</small></div>
+          <div class="tdx-ai-links">
+            <button type="button" id="tai-good" disabled>👍 Faydalı</button>
+            <button type="button" id="tai-bad" disabled>👎 Faydalı değil</button>
+            <button type="button" id="tai-issue">Arıza açıklamasıyla öneri al</button>
+          </div>
+          <div class="tdx-ai-send"><button type="button" class="td-btn tdx-save" id="tai-send">Gönder</button><small id="tai-send-note">Medya ile birlikte gönder</small></div>
         </fieldset>
-        <p class="tdx-hint" id="tdx-ai-note">Öneriler yol göstericidir; uygulamadan önce doğrulayın.</p>
+        <p class="tdx-hint" id="tdx-ai-note">Öneriler yol göstericidir; uygulamadan önce doğrulayın. Müşteri adı ve iletişim bilgileri yapay zekâya gönderilmez.</p>
       </section>
     </aside>
   </div>
   {% if viewas %}{% include "core/_viewas_note.html" %}{% endif %}
 </div>
+{% if not viewas and ai_enabled %}{% csrf_token %}<script src="{% static 'core/js/tech_ai.js' %}?v=1" defer></script>{% endif %}
 {% if not viewas %}
 <script>
 (function(){

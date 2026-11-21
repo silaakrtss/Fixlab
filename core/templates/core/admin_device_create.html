@@ -86,8 +86,9 @@
           </div>
 
           <div class="ad-assign ad-field {% if form.technician.errors %}has-error{% endif %}">
-            <label class="ndd-label" for="ad-tech">Teknisyen ata <span>(en az işi olandan en çok olana doğru)</span></label>
-            <select class="ndd-select" id="ad-tech" name="technician">
+            <label class="ndd-label" for="ad-tech">Teknisyen ata <span>(en az işi olandan en çok olana doğru{% if ai_enabled %}; arızayı yazınca yapay zekâ uygun uzmanı seçer{% endif %})</span></label>
+            <input type="hidden" name="tech_source" id="ad-tech-source" value="default">
+            <select class="ndd-select" id="ad-tech" name="technician"{% if ai_enabled %} data-ai-url="{% url 'core:admin_ai_suggest' %}"{% endif %}>
               {% for r in technicians %}
               <option value="{{ r.tech.pk }}" data-name="{{ r.tech.display_name }}"{% if r.tech.pk == selected_id %} selected{% endif %}{% if not r.available %} disabled{% endif %}>{{ r.tech.display_name }} — {{ r.open_jobs }} aktif iş{% if r.specialization %} · {{ r.specialization }}{% endif %}{% if r.on_leave %} · İzinde{% endif %}</option>
               {% endfor %}
@@ -116,5 +117,5 @@
   </form>
 </div>
 <script src="{% static 'core/js/names.js' %}?v=1"></script>
-<script src="{% static 'core/js/admin_devices.js' %}?v=1"></script>
+<script src="{% static 'core/js/admin_devices.js' %}?v=4"></script>
 {% endblock %}
